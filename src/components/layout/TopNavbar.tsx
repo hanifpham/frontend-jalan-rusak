@@ -16,7 +16,7 @@ export function TopNavbar({ onMenuToggle }: TopNavbarProps): React.JSX.Element {
   return (
     <header className="sticky top-3 z-30 w-[95%] max-w-7xl mx-auto">
       <nav
-        className="h-[88px] px-6 sm:px-8 bg-white/95 backdrop-blur-md rounded-full border border-blue-pale/50 shadow-sm flex items-center justify-between transition-all"
+        className="h-22 px-6 sm:px-8 bg-white/95 backdrop-blur-md rounded-full border border-blue-pale/50 shadow-sm flex items-center justify-between transition-all"
         aria-label="Navigasi Utama Aplikasi"
       >
         {/* Left: Mobile Toggle & Brand */}

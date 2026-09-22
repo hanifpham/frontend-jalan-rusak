@@ -95,7 +95,7 @@ export function TopNavbar({ onMenuToggle }: TopNavbarProps): React.JSX.Element {
           <button
             type="button"
             onClick={onMenuToggle}
-            className="md:hidden p-2 rounded-full hover:bg-canvas text-navy-deepest transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-medium"
+            className="md:hidden p-2 rounded-full hover:bg-blue-pale/20 hover:text-navy-deepest text-navy-deepest transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-medium"
             aria-label="Buka Menu Navigasi"
           >
             <Menu className="w-5 h-5" aria-hidden="true" />
@@ -128,7 +128,7 @@ export function TopNavbar({ onMenuToggle }: TopNavbarProps): React.JSX.Element {
                 "px-6 py-2.5 rounded-full text-[14px] transition-colors duration-200 select-none",
                 isActive
                   ? "bg-white shadow-sm text-navy-primary font-bold"
-                  : "text-muted hover:text-navy-deepest hover:bg-white/60 font-medium",
+                  : "text-muted hover:text-navy-deepest hover:bg-blue-pale/20 font-medium",
               )
             }
           >
@@ -142,7 +142,7 @@ export function TopNavbar({ onMenuToggle }: TopNavbarProps): React.JSX.Element {
         {/* Search Button */}
         <button
           type="button"
-          className="w-11 h-11 rounded-full bg-canvas flex items-center justify-center text-muted hover:bg-blue-pale/20 hover:text-navy-deepest transition-colors border border-blue-pale/40 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-medium"
+          className="w-11 h-11 rounded-full bg-canvas flex items-center justify-center text-muted hover:bg-blue-pale/20 hover:text-navy-deepest hover:border-blue-pale/60 transition-colors border border-blue-pale/40 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-medium"
           title="Cari"
           aria-label="Pencarian Laporan"
         >
@@ -152,7 +152,7 @@ export function TopNavbar({ onMenuToggle }: TopNavbarProps): React.JSX.Element {
         {/* Notifications Button with Red Dot */}
         <button
           type="button"
-          className="w-11 h-11 rounded-full bg-canvas flex items-center justify-center text-muted hover:bg-blue-pale/20 hover:text-navy-deepest transition-colors relative border border-blue-pale/40 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-medium"
+          className="w-11 h-11 rounded-full bg-canvas flex items-center justify-center text-muted hover:bg-blue-pale/20 hover:text-navy-deepest hover:border-blue-pale/60 transition-colors relative border border-blue-pale/40 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-medium"
           title="Notifikasi"
           aria-label="Notifikasi"
         >
@@ -168,7 +168,12 @@ export function TopNavbar({ onMenuToggle }: TopNavbarProps): React.JSX.Element {
           <button
             type="button"
             onClick={() => setProfileMenuOpen((prev) => !prev)}
-            className="flex items-center gap-2 sm:gap-3 cursor-pointer hover:bg-canvas p-1.5 pr-2.5 sm:pr-3 rounded-full transition-colors border border-transparent hover:border-blue-pale/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-medium"
+            className={cn(
+              "flex items-center gap-2 sm:gap-3 cursor-pointer p-1.5 pr-2.5 sm:pr-3 rounded-full transition-colors border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-medium group select-none",
+              profileMenuOpen
+                ? "bg-blue-pale/20 border-blue-pale/40 text-navy-deepest"
+                : "hover:bg-blue-pale/20 hover:text-navy-deepest border-transparent hover:border-blue-pale/40"
+            )}
             aria-expanded={profileMenuOpen}
             aria-haspopup="true"
             aria-label="Menu Profil Pengguna"
@@ -181,8 +186,8 @@ export function TopNavbar({ onMenuToggle }: TopNavbarProps): React.JSX.Element {
             </div>
             <ChevronDown
               className={cn(
-                "w-4 h-4 text-muted transition-transform duration-200",
-                profileMenuOpen && "rotate-180",
+                "w-4 h-4 text-muted group-hover:text-navy-deepest transition-all duration-200",
+                profileMenuOpen && "rotate-180 text-navy-deepest",
               )}
               aria-hidden="true"
             />

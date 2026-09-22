@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { MapPin, Calendar, ChevronDown } from 'lucide-react';
+import { Calendar, ChevronDown } from 'lucide-react';
+import { WilayahChip } from './WilayahChip';
 
 export interface DashboardHeaderProps {
   userName?: string;
@@ -28,10 +29,7 @@ export function DashboardHeader({
           <p className="text-sm text-muted font-normal">
             Pantau laporan kerusakan jalan di wilayah Desa {villageName}.
           </p>
-          <div className="inline-flex items-center gap-2 bg-blue-pale text-navy-deepest font-semibold text-[13px] px-3.5 py-1.5 rounded-full border border-blue-supporting/30 shadow-xs">
-            <MapPin className="w-4 h-4 text-navy-primary fill-navy-primary/20" aria-hidden="true" />
-            <span>Desa {villageName}</span>
-          </div>
+          <WilayahChip villageName={villageName} />
         </div>
       </div>
 

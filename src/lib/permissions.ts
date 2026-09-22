@@ -124,5 +124,15 @@ export const navigationRegistry: NavigationItem[] = [
 
 export function getAuthorizedNavigation(role: Role | undefined | null): NavigationItem[] {
   if (!role) return [];
-  return navigationRegistry.filter((item) => hasCapability(role, item.requiredCapability));
+  const items = navigationRegistry.filter((item) => hasCapability(role, item.requiredCapability));
+
+  if (role === 'admin_pemdes') {
+    return items.map((item) => {
+      if (item.label === 'Beranda') return { ...item, path: '/pemdes/beranda' };
+      if (item.label === 'Laporan') return { ...item, path: '/pemdes/laporan' };
+      return item;
+    });
+  }
+
+  return items;
 }

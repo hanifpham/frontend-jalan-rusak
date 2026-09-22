@@ -65,7 +65,7 @@ export function Sidebar({
                   "w-12 h-12 rounded-full flex items-center justify-center transition-all active:scale-95 select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-medium",
                   isActive
                     ? "bg-navy-primary text-white shadow-md"
-                    : "text-muted hover:bg-canvas hover:text-navy-deepest",
+                    : "text-muted hover:bg-blue-pale/20 hover:text-navy-deepest",
                 )
               }
               aria-label={item.label}
@@ -86,7 +86,7 @@ export function Sidebar({
               "w-12 h-12 rounded-full flex items-center justify-center transition-all active:scale-95 select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-medium",
               isActive
                 ? "bg-navy-primary text-white shadow-md"
-                : "text-muted hover:bg-canvas hover:text-navy-deepest",
+                : "text-muted hover:bg-blue-pale/20 hover:text-navy-deepest",
             )
           }
           aria-label="Pengaturan"

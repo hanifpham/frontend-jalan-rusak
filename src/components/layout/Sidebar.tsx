@@ -1,17 +1,22 @@
-import React from 'react';
-import { NavLink } from 'react-router-dom';
+import React from "react";
+import { NavLink } from "react-router-dom";
 import {
   LayoutDashboard,
-  ClipboardList,
-  MapPin,
+  FileText,
+  Map,
   MessageSquare,
   Users,
   Layers,
+  Settings,
+  LogOut,
   X,
-} from 'lucide-react';
-import { useAuth } from '@/features/auth/useAuth';
-import { getAuthorizedNavigation, type NavigationItem } from '@/lib/permissions';
-import { cn } from '@/lib/utils';
+} from "lucide-react";
+import { useAuth } from "@/features/auth/useAuth";
+import {
+  getAuthorizedNavigation,
+  type NavigationItem,
+} from "@/lib/permissions";
+import { cn } from "@/lib/utils";
 
 export interface SidebarProps {
   isOpen?: boolean;
@@ -19,26 +24,95 @@ export interface SidebarProps {
 }
 
 const iconRegistry: Record<
-  NavigationItem['iconName'],
-  React.ComponentType<{ className?: string; 'aria-hidden'?: boolean | 'true' | 'false' }>
+  NavigationItem["iconName"],
+  React.ComponentType<{
+    className?: string;
+    "aria-hidden"?: boolean | "true" | "false";
+  }>
 > = {
   LayoutDashboard,
-  ClipboardList,
-  MapPin,
+  ClipboardList: FileText,
+  MapPin: Map,
   MessageSquare,
   Users,
   Layers,
 };
 
-export function Sidebar({ isOpen = false, onClose }: SidebarProps): React.JSX.Element {
-  const { role } = useAuth();
+export function Sidebar({
+  isOpen = false,
+  onClose,
+}: SidebarProps): React.JSX.Element {
+  const { role, logout } = useAuth();
   const navItems = getAuthorizedNavigation(role);
 
-  const sidebarContent = (
-    <div className="flex flex-col h-full bg-white rounded-card border border-blue-pale/50 shadow-sm p-4">
-      {/* Mobile Header with close button */}
-      <div className="lg:hidden flex items-center justify-between pb-3 mb-3 border-b border-gray-100">
-        <span className="font-bold text-sm text-navy-deepest">Menu Navigasi</span>
+  const desktopContent = (
+    <nav
+      className="hidden md:flex flex-col gap-4 w-18 shrink-0 sticky top-30 h-[calc(100vh-160px)] z-30"
+      aria-label="Navigasi Samping"
+    >
+      {/* Top Main Navigation Pill Container */}
+      <div className="p-3 flex flex-col gap-4 items-center border border-blue-pale/40 shadow-sm rounded-full bg-white">
+        {navItems.map((item) => {
+          const IconComponent = iconRegistry[item.iconName] || LayoutDashboard;
+
+          return (
+            <NavLink
+              key={item.path}
+              to={item.path}
+              title={item.label}
+              className={({ isActive }) =>
+                cn(
+                  "w-12 h-12 rounded-full flex items-center justify-center transition-all active:scale-95 select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-medium",
+                  isActive
+                    ? "bg-navy-primary text-white shadow-md"
+                    : "text-muted hover:bg-canvas hover:text-navy-deepest",
+                )
+              }
+              aria-label={item.label}
+            >
+              <IconComponent className="w-5 h-5" aria-hidden="true" />
+            </NavLink>
+          );
+        })}
+      </div>
+
+      {/* Bottom Navigation Pill Container: Pengaturan & Keluar */}
+      <div className="mt-auto p-3 flex flex-col gap-4 items-center border border-blue-pale/40 shadow-sm rounded-full bg-white">
+        <NavLink
+          to="/settings"
+          title="Pengaturan"
+          className={({ isActive }) =>
+            cn(
+              "w-12 h-12 rounded-full flex items-center justify-center transition-all active:scale-95 select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-medium",
+              isActive
+                ? "bg-navy-primary text-white shadow-md"
+                : "text-muted hover:bg-canvas hover:text-navy-deepest",
+            )
+          }
+          aria-label="Pengaturan"
+        >
+          <Settings className="w-5 h-5" aria-hidden="true" />
+        </NavLink>
+
+        <button
+          type="button"
+          onClick={logout}
+          title="Keluar dari Akun"
+          className="w-12 h-12 rounded-full text-muted hover:bg-red-50 hover:text-severity-berat flex items-center justify-center transition-all active:scale-95 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-severity-berat"
+          aria-label="Keluar dari akun"
+        >
+          <LogOut className="w-5 h-5" aria-hidden="true" />
+        </button>
+      </div>
+    </nav>
+  );
+
+  const mobileDrawerContent = (
+    <div className="flex flex-col h-full bg-white rounded-3xl border border-blue-pale/50 shadow-xl p-5">
+      <div className="flex items-center justify-between pb-3 mb-4 border-b border-gray-100">
+        <span className="font-bold text-sm text-navy-deepest">
+          Menu Navigasi ROADIS
+        </span>
         <button
           type="button"
           onClick={onClose}
@@ -49,11 +123,9 @@ export function Sidebar({ isOpen = false, onClose }: SidebarProps): React.JSX.El
         </button>
       </div>
 
-      {/* Navigation List */}
-      <nav className="flex-1 space-y-1.5" aria-label="Navigasi Menu Samping">
+      <nav className="flex-1 space-y-2">
         {navItems.map((item) => {
           const IconComponent = iconRegistry[item.iconName] || LayoutDashboard;
-
           return (
             <NavLink
               key={item.path}
@@ -61,60 +133,70 @@ export function Sidebar({ isOpen = false, onClose }: SidebarProps): React.JSX.El
               onClick={onClose}
               className={({ isActive }) =>
                 cn(
-                  'flex items-center gap-3 px-4 py-3 rounded-full text-sm font-medium transition-colors select-none',
-                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-medium focus-visible:ring-offset-1',
+                  "flex items-center gap-3 px-4 py-3 rounded-full text-sm font-medium transition-colors",
                   isActive
-                    ? 'bg-navy-primary text-white shadow-sm font-semibold'
-                    : 'text-muted hover:text-navy-deepest hover:bg-blue-pale/20'
+                    ? "bg-navy-primary text-white font-bold shadow-sm"
+                    : "text-muted hover:bg-blue-pale/20 hover:text-navy-deepest",
                 )
               }
             >
-              {({ isActive }) => (
-                <>
-                  <IconComponent
-                    className={cn('w-4 h-4 shrink-0', isActive ? 'text-white' : 'text-blue-medium')}
-                    aria-hidden="true"
-                  />
-                  <span>{item.label}</span>
-                </>
-              )}
+              <IconComponent className="w-5 h-5" aria-hidden="true" />
+              <span>{item.label}</span>
             </NavLink>
           );
         })}
       </nav>
 
-      {/* Footer Info */}
-      <div className="pt-4 border-t border-gray-100 text-center text-[11px] text-muted">
-        ROADIS Indramayu v0.1.0
+      <div className="pt-4 border-t border-gray-100 space-y-1.5">
+        <NavLink
+          to="/settings"
+          onClick={onClose}
+          className={({ isActive }) =>
+            cn(
+              "flex items-center gap-3 px-4 py-3 rounded-full text-sm font-medium transition-colors",
+              isActive
+                ? "bg-navy-primary text-white font-bold shadow-sm"
+                : "text-muted hover:bg-blue-pale/20 hover:text-navy-deepest",
+            )
+          }
+        >
+          <Settings className="w-5 h-5" aria-hidden="true" />
+          <span>Pengaturan</span>
+        </NavLink>
+
+        <button
+          type="button"
+          onClick={() => {
+            onClose?.();
+            logout();
+          }}
+          className="w-full flex items-center gap-3 px-4 py-3 rounded-full text-sm font-semibold text-severity-berat hover:bg-red-50 transition-colors cursor-pointer"
+        >
+          <LogOut className="w-5 h-5" aria-hidden="true" />
+          <span>Keluar</span>
+        </button>
       </div>
     </div>
   );
 
   return (
     <>
-      {/* Desktop Persistent Sidebar */}
-      <aside className="hidden lg:block w-64 shrink-0 sticky top-28 self-start">
-        {sidebarContent}
-      </aside>
+      {desktopContent}
 
-      {/* Mobile Drawer Overlay */}
       {isOpen && (
         <div
-          className="fixed inset-0 z-50 lg:hidden flex"
+          className="fixed inset-0 z-50 md:hidden flex"
           role="dialog"
           aria-modal="true"
-          aria-label="Menu Navigasi Seluler"
+          aria-label="Menu Seluler"
         >
-          {/* Backdrop */}
           <div
-            className="fixed inset-0 bg-navy-deepest/30 backdrop-blur-xs transition-opacity"
+            className="fixed inset-0 bg-navy-deepest/40 backdrop-blur-xs transition-opacity"
             onClick={onClose}
             aria-hidden="true"
           />
-
-          {/* Drawer panel */}
           <div className="relative w-72 max-w-[80vw] h-full p-4 z-10">
-            {sidebarContent}
+            {mobileDrawerContent}
           </div>
         </div>
       )}

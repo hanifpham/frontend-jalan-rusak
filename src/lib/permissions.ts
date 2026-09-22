@@ -97,7 +97,7 @@ export const navigationRegistry: NavigationItem[] = [
     requiredCapability: 'view_reports',
   },
   {
-    label: 'Peta Kerusakan',
+    label: 'Peta',
     path: '/map',
     iconName: 'MapPin',
     requiredCapability: 'view_map',

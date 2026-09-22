@@ -5,6 +5,23 @@ import { ProtectedRoute } from '@/features/auth/ProtectedRoute';
 import { RoleGuard } from '@/features/auth/RoleGuard';
 import { FoundationHome } from '@/features/auth/FoundationHome';
 import { AppShell } from '@/components/layout/AppShell';
+import { useAuth } from '@/features/auth/useAuth';
+import { AdminPemdesDashboardPage } from '@/features/admin-pemdes/pages/AdminPemdesDashboardPage';
+
+/**
+ * Dispatches the root route ('/') according to user role.
+ * - admin_pemdes: navigates to Admin Pemdes Beranda.
+ * - other roles: displays FoundationHome until their specific phases begin.
+ */
+function HomeRouteDispatcher(): React.JSX.Element {
+  const { role } = useAuth();
+
+  if (role === 'admin_pemdes') {
+    return <AdminPemdesDashboardPage />;
+  }
+
+  return <FoundationHome />;
+}
 
 export function AppRouter(): React.JSX.Element {
   return (
@@ -16,7 +33,13 @@ export function AppRouter(): React.JSX.Element {
         {/* Protected Application Area */}
         <Route element={<ProtectedRoute />}>
           <Route element={<AppShell />}>
-            <Route path="/" element={<FoundationHome />} />
+            {/* Root Beranda */}
+            <Route path="/" element={<HomeRouteDispatcher />} />
+
+            {/* Explicit Admin Pemdes Beranda route protected with RoleGuard */}
+            <Route element={<RoleGuard allowedRoles={['admin_pemdes']} />}>
+              <Route path="/pemdes/beranda" element={<AdminPemdesDashboardPage />} />
+            </Route>
 
             {/* Test 403 route for verifying RoleGuard UX */}
             <Route

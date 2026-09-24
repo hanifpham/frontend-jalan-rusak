@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '@/services/api/client';
 import { type Report, type ReportStatus, type Severity } from '@/types/domain';
 
@@ -93,6 +93,9 @@ export function normalizeBackendReport(item: BackendLaporanItem): Report {
     roadName: item.wilayah?.nama ? `Desa ${item.wilayah.nama}` : undefined,
     handlingNote: item.catatan_admin,
     repairEvidenceUrl: item.foto_bukti,
+    reporterName: item.user?.name,
+    reporterEmail: item.user?.email,
+    villageName: item.wilayah?.nama,
   };
 }
 
@@ -135,3 +138,151 @@ export function useAdminLaporan(options?: {
     },
   });
 }
+
+export interface BackendLaporanDetailResponse {
+  status: string;
+  message: string;
+  data: BackendLaporanItem;
+}
+
+/**
+ * Hook to fetch single report detail directly from verified GET /api/admin/laporan/:id
+ */
+export function useAdminReportDetail(id: number | string | undefined) {
+  return useQuery({
+    queryKey: ['admin', 'laporan', 'detail', String(id)],
+    queryFn: async () => {
+      if (!id) throw new Error('ID laporan tidak valid');
+      const numId = Number(id);
+      if (isNaN(numId) || numId <= 0) throw new Error('ID laporan tidak valid');
+
+      // Request directly from verified endpoint: GET /api/admin/laporan/:id
+      const response = await apiClient.get<BackendLaporanDetailResponse>(`/admin/laporan/${numId}`);
+      if (!response.data) {
+        throw new Error('Data laporan tidak ditemukan');
+      }
+
+      return {
+        report: normalizeBackendReport(response.data),
+        rawItem: response.data,
+      };
+    },
+    enabled: Boolean(id),
+  });
+}
+
+
+export interface UpdateReportStatusPayload {
+  id: number | string;
+  status: ReportStatus;
+  catatanAdmin?: string;
+  ditugaskanKe?: string;
+  fotoBukti?: File | null;
+}
+
+/**
+ * Hook to update report status via PUT /api/admin/laporan/:id/status
+ * Supports multipart/form-data for file upload of foto_bukti to Cloudinary.
+ */
+export function useUpdateReportStatus() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (payload: UpdateReportStatusPayload) => {
+      const formData = new FormData();
+      formData.append('status', payload.status);
+      if (payload.catatanAdmin !== undefined) {
+        formData.append('catatan_admin', payload.catatanAdmin);
+      }
+      if (payload.ditugaskanKe !== undefined) {
+        formData.append('ditugaskan_ke', payload.ditugaskanKe);
+      }
+      if (payload.fotoBukti) {
+        formData.append('foto_bukti', payload.fotoBukti);
+      }
+
+      const response = await apiClient.put<{
+        status: string;
+        message: string;
+        data: BackendLaporanItem;
+      }>(`/admin/laporan/${payload.id}/status`, formData);
+
+      return response;
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'laporan'] });
+      queryClient.invalidateQueries({ queryKey: ['admin', 'dashboard'] });
+      queryClient.invalidateQueries({
+        queryKey: ['admin', 'laporan', 'detail', String(variables.id)],
+      });
+    },
+  });
+}
+
+export interface BackendChatItem {
+  id: number;
+  laporan_kerusakan_id: number;
+  user_id: number;
+  user: {
+    id: number;
+    name: string;
+    email: string;
+  };
+  pesan: string;
+  waktu_kirim: string;
+  admin_id?: number | null;
+  admin?: {
+    id: number;
+    name: string;
+    email: string;
+  } | null;
+  balasan?: string | null;
+  waktu_balas?: string;
+}
+
+export interface BackendChatResponse {
+  status: string;
+  message: string;
+  data: BackendChatItem[];
+}
+
+/**
+ * Hook to fetch report chat history from GET /api/admin/laporan/:id/chat
+ */
+export function useReportChat(reportId: number | string | undefined) {
+  return useQuery({
+    queryKey: ['admin', 'chat', String(reportId)],
+    queryFn: async () => {
+      if (!reportId) return [];
+      const response = await apiClient.get<BackendChatResponse>(
+        `/admin/laporan/${reportId}/chat`
+      );
+      return response.data || [];
+    },
+    enabled: Boolean(reportId),
+  });
+}
+
+/**
+ * Hook to reply to citizen chat message via PUT /api/admin/chat/:chat_id
+ */
+export function useReplyChat(reportId: number | string | undefined) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ chatId, balasan }: { chatId: number; balasan: string }) => {
+      const response = await apiClient.put<{
+        status: string;
+        message: string;
+        data: BackendChatItem;
+      }>(`/admin/chat/${chatId}`, { balasan });
+      return response;
+    },
+    onSuccess: () => {
+      if (reportId) {
+        queryClient.invalidateQueries({ queryKey: ['admin', 'chat', String(reportId)] });
+      }
+    },
+  });
+}
+

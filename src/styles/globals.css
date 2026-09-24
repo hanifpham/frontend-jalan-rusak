@@ -38,3 +38,13 @@ body {
   color: var(--color-navy-deepest);
   font-family: var(--font-sans);
 }
+
+.map-grid-bg {
+  background-color: #EAF0F6;
+  background-image: 
+    radial-gradient(#CBD8E6 1px, transparent 1px), 
+    linear-gradient(to right, rgba(203, 216, 230, 0.35) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(203, 216, 230, 0.35) 1px, transparent 1px);
+  background-size: 24px 24px, 72px 72px, 72px 72px;
+}
+

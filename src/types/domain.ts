@@ -98,4 +98,10 @@ export interface Report {
   assignedTo?: string;
   handlingNote?: string;
   repairEvidenceUrl?: string;
+
+  /* Verified preloaded properties */
+  reporterName?: string;
+  reporterEmail?: string;
+  villageName?: string;
 }
+

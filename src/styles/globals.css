@@ -48,3 +48,46 @@ body {
   background-size: 24px 24px, 72px 72px, 72px 72px;
 }
 
+/* Custom Leaflet overrides for ROADIS GIS Map */
+.roadis-leaflet-popup .leaflet-popup-content-wrapper {
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  border-radius: 1rem !important;
+}
+
+.roadis-leaflet-popup .leaflet-popup-content {
+  margin: 0 !important;
+  line-height: normal !important;
+  width: auto !important;
+}
+
+.roadis-leaflet-popup .leaflet-popup-tip-container {
+  display: none !important;
+}
+
+.roadis-leaflet-popup a.leaflet-popup-close-button {
+  top: 8px !important;
+  right: 8px !important;
+  color: #021024 !important;
+  background: rgba(255, 255, 255, 0.9) !important;
+  border-radius: 9999px !important;
+  width: 24px !important;
+  height: 24px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15) !important;
+  z-index: 40 !important;
+  border: 1px solid rgba(193, 232, 255, 0.6) !important;
+}
+
+.roadis-leaflet-popup a.leaflet-popup-close-button:hover {
+  background: #ffffff !important;
+  color: #052659 !important;
+}
+
+.leaflet-control-zoom {
+  display: none !important;
+}
+

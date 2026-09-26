@@ -1,6 +1,12 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '@/services/api/client';
-import { type Report, type ReportStatus, type Severity } from '@/types/domain';
+import {
+  type Report,
+  type ReportStatus,
+  type Severity,
+  type AdminMapReport,
+  type BackendMapReportItem,
+} from '@/types/domain';
 
 export interface BackendDashboardStatsResponse {
   status: string;
@@ -285,4 +291,51 @@ export function useReplyChat(reportId: number | string | undefined) {
     },
   });
 }
+
+export interface BackendMapReportsResponse {
+  status: string;
+  data: BackendMapReportItem[];
+  total: number;
+}
+
+/**
+ * Normalizes backend map item strictly according to verified GET /api/admin/map/laporan response
+ */
+export function normalizeBackendMapReport(item: BackendMapReportItem): AdminMapReport {
+  const normalizedStatus = (item.status?.toLowerCase() as ReportStatus) || 'menunggu';
+
+  return {
+    id: item.id,
+    judul: item.judul,
+    latitude: item.latitude,
+    longitude: item.longitude,
+    status: normalizedStatus,
+    tipeKerusakan: item.tipe_kerusakan || 'Kerusakan Jalan',
+    jenisJalan: item.jenis_jalan || 'desa',
+    imageUrl: item.image_url,
+    fotoBukti: item.foto_bukti,
+    catatanAdmin: item.catatan_admin,
+    reporterName: item.name,
+    wilayahId: item.wilayah_id,
+  };
+}
+
+/**
+ * Hook to fetch verified reports for GIS Map from GET /api/admin/map/laporan
+ */
+export function useAdminMapReports() {
+  return useQuery({
+    queryKey: ['admin', 'map', 'laporan'],
+    queryFn: async () => {
+      const response = await apiClient.get<BackendMapReportsResponse>('/admin/map/laporan');
+      const rawList = response.data || [];
+      return {
+        reports: rawList.map(normalizeBackendMapReport),
+        total: response.total ?? rawList.length,
+      };
+    },
+  });
+}
+
+export type { AdminMapReport, BackendMapReportItem };
 

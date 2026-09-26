@@ -1,5 +1,6 @@
-import React from 'react';
-import { MapPin, AlertTriangle, ExternalLink } from 'lucide-react';
+import React, { useEffect, useRef } from 'react';
+import L from 'leaflet';
+import { MapPin, ExternalLink } from 'lucide-react';
 
 export interface ReportLocationCardProps {
   latitude?: number;
@@ -7,6 +8,16 @@ export interface ReportLocationCardProps {
   roadName?: string;
   villageName?: string;
   roadAuthority?: string;
+  status?: string;
+}
+
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
 }
 
 export function ReportLocationCard({
@@ -15,11 +26,17 @@ export function ReportLocationCard({
   roadName,
   villageName,
   roadAuthority = 'Jalan Desa',
+  status,
 }: ReportLocationCardProps): React.JSX.Element {
+  const mapContainerRef = useRef<HTMLDivElement | null>(null);
+  const mapInstanceRef = useRef<L.Map | null>(null);
+
   const displayVillage = villageName ? `Desa ${villageName.replace(/^Desa\s+/i, '')}` : 'Desa Sukamaju';
   const hasCoordinates =
     typeof latitude === 'number' &&
     typeof longitude === 'number' &&
+    Number.isFinite(latitude) &&
+    Number.isFinite(longitude) &&
     latitude !== 0 &&
     longitude !== 0;
 
@@ -30,6 +47,92 @@ export function ReportLocationCard({
   const osmUrl = hasCoordinates
     ? `https://www.openstreetmap.org/?mlat=${latitude}&mlon=${longitude}#map=16/${latitude}/${longitude}`
     : undefined;
+
+  // Initialize and update Leaflet Map
+  useEffect(() => {
+    if (!hasCoordinates || !mapContainerRef.current) return;
+
+    if (mapInstanceRef.current) {
+      mapInstanceRef.current.setView([latitude, longitude], 16);
+      return;
+    }
+
+    const map = L.map(mapContainerRef.current, {
+      center: [latitude, longitude],
+      zoom: 16,
+      zoomControl: false,
+      attributionControl: false,
+    });
+
+    // High quality OpenStreetMap tiles (consistent with /pemdes/peta)
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution:
+        '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors',
+    }).addTo(map);
+
+    // Standard OpenStreetMap attribution placed at top right to avoid overlap
+    L.control
+      .attribution({
+        position: 'topright',
+        prefix: false,
+      })
+      .addTo(map);
+
+    // Status-based styling consistent with MapView
+    const normalizedStatus = status?.toLowerCase();
+    const statusColor =
+      normalizedStatus === 'selesai'
+        ? '#2E9E5B'
+        : normalizedStatus === 'proses'
+        ? '#5483B3'
+        : '#F59E0B';
+
+    const markerIconSvg =
+      normalizedStatus === 'selesai'
+        ? `<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>`
+        : `<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`;
+
+    const customIcon = L.divIcon({
+      className: 'custom-roadis-marker',
+      iconSize: [120, 56],
+      iconAnchor: [60, 24],
+      html: `
+        <div class="relative flex flex-col items-center group select-none cursor-pointer">
+          <div class="relative flex items-center justify-center">
+            <div class="w-8 h-8 rounded-full border-2 border-white shadow-md flex items-center justify-center transition-transform hover:scale-110" style="background-color: ${statusColor}">
+              ${markerIconSvg}
+            </div>
+          </div>
+          <div class="mt-1 bg-navy-deepest text-white text-[10px] font-bold px-2 py-0.5 rounded shadow-sm whitespace-nowrap opacity-90 max-w-30 truncate text-center">
+            ${escapeHtml(displayVillage)}
+          </div>
+        </div>
+      `,
+    });
+
+    const marker = L.marker([latitude, longitude], {
+      icon: customIcon,
+      title: `Titik Lokasi: ${displayVillage}`,
+    }).addTo(map);
+
+    marker.bindTooltip(`Lokasi Laporan: ${displayVillage}`, {
+      direction: 'top',
+      offset: [0, -18],
+    });
+
+    const timer = setTimeout(() => {
+      map.invalidateSize();
+    }, 200);
+
+    mapInstanceRef.current = map;
+
+    return () => {
+      clearTimeout(timer);
+      map.remove();
+      mapInstanceRef.current = null;
+    };
+  }, [latitude, longitude, hasCoordinates, displayVillage, status]);
 
   return (
     <div className="bg-white rounded-card border border-blue-pale/40 shadow-sm p-6 flex flex-col gap-4">
@@ -50,71 +153,46 @@ export function ReportLocationCard({
         </span>
       </div>
 
-      {/* Visual Spatial Map Canvas (matching Stitch aesthetic) */}
-      <div className="relative w-full h-55 rounded-2xl overflow-hidden border border-blue-pale/40 map-grid-bg flex items-center justify-center select-none">
-        {/* Decorative Vector Roads Overlay */}
-        <div className="absolute inset-0 opacity-40 pointer-events-none">
-          <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
-            <path
-              d="M-10 120 C 140 110, 220 80, 480 90 S 700 130, 900 110"
-              fill="none"
-              stroke="#94A3B8"
-              strokeLinecap="round"
-              strokeWidth="16"
+      {/* Real Spatial Map Canvas with Leaflet + OpenStreetMap */}
+      <div className="relative z-0 isolate w-full h-55 rounded-2xl overflow-hidden border border-blue-pale/40 flex items-center justify-center select-none bg-canvas">
+        {hasCoordinates ? (
+          <>
+            {/* Real Leaflet Map Container */}
+            <div
+              ref={mapContainerRef}
+              className="w-full h-full min-h-55 z-0 outline-none"
+              style={{ minHeight: '220px' }}
             />
-            <path
-              d="M-10 120 C 140 110, 220 80, 480 90 S 700 130, 900 110"
-              fill="none"
-              stroke="#FFFFFF"
-              strokeLinecap="round"
-              strokeWidth="12"
-            />
-            <path
-              d="M260 -20 L 260 260"
-              fill="none"
-              stroke="#CBD5E1"
-              strokeWidth="10"
-            />
-            <path
-              d="M260 -20 L 260 260"
-              fill="none"
-              stroke="#FFFFFF"
-              strokeWidth="6"
-            />
-          </svg>
-        </div>
 
-        {/* Central Spatial Marker Pin with Ping Animation */}
-        <div className="relative z-10 flex flex-col items-center">
-          <div className="relative flex items-center justify-center">
-            <span className="animate-ping absolute inline-flex h-10 w-10 rounded-full bg-severity-berat opacity-75" />
-            <div className="w-9 h-9 rounded-full bg-severity-berat text-white flex items-center justify-center shadow-lg border-2 border-white">
-              <AlertTriangle className="w-5 h-5" aria-hidden="true" />
+            {/* Bottom Coordinates Tag */}
+            <div className="absolute bottom-3 left-3 bg-white/95 backdrop-blur-xs text-navy-deepest text-[11px] font-mono font-medium px-2.5 py-1 rounded-lg border border-blue-pale/50 shadow-xs z-20 pointer-events-auto">
+              {coordString}
             </div>
-          </div>
-          <div className="mt-2 bg-navy-deepest/90 text-white text-[11px] font-semibold px-3 py-1 rounded-full shadow-md backdrop-blur-xs flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-severity-berat" />
-            <span>{displayVillage}</span>
-          </div>
-        </div>
 
-        {/* Bottom Coordinates Tag */}
-        <div className="absolute bottom-3 left-3 bg-white/95 backdrop-blur-xs text-navy-deepest text-[11px] font-mono font-medium px-2.5 py-1 rounded-lg border border-blue-pale/50 shadow-xs">
-          {coordString}
-        </div>
-
-        {/* External Map Link Button */}
-        {osmUrl && (
-          <a
-            href={osmUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="absolute bottom-3 right-3 bg-white/95 hover:bg-canvas text-navy-primary hover:text-navy-deepest text-[11px] font-semibold px-2.5 py-1 rounded-lg border border-blue-pale/50 shadow-xs flex items-center gap-1 transition-colors"
-            title="Buka titik koordinat di OpenStreetMap"
-          >
-            <span>Peta OpenStreetMap</span>
-            <ExternalLink className="w-3 h-3" aria-hidden="true" />
-          </a>
+            {/* External Map Link Button */}
+            {osmUrl && (
+              <a
+                href={osmUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="absolute bottom-3 right-3 bg-white/95 hover:bg-canvas text-navy-primary hover:text-navy-deepest text-[11px] font-semibold px-2.5 py-1 rounded-lg border border-blue-pale/50 shadow-xs flex items-center gap-1 transition-colors z-20 pointer-events-auto"
+                title="Buka titik koordinat di OpenStreetMap"
+              >
+                <span>Peta OpenStreetMap</span>
+                <ExternalLink className="w-3 h-3" aria-hidden="true" />
+              </a>
+            )}
+          </>
+        ) : (
+          <div className="flex flex-col items-center justify-center gap-1.5 p-6 text-center">
+            <MapPin className="w-8 h-8 text-muted/60" aria-hidden="true" />
+            <span className="text-[13px] font-semibold text-navy-deepest">
+              Koordinat lokasi tidak tersedia.
+            </span>
+            <span className="text-[11px] text-muted">
+              Data GPS belum tercatat pada laporan ini.
+            </span>
+          </div>
         )}
       </div>
 

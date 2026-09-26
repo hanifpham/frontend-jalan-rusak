@@ -105,3 +105,40 @@ export interface Report {
   villageName?: string;
 }
 
+/**
+ * Verified Backend Map Item from GET /api/admin/map/laporan
+ */
+export interface BackendMapReportItem {
+  id: number;
+  judul: string;
+  latitude: number;
+  longitude: number;
+  status: string;
+  tipe_kerusakan: string;
+  jenis_jalan: string;
+  image_url?: string;
+  foto_bukti?: string;
+  catatan_admin?: string;
+  name?: string;
+  wilayah_id: number;
+}
+
+/**
+ * Normalized Admin Pemdes Map Report Domain Model
+ * Strictly derived from verified properties of GET /api/admin/map/laporan
+ */
+export interface AdminMapReport {
+  id: number;
+  judul: string;
+  latitude: number;
+  longitude: number;
+  status: ReportStatus;
+  tipeKerusakan: string;
+  jenisJalan: string;
+  imageUrl?: string;
+  fotoBukti?: string;
+  catatanAdmin?: string;
+  reporterName?: string;
+  wilayahId: number;
+}
+

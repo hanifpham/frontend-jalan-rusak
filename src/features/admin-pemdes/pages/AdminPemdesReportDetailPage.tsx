@@ -205,6 +205,7 @@ export function AdminPemdesReportDetailPage(): React.JSX.Element {
             roadName={report.roadName}
             villageName={effectiveVillage}
             roadAuthority={report.roadAuthority === 'desa' ? 'Jalan Desa' : report.roadAuthority}
+            status={report.status}
           />
         </div>
 

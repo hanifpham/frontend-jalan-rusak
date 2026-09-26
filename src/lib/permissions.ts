@@ -130,6 +130,7 @@ export function getAuthorizedNavigation(role: Role | undefined | null): Navigati
     return items.map((item) => {
       if (item.label === 'Beranda') return { ...item, path: '/pemdes/beranda' };
       if (item.label === 'Laporan') return { ...item, path: '/pemdes/laporan' };
+      if (item.label === 'Peta') return { ...item, path: '/pemdes/peta' };
       return item;
     });
   }

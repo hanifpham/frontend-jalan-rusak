@@ -79,10 +79,12 @@ export function normalizeBackendReport(item: BackendLaporanItem): Report {
     severity = 'ringan';
   }
 
-  const normalizedStatus = (item.status.toLowerCase() as ReportStatus) || 'menunggu';
+  const rawStatus = item.status ? String(item.status).toLowerCase() : 'menunggu';
+  const normalizedStatus = (rawStatus as ReportStatus) || 'menunggu';
+  const reportId = item.ID ?? (item as unknown as { id?: number }).id ?? 0;
 
   return {
-    id: item.ID,
+    id: reportId,
     userId: item.user_id,
     wilayahId: item.wilayah_id,
     title: item.judul,
@@ -269,6 +271,41 @@ export function useReportChat(reportId: number | string | undefined) {
   });
 }
 
+export interface BackendAdminInboxItem {
+  laporan_id: number;
+  judul_laporan: string;
+  jenis_jalan: string;
+  status_laporan: string;
+  wilayah_id: number;
+  nama_wilayah: string;
+  user_id: number;
+  nama_warga: string;
+  profile_photo?: string;
+  isi_pesan_terakhir: string;
+  waktu_pesan_terakhir: string;
+  menunggu_balasan_admin: boolean;
+  total_pesan: number;
+}
+
+export interface BackendAdminInboxResponse {
+  status: string;
+  message: string;
+  data: BackendAdminInboxItem[];
+}
+
+/**
+ * Hook to fetch verified admin chat inbox conversations from GET /api/admin/chat
+ */
+export function useAdminChatInbox() {
+  return useQuery({
+    queryKey: ['admin', 'chat', 'inbox'],
+    queryFn: async () => {
+      const response = await apiClient.get<BackendAdminInboxResponse>('/admin/chat');
+      return response.data || [];
+    },
+  });
+}
+
 /**
  * Hook to reply to citizen chat message via PUT /api/admin/chat/:chat_id
  */
@@ -288,6 +325,7 @@ export function useReplyChat(reportId: number | string | undefined) {
       if (reportId) {
         queryClient.invalidateQueries({ queryKey: ['admin', 'chat', String(reportId)] });
       }
+      queryClient.invalidateQueries({ queryKey: ['admin', 'chat', 'inbox'] });
     },
   });
 }

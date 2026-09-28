@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { AlertTriangle, ArrowRight, CheckSquare } from 'lucide-react';
 import { type Report } from '@/types/domain';
 
@@ -13,6 +14,8 @@ export function PriorityReportsCard({
   onViewAll,
   onFollowUp,
 }: PriorityReportsCardProps): React.JSX.Element {
+  const navigate = useNavigate();
+
   // Filter urgent reports (menunggu or berat) from actual data
   const urgentReports = reports
     ? reports
@@ -60,6 +63,11 @@ export function PriorityReportsCard({
             return (
               <div
                 key={item.id}
+                onClick={() => {
+                  if (item.id) {
+                    navigate(`/pemdes/laporan/${item.id}`);
+                  }
+                }}
                 className="p-3.5 rounded-2xl bg-slate-50 hover:bg-blue-50/40 border border-slate-100 hover:border-blue-pale transition-all flex items-center justify-between gap-3 group cursor-pointer"
               >
                 <div className="flex items-start gap-3 min-w-0">

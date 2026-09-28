@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/features/auth/useAuth';
 import { useAdminDashboardStats, useAdminLaporan } from '../api/useAdminPemdesData';
 import { DashboardHeader } from '../components/DashboardHeader';
@@ -8,6 +9,7 @@ import { PriorityReportsCard } from '../components/PriorityReportsCard';
 import { RecentReportsCard } from '../components/RecentReportsCard';
 
 export function AdminPemdesDashboardPage(): React.JSX.Element {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const [selectedPeriod, setSelectedPeriod] = useState('Bulan Ini');
 
@@ -54,10 +56,10 @@ export function AdminPemdesDashboardPage(): React.JSX.Element {
           <PriorityReportsCard
             reports={laporanData?.reports}
             onViewAll={() => {
-              // Action handler for reports list view
+              navigate('/pemdes/laporan');
             }}
             onFollowUp={() => {
-              // Action handler for priority follow up
+              navigate('/pemdes/laporan');
             }}
           />
         </div>
@@ -70,10 +72,10 @@ export function AdminPemdesDashboardPage(): React.JSX.Element {
         error={laporanError instanceof Error ? laporanError.message : null}
         villageName={villageName}
         onViewAll={() => {
-          // Action handler for full reports view
+          navigate('/pemdes/laporan');
         }}
-        onDetailClick={(_id) => {
-          // Action handler for report detail view
+        onDetailClick={(id) => {
+          navigate(`/pemdes/laporan/${id}`);
         }}
       />
     </div>

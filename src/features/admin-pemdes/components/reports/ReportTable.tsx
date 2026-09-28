@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   MapPin,
   ArrowRight,
@@ -108,6 +108,8 @@ export function ReportTable({
   onRetry,
   villageName,
 }: ReportTableProps): React.JSX.Element {
+  const navigate = useNavigate();
+
   return (
     <div className="overflow-x-auto w-full">
       <table className="w-full text-left border-collapse" aria-label="Tabel Laporan Kerusakan Jalan">
@@ -239,6 +241,11 @@ export function ReportTable({
               return (
                 <tr
                   key={report.id}
+                  onClick={() => {
+                    if (report.id) {
+                      navigate(`/pemdes/laporan/${report.id}`);
+                    }
+                  }}
                   className="hover:bg-blue-pale/15 transition-colors duration-150 group cursor-pointer"
                 >
                   {/* Column 1: FOTO */}
@@ -248,7 +255,7 @@ export function ReportTable({
 
                   {/* Column 2: LAPORAN (Judul + Lokasi) */}
                   <td className="py-3.5 px-4">
-                    <div className="font-bold text-navy-deepest text-[13px] leading-snug line-clamp-2">
+                    <div className="font-bold text-navy-deepest group-hover:text-navy-primary transition-colors text-[13px] leading-snug line-clamp-2">
                       {report.title}
                     </div>
                     <div className="text-[12px] text-muted flex items-center gap-1 mt-0.5">
@@ -296,6 +303,9 @@ export function ReportTable({
                   <td className="py-3.5 pl-4 pr-2 text-right whitespace-nowrap">
                     <Link
                       to={`/pemdes/laporan/${report.id}`}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                      }}
                       className="inline-flex items-center gap-1 bg-navy-primary hover:bg-navy-deepest text-white text-[12px] font-semibold px-3.5 py-1.5 rounded-full shadow-xs transition-colors cursor-pointer select-none"
                       title={`Buka detail laporan #${report.id}`}
                     >

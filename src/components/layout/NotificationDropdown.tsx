@@ -83,7 +83,7 @@ export function NotificationDropdown({
     <div
       role="dialog"
       aria-label="Notifikasi"
-      className="absolute right-0 top-[calc(100%+12px)] w-[360px] sm:w-[380px] max-w-[calc(100vw-2rem)] bg-white rounded-2xl shadow-xl shadow-navy-deepest/10 border border-blue-pale/40 z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-150"
+      className="absolute right-0 top-[calc(100%+12px)] w-90 sm:w-95 max-w-[calc(100vw-2rem)] bg-white rounded-2xl shadow-xl shadow-navy-deepest/10 border border-blue-pale/40 z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-150"
     >
       {/* Dropdown Header: Notifikasi & Lihat semua */}
       <div className="px-4 py-3 border-b border-blue-pale/30 flex items-center justify-between bg-white select-none">
@@ -106,7 +106,7 @@ export function NotificationDropdown({
       </div>
 
       {/* Dropdown Body: Maximum 5 latest items */}
-      <div className="max-h-[360px] overflow-y-auto">
+      <div className="max-h-90 overflow-y-auto">
         {/* Loading State: Minimal Skeleton Rows */}
         {isLoading && (
           <div className="p-3 space-y-2">
@@ -151,7 +151,7 @@ export function NotificationDropdown({
             <p className="text-sm font-semibold text-navy-deepest">
               Belum ada notifikasi
             </p>
-            <p className="text-xs text-muted mt-1 max-w-[240px] leading-relaxed">
+            <p className="text-xs text-muted mt-1 max-w-60 leading-relaxed">
               Notifikasi laporan dan pesan akan muncul di sini.
             </p>
           </div>

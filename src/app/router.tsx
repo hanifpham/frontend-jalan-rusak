@@ -12,6 +12,7 @@ import { AdminPemdesReportDetailPage } from '@/features/admin-pemdes/pages/Admin
 import { AdminPemdesMapPage } from '@/features/admin-pemdes/pages/AdminPemdesMapPage';
 import { AdminPemdesMessagesPage } from '@/features/admin-pemdes/pages/AdminPemdesMessagesPage';
 import { AdminPemdesNotificationsPage } from '@/features/admin-pemdes/pages/AdminPemdesNotificationsPage';
+import { AdminPemdesProfilePage } from '@/features/admin-pemdes/pages/AdminPemdesProfilePage';
 
 /**
  * Dispatches the root route ('/') according to user role.
@@ -49,6 +50,7 @@ export function AppRouter(): React.JSX.Element {
               <Route path="/pemdes/peta" element={<AdminPemdesMapPage />} />
               <Route path="/pemdes/pesan" element={<AdminPemdesMessagesPage />} />
               <Route path="/pemdes/notifikasi" element={<AdminPemdesNotificationsPage />} />
+              <Route path="/pemdes/profil" element={<AdminPemdesProfilePage />} />
             </Route>
 
             {/* Aliases for general routes to role-appropriate pages */}
@@ -59,6 +61,8 @@ export function AppRouter(): React.JSX.Element {
             <Route path="/pesan" element={<Navigate to="/pemdes/pesan" replace />} />
             <Route path="/notifikasi" element={<Navigate to="/pemdes/notifikasi" replace />} />
             <Route path="/notifications" element={<Navigate to="/pemdes/notifikasi" replace />} />
+            <Route path="/profil" element={<Navigate to="/pemdes/profil" replace />} />
+            <Route path="/profile" element={<Navigate to="/pemdes/profil" replace />} />
 
             {/* Test 403 route for verifying RoleGuard UX */}
             <Route

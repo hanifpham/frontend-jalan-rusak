@@ -30,6 +30,8 @@ export interface UserSummary {
   role: Role;
   wilayahId?: number;
   profilePhoto?: string;
+  phone?: string | null;
+  avatar_url?: string | null;
 }
 
 /**

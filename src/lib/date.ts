@@ -56,3 +56,21 @@ export function formatRelativeTime(dateStr?: string | null): string {
 
   return `${day} ${month} ${year}`;
 }
+
+/**
+ * Format timestamp into Indonesian full date & time (WIB)
+ * Example: "29 Sep 2026 • 21:30 WIB"
+ */
+export function formatDateTimeIndo(dateStr?: string | null): string {
+  if (!dateStr) return 'Belum tersedia';
+  const date = new Date(dateStr);
+  if (isNaN(date.getTime())) return 'Belum tersedia';
+
+  const day = date.getDate();
+  const month = ID_MONTHS[date.getMonth()];
+  const year = date.getFullYear();
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+
+  return `${day} ${month} ${year} • ${hours}:${minutes} WIB`;
+}

@@ -5,6 +5,7 @@ import { type UserSummary } from '@/types/domain';
 export function useAuth(): AuthState & {
   login: (token: string, user: UserSummary) => void;
   logout: () => void;
+  updateUser: (updates: Partial<UserSummary>) => void;
 } {
   const state = useSyncExternalStore(
     authStore.subscribe,
@@ -16,5 +17,6 @@ export function useAuth(): AuthState & {
     ...state,
     login: authStore.setSession,
     logout: authStore.logout,
+    updateUser: authStore.updateUser,
   };
 }

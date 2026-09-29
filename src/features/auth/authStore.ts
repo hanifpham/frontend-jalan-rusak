@@ -104,4 +104,23 @@ export const authStore = {
     };
     notify();
   },
+
+  updateUser(updates: Partial<UserSummary>): void {
+    if (!currentState.user) return;
+    const updatedUser: UserSummary = {
+      ...currentState.user,
+      ...updates,
+    };
+    try {
+      localStorage.setItem(USER_KEY, JSON.stringify(updatedUser));
+    } catch (e) {
+      console.warn('Gagal memperbarui sesi auth di localStorage:', e);
+    }
+    currentState = {
+      ...currentState,
+      user: updatedUser,
+      role: updatedUser.role,
+    };
+    notify();
+  },
 };

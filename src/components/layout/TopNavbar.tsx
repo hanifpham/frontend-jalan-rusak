@@ -12,6 +12,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { useAuth } from "@/features/auth/useAuth";
+import { useProfile } from "@/hooks/useProfile";
 import { getAuthorizedNavigation, formatRoleLabel } from "@/lib/permissions";
 import { cn } from "@/lib/utils";
 import {
@@ -56,6 +57,7 @@ function RoadLogoIcon({
 
 export function TopNavbar({ onMenuToggle }: TopNavbarProps): React.JSX.Element {
   const { user, role, logout } = useAuth();
+  const { data: profile } = useProfile();
   const navItems = getAuthorizedNavigation(role);
   const location = useLocation();
 
@@ -78,7 +80,15 @@ export function TopNavbar({ onMenuToggle }: TopNavbarProps): React.JSX.Element {
   const markNotificationRead = useMarkNotificationRead();
   const markAllNotificationsRead = useMarkAllNotificationsRead();
 
-  const userInitial = user?.nama ? user.nama.charAt(0).toUpperCase() : "B";
+  const avatarSrc = profile?.avatar_url || user?.avatar_url || user?.profilePhoto;
+  const displayName = profile?.name || user?.nama || "Admin Pemdes";
+  const displayEmail = profile?.email || user?.email || "";
+  const displayWilayah = profile?.wilayah?.nama
+    ? `Desa ${profile.wilayah.nama}`
+    : user?.wilayahId === 2
+    ? "Desa Lobener Lor"
+    : "Desa Sukamaju, Kec. Cikedung";
+  const userInitial = displayName ? displayName.charAt(0).toUpperCase() : "A";
 
   // Automatically close both dropdowns on route changes
   useEffect(() => {
@@ -269,10 +279,21 @@ export function TopNavbar({ onMenuToggle }: TopNavbarProps): React.JSX.Element {
             aria-label="Menu Profil Pengguna"
           >
             <div
-              className="w-9 h-9 rounded-full bg-blue-pale text-navy-primary font-bold flex items-center justify-center text-xs ring-1 ring-blue-pale/60 shadow-xs"
+              className="w-9 h-9 rounded-full bg-blue-pale text-navy-primary font-bold flex items-center justify-center text-xs ring-1 ring-blue-pale/60 shadow-xs overflow-hidden"
               aria-hidden="true"
             >
-              {userInitial}
+              {avatarSrc ? (
+                <img
+                  src={avatarSrc}
+                  alt={displayName}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    (e.target as HTMLElement).style.display = "none";
+                  }}
+                />
+              ) : (
+                userInitial
+              )}
             </div>
             <ChevronDown
               className={cn(
@@ -294,15 +315,26 @@ export function TopNavbar({ onMenuToggle }: TopNavbarProps): React.JSX.Element {
               {/* Header Profile Cardlet */}
               <div className="p-4 bg-linear-to-br from-canvas via-white to-blue-pale/20 border-b border-blue-pale/30">
                 <div className="flex items-start gap-3">
-                  <div className="w-12 h-12 rounded-full bg-linear-to-tr from-navy-primary to-blue-medium text-white font-bold text-lg flex items-center justify-center shadow-md ring-2 ring-white shrink-0">
-                    {userInitial}
+                  <div className="w-12 h-12 rounded-full bg-linear-to-tr from-navy-primary to-blue-medium text-white font-bold text-lg flex items-center justify-center shadow-md ring-2 ring-white shrink-0 overflow-hidden">
+                    {avatarSrc ? (
+                      <img
+                        src={avatarSrc}
+                        alt={displayName}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          (e.target as HTMLElement).style.display = "none";
+                        }}
+                      />
+                    ) : (
+                      userInitial
+                    )}
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="text-sm font-bold text-navy-deepest truncate">
-                      {user?.nama || "Budi Santoso"}
+                      {displayName}
                     </p>
                     <p className="text-[11px] text-muted truncate mt-0.5">
-                      {user?.email || "admin.pemdes@roadis.id"}
+                      {displayEmail}
                     </p>
                     <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-white text-navy-primary border border-blue-pale/60 shadow-xs">
                       <span className="w-1.5 h-1.5 rounded-full bg-status-selesai animate-pulse" />
@@ -322,9 +354,7 @@ export function TopNavbar({ onMenuToggle }: TopNavbarProps): React.JSX.Element {
                     Wilayah Penugasan
                   </p>
                   <p className="text-xs font-semibold text-navy-deepest truncate">
-                    {user?.wilayahId === 2
-                      ? "Desa Lobener Lor"
-                      : "Desa Sukamaju, Kec. Cikedung"}
+                    {displayWilayah}
                   </p>
                 </div>
               </div>
@@ -332,7 +362,7 @@ export function TopNavbar({ onMenuToggle }: TopNavbarProps): React.JSX.Element {
               {/* Quick Links */}
               <div className="p-2 space-y-1">
                 <NavLink
-                  to="/settings"
+                  to={role === "admin_pemdes" ? "/pemdes/profil" : "/settings"}
                   onClick={() => setProfileMenuOpen(false)}
                   className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium text-navy-deepest hover:bg-canvas hover:text-navy-primary transition-colors cursor-pointer group"
                   role="menuitem"

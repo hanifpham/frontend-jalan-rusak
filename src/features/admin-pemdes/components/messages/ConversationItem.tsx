@@ -50,6 +50,16 @@ export function ConversationItem({
     statusLabel = 'Ditolak';
   }
 
+  // Ensure Cloudinary URLs or attachment-only replies show friendly text
+  let previewText = conversation.isi_pesan_terakhir || 'Belum ada pesan';
+  if (
+    previewText.startsWith('http://') ||
+    previewText.startsWith('https://') ||
+    previewText.includes('cloudinary.com')
+  ) {
+    previewText = '📎 Lampiran gambar';
+  }
+
   return (
     <div
       role="button"
@@ -87,14 +97,13 @@ export function ConversationItem({
           ) : (
             <span>{initials}</span>
           )}
-          {/* Active status indicator dot */}
-          <span
-            className={cn(
-              'absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full ring-2 ring-white',
-              conversation.menunggu_balasan_admin ? 'bg-amber-500' : 'bg-status-selesai'
-            )}
-            title={conversation.menunggu_balasan_admin ? 'Menunggu balasan admin' : 'Aktif'}
-          />
+          {/* Waiting for response indicator dot */}
+          {conversation.menunggu_balasan_admin && (
+            <span
+              className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full ring-2 ring-white bg-amber-500"
+              title="Menunggu balasan admin"
+            />
+          )}
         </div>
 
         {/* Content Details */}
@@ -127,7 +136,7 @@ export function ConversationItem({
           {/* Baris 3: [Preview pesan terakhir] ... [Perlu respon badge] */}
           <div className="flex items-center justify-between gap-1">
             <p className="text-xs text-slate-600 truncate leading-snug">
-              {conversation.isi_pesan_terakhir || 'Belum ada pesan'}
+              {previewText}
             </p>
             {conversation.menunggu_balasan_admin && (
               <span

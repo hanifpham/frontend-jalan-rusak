@@ -246,6 +246,12 @@ export interface BackendChatItem {
   } | null;
   balasan?: string | null;
   waktu_balas?: string;
+  lampiran_balasan?: {
+    url: string;
+    nama?: string;
+    mime_type?: string;
+  } | null;
+  lampiran_balasan_url?: string | null;
 }
 
 export interface BackendChatResponse {
@@ -309,16 +315,37 @@ export function useAdminChatInbox() {
 /**
  * Hook to reply to citizen chat message via PUT /api/admin/chat/:chat_id
  */
+export interface ReplyChatPayload {
+  chatId: number;
+  balasan?: string;
+  lampiran?: File | null;
+}
+
+/**
+ * Hook to reply to citizen chat message via PUT /api/admin/chat/:chat_id
+ */
 export function useReplyChat(reportId: number | string | undefined) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ chatId, balasan }: { chatId: number; balasan: string }) => {
+    mutationFn: async ({ chatId, balasan, lampiran }: ReplyChatPayload) => {
+      let body: unknown;
+      if (lampiran) {
+        const formData = new FormData();
+        if (balasan !== undefined && balasan !== null && balasan !== '') {
+          formData.append('balasan', balasan);
+        }
+        formData.append('lampiran', lampiran);
+        body = formData;
+      } else {
+        body = { balasan: balasan || '' };
+      }
+
       const response = await apiClient.put<{
         status: string;
         message: string;
         data: BackendChatItem;
-      }>(`/admin/chat/${chatId}`, { balasan });
+      }>(`/admin/chat/${chatId}`, body);
       return response;
     },
     onSuccess: () => {

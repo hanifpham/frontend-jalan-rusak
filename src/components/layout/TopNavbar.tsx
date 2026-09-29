@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import {
   Search,
   Bell,
@@ -14,6 +14,12 @@ import {
 import { useAuth } from "@/features/auth/useAuth";
 import { getAuthorizedNavigation, formatRoleLabel } from "@/lib/permissions";
 import { cn } from "@/lib/utils";
+import {
+  useNotifications,
+  useMarkNotificationRead,
+  useMarkAllNotificationsRead,
+} from "@/hooks/useNotifications";
+import { NotificationDropdown } from "./NotificationDropdown";
 
 export interface TopNavbarProps {
   onMenuToggle?: () => void;
@@ -51,12 +57,36 @@ function RoadLogoIcon({
 export function TopNavbar({ onMenuToggle }: TopNavbarProps): React.JSX.Element {
   const { user, role, logout } = useAuth();
   const navItems = getAuthorizedNavigation(role);
+  const location = useLocation();
+
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement | null>(null);
 
+  const [notifOpen, setNotifOpen] = useState(false);
+  const notifRef = useRef<HTMLDivElement | null>(null);
+
+  const {
+    data: notifData,
+    isLoading: isNotifLoading,
+    isError: isNotifError,
+    refetch: refetchNotifs,
+  } = useNotifications(1, 20);
+
+  const notifications = notifData?.items || [];
+  const unreadCount = notifData?.unreadCount ?? 0;
+
+  const markNotificationRead = useMarkNotificationRead();
+  const markAllNotificationsRead = useMarkAllNotificationsRead();
+
   const userInitial = user?.nama ? user.nama.charAt(0).toUpperCase() : "B";
 
-  // Close dropdown on click outside or Escape key press
+  // Automatically close both dropdowns on route changes
+  useEffect(() => {
+    setNotifOpen(false);
+    setProfileMenuOpen(false);
+  }, [location.pathname]);
+
+  // Close profile dropdown on click outside or Escape key press
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (
@@ -83,6 +113,34 @@ export function TopNavbar({ onMenuToggle }: TopNavbarProps): React.JSX.Element {
       document.removeEventListener("keydown", handleKeyDown);
     };
   }, [profileMenuOpen]);
+
+  // Close notification dropdown on click outside or Escape key press
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        notifRef.current &&
+        !notifRef.current.contains(event.target as Node)
+      ) {
+        setNotifOpen(false);
+      }
+    }
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setNotifOpen(false);
+      }
+    }
+
+    if (notifOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener("keydown", handleKeyDown);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [notifOpen]);
 
   return (
     <header
@@ -149,25 +207,57 @@ export function TopNavbar({ onMenuToggle }: TopNavbarProps): React.JSX.Element {
           <Search className="w-5 h-5" aria-hidden="true" />
         </button>
 
-        {/* Notifications Button with Red Dot */}
-        <button
-          type="button"
-          className="w-11 h-11 rounded-full bg-canvas flex items-center justify-center text-muted hover:bg-blue-pale/20 hover:text-navy-deepest hover:border-blue-pale/60 transition-colors relative border border-blue-pale/40 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-medium"
-          title="Notifikasi"
-          aria-label="Notifikasi"
-        >
-          <Bell className="w-5 h-5" aria-hidden="true" />
-          <span
-            className="absolute top-2.5 right-3 w-2 h-2 bg-severity-berat rounded-full ring-2 ring-white"
-            aria-hidden="true"
-          />
-        </button>
+        {/* Notifications Button with Dropdown */}
+        <div className="relative" ref={notifRef}>
+          <button
+            type="button"
+            onClick={() => {
+              setNotifOpen((prev) => !prev);
+              setProfileMenuOpen(false);
+            }}
+            className={cn(
+              "w-11 h-11 rounded-full bg-canvas flex items-center justify-center text-muted hover:bg-blue-pale/20 hover:text-navy-deepest hover:border-blue-pale/60 transition-colors relative border border-blue-pale/40 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-medium",
+              notifOpen && "bg-blue-pale/20 text-navy-deepest border-blue-pale/60"
+            )}
+            title="Notifikasi"
+            aria-label="Notifikasi"
+            aria-expanded={notifOpen}
+            aria-haspopup="true"
+          >
+            <Bell className="w-5 h-5" aria-hidden="true" />
+            {unreadCount > 0 && (
+              <span
+                className="absolute -top-1 -right-1 min-w-4.5 h-4.5 px-1 bg-severity-berat text-white text-[10px] font-bold rounded-full flex items-center justify-center ring-2 ring-white select-none leading-none shadow-xs"
+                aria-hidden="true"
+              >
+                {unreadCount > 99 ? "99+" : unreadCount}
+              </span>
+            )}
+          </button>
+
+          {notifOpen && (
+            <NotificationDropdown
+              notifications={notifications.slice(0, 5)}
+              unreadCount={unreadCount}
+              totalCount={notifData?.meta?.total}
+              isLoading={isNotifLoading}
+              isError={isNotifError}
+              onRefetch={() => refetchNotifs()}
+              onClose={() => setNotifOpen(false)}
+              onMarkRead={(id) => markNotificationRead.mutate(id)}
+              onMarkAllRead={() => markAllNotificationsRead.mutate()}
+            />
+          )}
+        </div>
 
         {/* User Profile Avatar with Dropdown */}
         <div className="relative">
           <button
             type="button"
-            onClick={() => setProfileMenuOpen((prev) => !prev)}
+            onClick={() => {
+              setProfileMenuOpen((prev) => !prev);
+              setNotifOpen(false);
+            }}
             className={cn(
               "flex items-center gap-2 sm:gap-3 cursor-pointer p-1.5 pr-2.5 sm:pr-3 rounded-full transition-colors border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-medium group select-none",
               profileMenuOpen

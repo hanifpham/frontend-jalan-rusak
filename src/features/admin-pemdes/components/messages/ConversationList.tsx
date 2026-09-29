@@ -60,7 +60,7 @@ export function ConversationList({
   );
 
   return (
-    <div className="w-full h-full rounded-[24px] bg-white border border-slate-200/80 shadow-sm p-4 flex flex-col overflow-hidden">
+    <div className="w-full h-full rounded-[24px] bg-white border border-slate-200/80 shadow-sm p-4 flex flex-col min-h-0 overflow-hidden">
       {/* 1. Header Card: Title & Contact Count */}
       <div className="flex items-center justify-between pb-2 shrink-0">
         <h2 className="text-sm font-bold text-navy-deepest">Daftar Percakapan</h2>
@@ -124,7 +124,7 @@ export function ConversationList({
       </div>
 
       {/* 4. Conversation Items Scrollable List */}
-      <div className="overflow-y-auto flex-1 mt-2.5 space-y-2 pr-1 custom-scrollbar">
+      <div className="overflow-y-auto flex-1 min-h-0 mt-2.5 space-y-2 pr-1 custom-scrollbar overflow-x-hidden">
         {/* Loading State */}
         {isLoading && (
           <div className="space-y-3 p-1">

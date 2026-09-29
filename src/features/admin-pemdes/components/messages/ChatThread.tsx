@@ -1,5 +1,5 @@
-import React, { useEffect, useRef } from 'react';
-import { CheckCheck, MessageSquare, AlertCircle, RefreshCw, Loader2 } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
+import { CheckCheck, MessageSquare, AlertCircle, RefreshCw, Loader2, X, ImageOff } from 'lucide-react';
 import { type BackendChatItem } from '../../api/useAdminPemdesData';
 import { formatMessageTime, formatDateSeparator } from './chatDateUtils';
 
@@ -9,6 +9,7 @@ export interface ChatThreadProps {
   error?: string | null;
   onRetry?: () => void;
   citizenName?: string;
+  reportId?: number;
 }
 
 export function ChatThread({
@@ -17,15 +18,90 @@ export function ChatThread({
   error,
   onRetry,
   citizenName,
+  reportId,
 }: ChatThreadProps): React.JSX.Element {
-  const scrollEndRef = useRef<HTMLDivElement | null>(null);
+  const scrollContainerRef = useRef<HTMLDivElement | null>(null);
+  const prevReportIdRef = useRef<number | undefined>(reportId);
+  const prevMessagesCountRef = useRef<number>(messages.length);
 
-  // Auto-scroll to bottom on message updates
-  useEffect(() => {
-    if (!isLoading) {
-      scrollEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  // Lightbox / Image Preview Modal state
+  const [lightboxImage, setLightboxImage] = useState<{ url: string; title: string } | null>(null);
+  const [brokenImages, setBrokenImages] = useState<Record<string, boolean>>({});
+
+  // Helper to scroll the message container ref directly (never window.scrollTo)
+  const scrollToBottom = (behavior: ScrollBehavior = 'auto') => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTo({
+        top: scrollContainerRef.current.scrollHeight,
+        behavior,
+      });
     }
-  }, [messages, isLoading]);
+  };
+
+  // 1. Initial load or report selection change: scroll to bottom immediately
+  useEffect(() => {
+    if (!isLoading && messages.length > 0) {
+      if (reportId !== prevReportIdRef.current) {
+        prevReportIdRef.current = reportId;
+        prevMessagesCountRef.current = messages.length;
+        requestAnimationFrame(() => {
+          scrollToBottom('auto');
+        });
+      }
+    }
+  }, [reportId, isLoading, messages.length]);
+
+  // 2. Initial load completion
+  useEffect(() => {
+    if (!isLoading && messages.length > 0) {
+      const timer = setTimeout(() => {
+        if (scrollContainerRef.current) {
+          scrollContainerRef.current.scrollTop = scrollContainerRef.current.scrollHeight;
+        }
+      }, 50);
+      return () => clearTimeout(timer);
+    }
+  }, [isLoading]);
+
+  // 3. Track reply changes and message additions to scroll to latest message smoothly
+  const lastMsg = messages[messages.length - 1];
+  const lastReplyKey = lastMsg
+    ? `${lastMsg.id}-${Boolean(lastMsg.balasan)}-${Boolean(lastMsg.lampiran_balasan?.url || lastMsg.lampiran_balasan_url)}`
+    : '';
+  const prevLastReplyKeyRef = useRef<string>(lastReplyKey);
+
+  useEffect(() => {
+    const isNewMessage = messages.length > prevMessagesCountRef.current;
+    const isNewReply = lastReplyKey !== prevLastReplyKeyRef.current;
+
+    if (isNewMessage || isNewReply) {
+      requestAnimationFrame(() => {
+        scrollToBottom('smooth');
+      });
+    }
+
+    prevMessagesCountRef.current = messages.length;
+    prevLastReplyKeyRef.current = lastReplyKey;
+  }, [messages.length, lastReplyKey]);
+
+  // Handle ESC for Lightbox
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setLightboxImage(null);
+      }
+    };
+    if (lightboxImage) {
+      document.addEventListener('keydown', handleKeyDown);
+    }
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [lightboxImage]);
+
+  const handleImageError = (url: string) => {
+    setBrokenImages((prev) => ({ ...prev, [url]: true }));
+  };
 
   // Extract date divider from first message timestamp
   const dateDividerText = messages[0]?.waktu_kirim
@@ -33,7 +109,10 @@ export function ChatThread({
     : null;
 
   return (
-    <div className="flex-1 overflow-y-auto py-4 space-y-4 pr-1 custom-scrollbar min-h-60">
+    <div
+      ref={scrollContainerRef}
+      className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden py-4 space-y-4 pr-1 custom-scrollbar relative"
+    >
       {/* 1. Loading State */}
       {isLoading && (
         <div className="h-full flex flex-col items-center justify-center gap-3 text-slate-400 py-12">
@@ -92,11 +171,16 @@ export function ChatThread({
             const formattedTimeKirim = formatMessageTime(msg.waktu_kirim);
             const formattedTimeBalas = formatMessageTime(msg.waktu_balas);
 
+            const hasBalasanText = Boolean(msg.balasan && msg.balasan.trim());
+            const attachmentUrl = msg.lampiran_balasan?.url || msg.lampiran_balasan_url;
+            const attachmentName = msg.lampiran_balasan?.nama || 'Foto Lampiran';
+            const hasBalasan = hasBalasanText || Boolean(attachmentUrl);
+
             return (
               <div key={`chat-msg-${msg.id}`} className="space-y-4">
                 {/* Message from Citizen (Left Bubble) */}
                 <div className="flex flex-col items-start max-w-[75%] sm:max-w-[65%]">
-                  <div className="bg-[#EFF4FB] rounded-2xl rounded-tl-none p-3.5 text-sm text-navy-deepest leading-relaxed shadow-xs">
+                  <div className="bg-[#EFF4FB] rounded-2xl rounded-tl-none p-3.5 text-sm text-navy-deepest leading-relaxed shadow-xs wrap-anywhere whitespace-pre-wrap">
                     {msg.pesan}
                   </div>
                   {formattedTimeKirim && (
@@ -107,11 +191,37 @@ export function ChatThread({
                 </div>
 
                 {/* Reply from Admin Pemdes (Right Bubble) */}
-                {msg.balasan && (
-                  <div className="flex flex-col items-end max-w-[75%] sm:max-w-[65%] ml-auto">
-                    <div className="bg-navy-primary text-white rounded-2xl rounded-tr-none p-3.5 text-sm leading-relaxed shadow-sm">
-                      {msg.balasan}
+                {hasBalasan && (
+                  <div className="flex flex-col items-end max-w-[80%] sm:max-w-[65%] ml-auto">
+                    <div className="bg-navy-primary text-white rounded-2xl rounded-tr-none p-3.5 text-sm leading-relaxed shadow-sm space-y-2.5 max-w-full">
+                      {/* Optional Text Message */}
+                      {hasBalasanText && (
+                        <p className="whitespace-pre-wrap wrap-anywhere">{msg.balasan}</p>
+                      )}
+
+                      {/* Attachment Image Display */}
+                      {attachmentUrl && (
+                        <div className="rounded-xl overflow-hidden border border-white/20 bg-black/10 max-w-full">
+                          {brokenImages[attachmentUrl] ? (
+                            <div className="p-4 flex flex-col items-center justify-center text-center text-white/80 gap-1.5 py-6">
+                              <ImageOff className="w-6 h-6 text-white/60" />
+                              <span className="text-xs">Gambar gagal dimuat</span>
+                            </div>
+                          ) : (
+                            <img
+                              src={attachmentUrl}
+                              alt={attachmentName}
+                              loading="lazy"
+                              onClick={() => setLightboxImage({ url: attachmentUrl, title: attachmentName })}
+                              onError={() => handleImageError(attachmentUrl)}
+                              className="max-h-60 max-w-full w-auto rounded-xl object-cover cursor-pointer hover:opacity-95 transition-opacity"
+                              title="Klik untuk memperbesar gambar"
+                            />
+                          )}
+                        </div>
+                      )}
                     </div>
+
                     <div className="text-[10px] text-slate-400 mt-1 mr-1 flex items-center gap-1 justify-end font-medium">
                       {formattedTimeBalas && <span>{formattedTimeBalas}</span>}
                       <CheckCheck className="w-3.5 h-3.5 text-blue-medium shrink-0" aria-hidden="true" />
@@ -124,7 +234,41 @@ export function ChatThread({
         </>
       )}
 
-      <div ref={scrollEndRef} />
+      {/* Sederhana Lightbox Modal */}
+      {lightboxImage && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          className="fixed inset-0 z-50 bg-black/80 backdrop-blur-xs flex items-center justify-center p-4"
+          onClick={() => setLightboxImage(null)}
+        >
+          <div
+            className="relative max-w-3xl max-h-[90vh] flex flex-col items-center bg-transparent"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              onClick={() => setLightboxImage(null)}
+              className="absolute -top-10 right-0 p-1.5 text-white hover:text-slate-300 rounded-full bg-white/10 hover:bg-white/20 transition-colors cursor-pointer"
+              title="Tutup"
+              aria-label="Tutup pratinjau gambar"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <img
+              src={lightboxImage.url}
+              alt={lightboxImage.title}
+              className="max-w-full max-h-[80vh] rounded-2xl object-contain shadow-2xl border border-white/20"
+            />
+            {lightboxImage.title && (
+              <p className="mt-2 text-xs text-white/80 font-medium">
+                {lightboxImage.title}
+              </p>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

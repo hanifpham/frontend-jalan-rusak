@@ -73,14 +73,14 @@ export function AdminPemdesMessagesPage(): React.JSX.Element {
   const replyMutation = useReplyChat(selectedReportId ?? undefined);
   const [sendError, setSendError] = useState<string | null>(null);
 
-  // Handle Send Reply
-  const handleSendReply = async (messageText: string) => {
+  // Handle Send Reply with optional attachment
+  const handleSendReply = async (messageText: string, attachmentFile?: File | null) => {
     if (!selectedReportId || messages.length === 0) return;
     setSendError(null);
 
     // Identify target chat_id to reply:
     // Prefer the latest unanswered citizen message; fallback to the latest message in thread
-    const unanswered = messages.filter((m) => !m.balasan);
+    const unanswered = messages.filter((m) => !m.balasan && !m.lampiran_balasan?.url && !m.lampiran_balasan_url);
     const targetChat = unanswered.length > 0
       ? unanswered[unanswered.length - 1]
       : messages[messages.length - 1];
@@ -91,6 +91,7 @@ export function AdminPemdesMessagesPage(): React.JSX.Element {
       await replyMutation.mutateAsync({
         chatId: targetChat.id,
         balasan: messageText,
+        lampiran: attachmentFile,
       });
       setSendError(null);
     } catch (err) {
@@ -98,6 +99,11 @@ export function AdminPemdesMessagesPage(): React.JSX.Element {
       setSendError(msg);
       throw err;
     }
+  };
+
+  // Handle Refresh Conversation (Chat Thread + Inbox)
+  const handleRefreshConversation = async () => {
+    await Promise.all([refetchChat(), refetchInbox()]);
   };
 
   // Determine if composer should be disabled
@@ -108,15 +114,15 @@ export function AdminPemdesMessagesPage(): React.JSX.Element {
       : undefined;
 
   return (
-    <div className="flex flex-col gap-5 max-w-full">
+    <div className="flex flex-col gap-4 max-w-full min-h-0 -mb-12">
       {/* 1. Page Header & Scope Chips */}
       <MessagesHeader villageName={villageName} />
 
       {/* 2. Workspace 2-Kolom (Daftar Percakapan & Area Chat) */}
-      <div className="grid grid-cols-1 lg:grid-cols-[300px_minmax(0,1fr)] gap-6 items-start h-[calc(100vh-210px)] min-h-155">
+      <div className="grid grid-cols-1 lg:grid-cols-[300px_minmax(0,1fr)] gap-6 items-stretch h-[calc(100vh-246px)] min-h-110 min-w-0">
         {/* Kolom Kiri: Daftar Percakapan (~300px) */}
         <div
-          className={`w-full h-full ${
+          className={`w-full h-full min-h-0 ${
             selectedReportId !== null ? 'hidden lg:block' : 'block'
           }`}
         >
@@ -132,11 +138,11 @@ export function AdminPemdesMessagesPage(): React.JSX.Element {
 
         {/* Kolom Kanan: Area Chat (Card Putih Rounded 24px) */}
         <div
-          className={`w-full h-full ${
+          className={`w-full h-full min-h-0 ${
             selectedReportId === null ? 'hidden lg:block' : 'block'
           }`}
         >
-          <div className="w-full h-full rounded-[24px] bg-white border border-slate-200/80 shadow-sm p-5 flex flex-col overflow-hidden">
+          <div className="w-full h-full rounded-[24px] bg-white border border-slate-200/80 shadow-sm p-5 flex flex-col min-h-0 overflow-hidden">
             {selectedReportId && activeInboxItem ? (
               <>
                 {/* 2.1 Chat Header */}
@@ -145,7 +151,12 @@ export function AdminPemdesMessagesPage(): React.JSX.Element {
                   reportId={selectedReportId}
                   villageName={activeInboxItem.nama_wilayah || villageName}
                   profilePhoto={activeInboxItem.profile_photo}
+                  reportDetail={reportDetailData?.report}
+                  fallbackTitle={activeInboxItem.judul_laporan}
+                  fallbackStatus={activeInboxItem.status_laporan}
+                  fallbackJenisJalan={activeInboxItem.jenis_jalan}
                   onBackToList={() => setSelectedReportId(null)}
+                  onRefreshConversation={handleRefreshConversation}
                 />
 
                 {/* 2.2 Report Context Bar */}
@@ -163,6 +174,7 @@ export function AdminPemdesMessagesPage(): React.JSX.Element {
                   error={chatError instanceof Error ? chatError.message : null}
                   onRetry={refetchChat}
                   citizenName={activeInboxItem.nama_warga}
+                  reportId={selectedReportId}
                 />
 
                 {/* 2.4 Composer (Sticky Bottom) */}

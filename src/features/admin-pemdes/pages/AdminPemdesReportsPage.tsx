@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { useAuth } from '@/features/auth/useAuth';
+import { useSettings } from '@/hooks/useSettings';
 import { useAdminLaporan } from '../api/useAdminPemdesData';
 import { ReportPageHeader } from '../components/reports/ReportPageHeader';
 import { ReportScopeChips } from '../components/reports/ReportScopeChips';
@@ -15,6 +16,7 @@ import { ReportPagination } from '../components/reports/ReportPagination';
 
 export function AdminPemdesReportsPage(): React.JSX.Element {
   const { user } = useAuth();
+  const { data: settings } = useSettings();
 
   // Dynamic village name from authenticated user session
   const villageName =
@@ -34,25 +36,46 @@ export function AdminPemdesReportsPage(): React.JSX.Element {
   const pageSize = 5;
 
   // Query live backend endpoint: GET /api/admin/laporan
-  // Backend directly supports `status`, `search`, `page`, and `limit`
+  // Fetch dataset for client-side filtering and pagination consistency
   const {
     data: laporanData,
     isLoading,
     error,
     refetch,
   } = useAdminLaporan({
-    status: status === 'all' ? undefined : status,
-    search: search.trim() || undefined,
-    page,
-    limit: pageSize,
+    limit: 100,
   });
 
-  // Client-side date filter & sort enhancement on the verified dataset
-  const displayedReports = useMemo(() => {
-    const rawReports = laporanData?.reports || [];
+  const rawReports = useMemo(() => laporanData?.reports || [], [laporanData?.reports]);
+
+  // Client-side filtering & sorting on verified dataset
+  const filteredReports = useMemo(() => {
     let list = [...rawReports];
 
-    // 1. Date filtering
+    // 1. Search keyword filtering
+    if (search.trim()) {
+      const q = search.trim().toLowerCase();
+      list = list.filter((r) => {
+        const titleMatch = r.title ? r.title.toLowerCase().includes(q) : false;
+        const descMatch = r.description ? r.description.toLowerCase().includes(q) : false;
+        const reporterMatch = r.reporterName ? r.reporterName.toLowerCase().includes(q) : false;
+        const roadMatch = r.roadName ? r.roadName.toLowerCase().includes(q) : false;
+        const damageMatch = r.damageType ? r.damageType.toLowerCase().includes(q) : false;
+        return titleMatch || descMatch || reporterMatch || roadMatch || damageMatch;
+      });
+    }
+
+    // 2. Status filtering
+    if (status !== 'all') {
+      list = list.filter((r) => (r.status || '').toLowerCase() === status.toLowerCase());
+    }
+
+    // 3. Severity filtering
+    if (severity !== 'all') {
+      list = list.filter((r) => (r.severity || 'sedang').toLowerCase() === severity.toLowerCase());
+    }
+
+    // 4. Date filtering
     if (dateFilter !== 'all') {
       const now = new Date();
       list = list.filter((r) => {
@@ -71,32 +94,50 @@ export function AdminPemdesReportsPage(): React.JSX.Element {
         if (dateFilter === 'this_week') {
           const sevenDaysAgo = new Date();
           sevenDaysAgo.setDate(now.getDate() - 7);
+          sevenDaysAgo.setHours(0, 0, 0, 0);
           return itemDate >= sevenDaysAgo && itemDate <= now;
         }
 
         if (dateFilter === 'this_month') {
-          return (
+          // "Bulan Ini" in operational context: current calendar month OR rolling last 30 days
+          const thirtyDaysAgo = new Date();
+          thirtyDaysAgo.setDate(now.getDate() - 30);
+          thirtyDaysAgo.setHours(0, 0, 0, 0);
+
+          const isCurrentCalendarMonth =
             itemDate.getMonth() === now.getMonth() &&
-            itemDate.getFullYear() === now.getFullYear()
-          );
+            itemDate.getFullYear() === now.getFullYear();
+
+          const isWithinLast30Days = itemDate >= thirtyDaysAgo && itemDate <= now;
+
+          return isCurrentCalendarMonth || isWithinLast30Days;
         }
 
         return true;
       });
     }
 
-    // 2. Sorting
+    // 5. Sorting
     list.sort((a, b) => {
       const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
       const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
       if (sortBy === 'oldest') {
-        return dateA - dateB;
+        if (dateA !== dateB) return dateA - dateB;
+        return (a.id ?? 0) - (b.id ?? 0);
       }
-      return dateB - dateA; // newest default
+      // 'newest' default
+      if (dateB !== dateA) return dateB - dateA;
+      return (b.id ?? 0) - (a.id ?? 0);
     });
 
     return list;
-  }, [laporanData?.reports, dateFilter, sortBy]);
+  }, [rawReports, search, status, severity, dateFilter, sortBy]);
+
+  // Paginated records for table display
+  const displayedReports = useMemo(() => {
+    const start = (page - 1) * pageSize;
+    return filteredReports.slice(start, start + pageSize);
+  }, [filteredReports, page, pageSize]);
 
   // Handlers with page reset
   const handleSearchChange = (val: string) => {
@@ -132,7 +173,8 @@ export function AdminPemdesReportsPage(): React.JSX.Element {
     setPage(1);
   };
 
-  const totalReportsCount = laporanData?.total ?? 0;
+  const totalFilteredReports = filteredReports.length;
+  const totalRawReports = rawReports.length;
 
   return (
     <div className="flex flex-col gap-6 max-w-full">
@@ -142,7 +184,7 @@ export function AdminPemdesReportsPage(): React.JSX.Element {
       {/* 2. Scope Chips (Lokasi, Wewenang & Counter) */}
       <ReportScopeChips
         villageName={villageName}
-        totalReports={totalReportsCount}
+        totalReports={totalFilteredReports}
         isLoading={isLoading}
       />
 
@@ -162,19 +204,22 @@ export function AdminPemdesReportsPage(): React.JSX.Element {
       />
 
       {/* 4. Main Table Card */}
-      <div className="bg-white rounded-card border border-blue-pale/40 shadow-sm p-6 flex flex-col gap-4 overflow-hidden">
+      <div className="bg-white dark:bg-[#0D1A2D] rounded-card border border-blue-pale/40 dark:border-white/10 shadow-sm p-6 flex flex-col gap-4 overflow-hidden">
         <ReportTable
           reports={displayedReports}
           isLoading={isLoading}
           error={error instanceof Error ? error.message : null}
           onRetry={refetch}
           villageName={villageName}
+          density={settings?.preferences?.report_display_preference}
+          isFiltered={totalRawReports > 0 && totalFilteredReports === 0}
+          onResetFilters={handleResetFilters}
         />
 
         {/* Table Footer with Summary & Dynamic Pagination */}
         <ReportPagination
           currentPage={page}
-          totalItems={totalReportsCount}
+          totalItems={totalFilteredReports}
           pageSize={pageSize}
           onPageChange={setPage}
         />

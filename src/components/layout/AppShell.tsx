@@ -1,13 +1,14 @@
-import React, { useState } from 'react';
-import { Outlet } from 'react-router-dom';
-import { TopNavbar } from './TopNavbar';
-import { Sidebar } from './Sidebar';
+import React, { useState } from "react";
+import { Outlet } from "react-router-dom";
+import { TopNavbar } from "./TopNavbar";
+import { Sidebar } from "./Sidebar";
+import { ErrorBoundary } from "@/components/common/ErrorBoundary";
 
 export function AppShell(): React.JSX.Element {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-canvas text-navy-deepest antialiased flex flex-col pb-12">
+    <div className="min-h-screen bg-canvas dark:bg-[#07111F] text-navy-deepest antialiased flex flex-col pb-12">
       {/* Floating Centered Top Navbar */}
       <TopNavbar onMenuToggle={() => setMobileMenuOpen((prev) => !prev)} />
 
@@ -18,8 +19,14 @@ export function AppShell(): React.JSX.Element {
           onClose={() => setMobileMenuOpen(false)}
         />
 
-        <main className="flex-1 min-w-0 flex flex-col gap-6" id="main-content" tabIndex={-1}>
-          <Outlet />
+        <main
+          className="flex-1 min-w-0 flex flex-col gap-6"
+          id="main-content"
+          tabIndex={-1}
+        >
+          <ErrorBoundary>
+            <Outlet />
+          </ErrorBoundary>
         </main>
       </div>
     </div>

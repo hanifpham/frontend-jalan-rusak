@@ -1,5 +1,12 @@
-import React, { useState, useRef } from 'react';
-import { Send, Loader2, AlertCircle, Paperclip, X, Image as ImageIcon } from 'lucide-react';
+import React, { useState, useRef } from "react";
+import {
+  Send,
+  Loader2,
+  AlertCircle,
+  Paperclip,
+  X,
+  Image as ImageIcon,
+} from "lucide-react";
 
 export interface MessageComposerProps {
   citizenName?: string;
@@ -11,13 +18,13 @@ export interface MessageComposerProps {
 }
 
 const QUICK_REPLIES = [
-  'Siap ditindaklanjuti',
-  'Sedang diproses',
-  'Terima kasih atas laporannya',
+  "Siap ditindaklanjuti",
+  "Sedang diproses",
+  "Terima kasih atas laporannya",
 ];
 
 const MAX_ATTACHMENT_SIZE_BYTES = 5 * 1024 * 1024; // 5 MB
-const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+const ALLOWED_MIME_TYPES = ["image/jpeg", "image/png", "image/webp"];
 
 export function MessageComposer({
   citizenName,
@@ -27,9 +34,13 @@ export function MessageComposer({
   disabled = false,
   disabledReason,
 }: MessageComposerProps): React.JSX.Element {
-  const [inputText, setInputText] = useState('');
-  const [selectedAttachment, setSelectedAttachment] = useState<File | null>(null);
-  const [attachmentPreview, setAttachmentPreview] = useState<string | null>(null);
+  const [inputText, setInputText] = useState("");
+  const [selectedAttachment, setSelectedAttachment] = useState<File | null>(
+    null,
+  );
+  const [attachmentPreview, setAttachmentPreview] = useState<string | null>(
+    null,
+  );
   const [validationError, setValidationError] = useState<string | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -50,14 +61,14 @@ export function MessageComposer({
     if (!file) return;
 
     if (!ALLOWED_MIME_TYPES.includes(file.type)) {
-      setValidationError('Hanya file gambar (JPEG, PNG, WEBP) yang didukung.');
-      e.target.value = '';
+      setValidationError("Hanya file gambar (JPEG, PNG, WEBP) yang didukung.");
+      e.target.value = "";
       return;
     }
 
     if (file.size > MAX_ATTACHMENT_SIZE_BYTES) {
-      setValidationError('Ukuran file gambar maksimal 5 MB.');
-      e.target.value = '';
+      setValidationError("Ukuran file gambar maksimal 5 MB.");
+      e.target.value = "";
       return;
     }
 
@@ -79,7 +90,7 @@ export function MessageComposer({
     setAttachmentPreview(null);
     setValidationError(null);
     if (fileInputRef.current) {
-      fileInputRef.current.value = '';
+      fileInputRef.current.value = "";
     }
   };
 
@@ -93,7 +104,7 @@ export function MessageComposer({
     try {
       await onSend(trimmed, selectedAttachment);
       // On success, reset input & attachment
-      setInputText('');
+      setInputText("");
       handleCancelAttachment();
     } catch {
       // Error is handled by parent / error prop, text & attachment are preserved
@@ -101,26 +112,29 @@ export function MessageComposer({
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
+    if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleFormSubmit(e);
     }
   };
 
-  const canSubmit = !disabled && !isSending && (inputText.trim().length > 0 || selectedAttachment !== null);
+  const canSubmit =
+    !disabled &&
+    !isSending &&
+    (inputText.trim().length > 0 || selectedAttachment !== null);
 
   const placeholderText = disabled
-    ? disabledReason || 'Tidak dapat membalas saat ini'
+    ? disabledReason || "Tidak dapat membalas saat ini"
     : citizenName
-    ? `Ketik pesan balasan untuk ${citizenName}...`
-    : 'Ketik pesan balasan...';
+      ? `Ketik pesan balasan untuk ${citizenName}...`
+      : "Ketik pesan balasan...";
 
   return (
-    <div className="border-t border-slate-100 pt-3 flex flex-col gap-2 shrink-0">
+    <div className="border-t border-slate-100 dark:border-white/10 pt-3 flex flex-col gap-2 shrink-0">
       {/* 1. Quick Reply Chips */}
       {!disabled && (
         <div className="flex items-center gap-2 overflow-x-auto pb-0.5 custom-scrollbar select-none">
-          <span className="text-xs text-slate-400 font-medium shrink-0">
+          <span className="text-xs text-slate-400 dark:text-[#8FA4BA] font-medium shrink-0">
             Balasan cepat:
           </span>
           {QUICK_REPLIES.map((reply) => (
@@ -128,7 +142,7 @@ export function MessageComposer({
               key={reply}
               type="button"
               onClick={() => handleQuickReplyClick(reply)}
-              className="rounded-full bg-slate-100 hover:bg-slate-200 text-xs px-3 py-1 text-slate-700 transition-colors shrink-0 cursor-pointer active:scale-95"
+              className="rounded-full bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 text-xs px-3 py-1 text-slate-700 dark:text-[#AFC0D4] transition-colors shrink-0 cursor-pointer active:scale-95"
             >
               {reply}
             </button>
@@ -138,7 +152,7 @@ export function MessageComposer({
 
       {/* 2. Validation or API Error Alerts */}
       {(validationError || error) && (
-        <div className="p-2 px-3 bg-red-50 border border-red-200 rounded-xl text-xs text-severity-berat flex items-center justify-between gap-2">
+        <div className="p-2 px-3 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/40 rounded-xl text-xs text-severity-berat flex items-center justify-between gap-2">
           <div className="flex items-center gap-2 min-w-0">
             <AlertCircle className="w-4 h-4 shrink-0" aria-hidden="true" />
             <span className="truncate">{validationError || error}</span>
@@ -157,9 +171,9 @@ export function MessageComposer({
 
       {/* 3. Attachment Preview Card */}
       {selectedAttachment && attachmentPreview && (
-        <div className="flex items-center justify-between gap-3 p-2 px-3 bg-slate-50 border border-slate-200 rounded-xl">
+        <div className="flex items-center justify-between gap-3 p-2 px-3 bg-slate-50 dark:bg-[#12233A] border border-slate-200 dark:border-white/10 rounded-xl">
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className="relative w-10 h-10 rounded-lg overflow-hidden border border-slate-200 bg-slate-100 shrink-0 shadow-2xs">
+            <div className="relative w-10 h-10 rounded-lg overflow-hidden border border-slate-200 dark:border-white/10 bg-slate-100 dark:bg-white/5 shrink-0 shadow-2xs">
               <img
                 src={attachmentPreview}
                 alt="Preview Lampiran"
@@ -170,7 +184,7 @@ export function MessageComposer({
               <p className="text-xs font-semibold text-navy-deepest truncate">
                 {selectedAttachment.name}
               </p>
-              <p className="text-[10px] text-slate-500">
+              <p className="text-[10px] text-slate-500 dark:text-[#AFC0D4]">
                 {(selectedAttachment.size / 1024).toFixed(0)} KB • Siap dikirim
               </p>
             </div>
@@ -180,7 +194,7 @@ export function MessageComposer({
             type="button"
             onClick={handleCancelAttachment}
             disabled={isSending}
-            className="p-1 rounded-full text-slate-400 hover:text-red-500 hover:bg-red-50 transition-colors cursor-pointer disabled:opacity-50"
+            className="p-1 rounded-full text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors cursor-pointer disabled:opacity-50"
             title="Batalkan lampiran"
             aria-label="Batalkan lampiran"
           >
@@ -201,17 +215,19 @@ export function MessageComposer({
           tabIndex={-1}
         />
 
-        <div className="rounded-full bg-slate-100/90 border border-slate-200 px-4 py-1.5 flex items-center gap-3 shadow-inner mt-1">
+        <div className="rounded-full bg-slate-100/90 dark:bg-[#12233A] border border-slate-200 dark:border-[rgba(193,232,255,0.12)] px-4 py-1.5 flex items-center gap-3 shadow-inner mt-1">
           {/* Functional Attachment Button */}
           <button
             type="button"
             onClick={handleAttachmentClick}
             disabled={disabled || isSending}
-            title={selectedAttachment ? 'Ganti lampiran gambar' : 'Lampirkan gambar'}
+            title={
+              selectedAttachment ? "Ganti lampiran gambar" : "Lampirkan gambar"
+            }
             className={`p-1.5 rounded-full transition-colors flex items-center justify-center shrink-0 cursor-pointer ${
               selectedAttachment
-                ? 'text-navy-primary bg-blue-pale/50'
-                : 'text-slate-500 hover:text-navy-primary hover:bg-slate-200/60'
+                ? "text-navy-primary dark:text-blue-pale bg-blue-pale/50 dark:bg-[#5483B3]/20"
+                : "text-slate-500 dark:text-[#AFC0D4] hover:text-navy-primary dark:hover:text-navy-deepest hover:bg-slate-200/60 dark:hover:bg-white/10"
             } disabled:opacity-50 disabled:cursor-not-allowed`}
             aria-label="Lampirkan gambar"
           >
@@ -229,7 +245,7 @@ export function MessageComposer({
             onKeyDown={handleKeyDown}
             disabled={disabled || isSending}
             placeholder={placeholderText}
-            className="bg-transparent border-none focus:outline-none text-sm text-slate-800 placeholder-slate-400 w-full py-1 disabled:opacity-60"
+            className="bg-transparent border-none focus:outline-none text-sm text-slate-800 dark:text-navy-deepest placeholder-slate-400 dark:placeholder-[#8FA4BA] w-full py-1 disabled:opacity-60"
           />
 
           <button

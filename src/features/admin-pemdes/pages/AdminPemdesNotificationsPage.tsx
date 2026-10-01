@@ -1,5 +1,5 @@
-import React, { useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Bell,
   FileText,
@@ -12,34 +12,34 @@ import {
   AlertCircle,
   ChevronLeft,
   ChevronRight,
-} from 'lucide-react';
+} from "lucide-react";
 import {
   useNotifications,
   useMarkNotificationRead,
   useMarkAllNotificationsRead,
   useDeleteNotification,
-} from '@/hooks/useNotifications';
-import { type NotificationItem } from '@/types/notification';
-import { formatRelativeTime } from '@/lib/date';
-import { cn } from '@/lib/utils';
+} from "@/hooks/useNotifications";
+import { type NotificationItem } from "@/types/notification";
+import { formatRelativeTime } from "@/lib/date";
+import { cn } from "@/lib/utils";
 
-type FilterTab = 'all' | 'unread';
+type FilterTab = "all" | "unread";
 
 /**
  * Returns appropriate Lucide icon component according to backend notification content
  */
 function getNotificationIcon(judul: string) {
   const lower = judul.toLowerCase();
-  if (lower.includes('laporan baru')) {
+  if (lower.includes("laporan baru")) {
     return FileText;
   }
-  if (lower.includes('status')) {
+  if (lower.includes("status")) {
     return RefreshCw;
   }
-  if (lower.includes('balasan')) {
+  if (lower.includes("balasan")) {
     return Reply;
   }
-  if (lower.includes('pesan') || lower.includes('chat')) {
+  if (lower.includes("pesan") || lower.includes("chat")) {
     return MessageSquare;
   }
   return Bell;
@@ -47,7 +47,7 @@ function getNotificationIcon(judul: string) {
 
 export function AdminPemdesNotificationsPage(): React.JSX.Element {
   const navigate = useNavigate();
-  const [filter, setFilter] = useState<FilterTab>('all');
+  const [filter, setFilter] = useState<FilterTab>("all");
   const [page, setPage] = useState(1);
   const pageSize = 10;
 
@@ -75,7 +75,7 @@ export function AdminPemdesNotificationsPage(): React.JSX.Element {
 
   // Filter items based on active tab
   const displayedItems = useMemo(() => {
-    if (filter === 'unread') {
+    if (filter === "unread") {
       return allItems.filter((n) => !n.isRead);
     }
     return allItems;
@@ -115,12 +115,12 @@ export function AdminPemdesNotificationsPage(): React.JSX.Element {
       return Array.from({ length: totalPages }, (_, i) => i + 1);
     }
     if (page <= 3) {
-      return [1, 2, 3, '...', totalPages];
+      return [1, 2, 3, "...", totalPages];
     }
     if (page >= totalPages - 2) {
-      return [1, '...', totalPages - 2, totalPages - 1, totalPages];
+      return [1, "...", totalPages - 2, totalPages - 1, totalPages];
     }
-    return [1, '...', page, '...', totalPages];
+    return [1, "...", page, "...", totalPages];
   };
 
   const pageNumbers = getPageNumbers();
@@ -129,31 +129,31 @@ export function AdminPemdesNotificationsPage(): React.JSX.Element {
     <div className="flex flex-col gap-6 max-w-full">
       {/* 1. Header & Subtitle */}
       <div className="flex flex-col gap-1">
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-heading tracking-tight">
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-navy-deepest tracking-tight">
           Notifikasi
         </h1>
-        <p className="text-sm text-muted">
+        <p className="text-sm text-muted dark:text-[#AFC0D4]">
           Pantau pembaruan laporan dan komunikasi warga.
         </p>
       </div>
 
       {/* 2. Main Content Card */}
-      <div className="bg-white rounded-card border border-blue-pale/40 shadow-sm p-5 sm:p-6 flex flex-col gap-6 overflow-hidden">
+      <div className="bg-white dark:bg-[#0D1A2D] rounded-card border border-blue-pale/40 dark:border-[rgba(193,232,255,0.12)] shadow-sm p-5 sm:p-6 flex flex-col gap-6 overflow-hidden">
         {/* Toolbar: Filter Tabs & Mark All as Read Action */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-blue-pale/30 pb-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-blue-pale/30 dark:border-white/10 pb-4">
           {/* Filter Tabs */}
-          <div className="flex items-center gap-2 bg-canvas p-1 rounded-full border border-blue-pale/40 self-start sm:self-auto">
+          <div className="flex items-center gap-2 bg-canvas dark:bg-[#07111F] p-1 rounded-full border border-blue-pale/40 dark:border-white/10 self-start sm:self-auto">
             <button
               type="button"
               onClick={() => {
-                setFilter('all');
+                setFilter("all");
                 setPage(1);
               }}
               className={cn(
-                'px-4 py-1.5 rounded-full text-xs font-semibold transition-colors cursor-pointer select-none',
-                filter === 'all'
-                  ? 'bg-white text-navy-primary shadow-xs'
-                  : 'text-muted hover:text-navy-deepest'
+                "px-4 py-1.5 rounded-full text-xs font-semibold transition-colors cursor-pointer select-none",
+                filter === "all"
+                  ? "bg-white dark:bg-[#5483B3] text-navy-primary dark:text-white shadow-xs"
+                  : "text-muted dark:text-[#8FA4BA] hover:text-navy-deepest",
               )}
             >
               Semua {meta.total > 0 && `(${meta.total})`}
@@ -161,14 +161,14 @@ export function AdminPemdesNotificationsPage(): React.JSX.Element {
             <button
               type="button"
               onClick={() => {
-                setFilter('unread');
+                setFilter("unread");
                 setPage(1);
               }}
               className={cn(
-                'px-4 py-1.5 rounded-full text-xs font-semibold transition-colors cursor-pointer select-none flex items-center gap-1.5',
-                filter === 'unread'
-                  ? 'bg-white text-navy-primary shadow-xs'
-                  : 'text-muted hover:text-navy-deepest'
+                "px-4 py-1.5 rounded-full text-xs font-semibold transition-colors cursor-pointer select-none flex items-center gap-1.5",
+                filter === "unread"
+                  ? "bg-white dark:bg-[#5483B3] text-navy-primary dark:text-white shadow-xs"
+                  : "text-muted dark:text-[#8FA4BA] hover:text-navy-deepest",
               )}
             >
               <span>Belum dibaca</span>
@@ -184,9 +184,12 @@ export function AdminPemdesNotificationsPage(): React.JSX.Element {
               type="button"
               onClick={handleMarkAllRead}
               disabled={markAllNotificationsRead.isPending}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold bg-blue-pale/30 hover:bg-blue-pale/50 text-navy-primary border border-blue-pale/60 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-medium self-start sm:self-auto disabled:opacity-50"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold bg-blue-pale/30 dark:bg-[#5483B3]/20 hover:bg-blue-pale/50 dark:hover:bg-[#5483B3]/30 text-navy-primary dark:text-blue-pale border border-blue-pale/60 dark:border-[#5483B3]/40 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-medium self-start sm:self-auto disabled:opacity-50"
             >
-              <CheckCheck className="w-4 h-4 text-accent-blue" aria-hidden="true" />
+              <CheckCheck
+                className="w-4 h-4 text-accent-blue dark:text-blue-pale"
+                aria-hidden="true"
+              />
               <span>Tandai semua dibaca</span>
             </button>
           )}
@@ -223,7 +226,8 @@ export function AdminPemdesNotificationsPage(): React.JSX.Element {
                 Gagal memuat notifikasi
               </p>
               <p className="text-xs text-muted mt-1 max-w-sm">
-                Terjadi kendala saat mengambil data notifikasi dari server. Silakan coba kembali.
+                Terjadi kendala saat mengambil data notifikasi dari server.
+                Silakan coba kembali.
               </p>
               <button
                 type="button"
@@ -239,21 +243,24 @@ export function AdminPemdesNotificationsPage(): React.JSX.Element {
           {!isLoading && !isError && displayedItems.length === 0 && (
             <div className="py-16 px-6 text-center flex flex-col items-center justify-center">
               <div className="w-14 h-14 rounded-full bg-canvas border border-blue-pale/50 flex items-center justify-center text-muted mb-3">
-                {filter === 'unread' ? (
-                  <CheckCheck className="w-7 h-7 text-accent-blue" aria-hidden="true" />
+                {filter === "unread" ? (
+                  <CheckCheck
+                    className="w-7 h-7 text-accent-blue"
+                    aria-hidden="true"
+                  />
                 ) : (
                   <Bell className="w-7 h-7" aria-hidden="true" />
                 )}
               </div>
               <h3 className="text-base font-bold text-navy-deepest">
-                {filter === 'unread'
-                  ? 'Semua notifikasi telah dibaca'
-                  : 'Belum ada notifikasi'}
+                {filter === "unread"
+                  ? "Semua notifikasi telah dibaca"
+                  : "Belum ada notifikasi"}
               </h3>
               <p className="text-xs text-muted mt-1 max-w-sm leading-relaxed">
-                {filter === 'unread'
-                  ? 'Tidak ada notifikasi yang belum dibaca saat ini.'
-                  : 'Notifikasi baru tentang laporan dan komunikasi warga akan muncul di sini.'}
+                {filter === "unread"
+                  ? "Tidak ada notifikasi yang belum dibaca saat ini."
+                  : "Notifikasi baru tentang laporan dan komunikasi warga akan muncul di sini."}
               </p>
             </div>
           )}
@@ -271,26 +278,26 @@ export function AdminPemdesNotificationsPage(): React.JSX.Element {
                     role="button"
                     tabIndex={0}
                     onKeyDown={(e) => {
-                      if (e.key === 'Enter' || e.key === ' ') {
+                      if (e.key === "Enter" || e.key === " ") {
                         e.preventDefault();
                         handleNotificationClick(item);
                       }
                     }}
                     className={cn(
-                      'p-4 sm:p-5 rounded-2xl border transition-all cursor-pointer flex items-start gap-4 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-medium select-none',
+                      "p-4 sm:p-5 rounded-2xl border transition-all cursor-pointer flex items-start gap-4 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-medium select-none",
                       !item.isRead
-                        ? 'bg-blue-pale/15 border-blue-pale/60 hover:bg-blue-pale/25 shadow-xs'
-                        : 'bg-white border-blue-pale/30 hover:bg-canvas/80'
+                        ? "bg-blue-pale/15 dark:bg-[#5483B3]/15 border-blue-pale/60 dark:border-[#5483B3]/30 hover:bg-blue-pale/25 dark:hover:bg-[#5483B3]/25 shadow-xs"
+                        : "bg-white dark:bg-[#12233A] border-blue-pale/30 dark:border-white/5 hover:bg-canvas/80 dark:hover:bg-white/5",
                     )}
                     aria-label={`${item.judul}: ${item.pesan}`}
                   >
                     {/* Category Icon */}
                     <div
                       className={cn(
-                        'w-10 h-10 rounded-full flex items-center justify-center shrink-0 mt-0.5 shadow-xs',
+                        "w-10 h-10 rounded-full flex items-center justify-center shrink-0 mt-0.5 shadow-xs",
                         !item.isRead
-                          ? 'bg-blue-pale text-navy-primary'
-                          : 'bg-canvas text-muted border border-blue-pale/40'
+                          ? "bg-blue-pale dark:bg-[#5483B3]/30 text-navy-primary dark:text-blue-pale"
+                          : "bg-canvas dark:bg-white/5 text-muted dark:text-[#8FA4BA] border border-blue-pale/40 dark:border-white/10",
                       )}
                       aria-hidden="true"
                     >
@@ -303,10 +310,10 @@ export function AdminPemdesNotificationsPage(): React.JSX.Element {
                         <div className="flex items-center gap-2 min-w-0">
                           <h4
                             className={cn(
-                              'text-sm truncate',
+                              "text-sm truncate",
                               !item.isRead
-                                ? 'font-bold text-navy-deepest'
-                                : 'font-semibold text-slate-700'
+                                ? "font-bold text-navy-deepest"
+                                : "font-semibold text-slate-700 dark:text-[#AFC0D4]",
                             )}
                           >
                             {item.judul}
@@ -325,7 +332,7 @@ export function AdminPemdesNotificationsPage(): React.JSX.Element {
                           type="button"
                           onClick={(e) => handleDelete(e, item.id)}
                           disabled={deleteNotification.isPending}
-                          className="w-8 h-8 rounded-full flex items-center justify-center text-muted/60 hover:text-severity-berat hover:bg-red-50 transition-colors opacity-0 group-hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 shrink-0 cursor-pointer"
+                          className="w-8 h-8 rounded-full flex items-center justify-center text-muted/60 dark:text-[#8FA4BA] hover:text-severity-berat hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors opacity-0 group-hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 shrink-0 cursor-pointer"
                           title="Hapus notifikasi"
                           aria-label={`Hapus notifikasi ${item.judul}`}
                         >
@@ -333,17 +340,22 @@ export function AdminPemdesNotificationsPage(): React.JSX.Element {
                         </button>
                       </div>
 
-                      <p className="text-xs text-slate-600 mt-1 leading-relaxed">
+                      <p className="text-xs text-slate-600 dark:text-[#AFC0D4] mt-1 leading-relaxed">
                         {item.pesan}
                       </p>
 
-                      <div className="flex items-center gap-1.5 text-[11px] text-muted mt-2">
-                        <Clock className="w-3.5 h-3.5 text-muted/70 shrink-0" aria-hidden="true" />
+                      <div className="flex items-center gap-1.5 text-[11px] text-muted dark:text-[#8FA4BA] mt-2">
+                        <Clock
+                          className="w-3.5 h-3.5 text-muted/70 dark:text-[#8FA4BA] shrink-0"
+                          aria-hidden="true"
+                        />
                         <span>{formatRelativeTime(item.createdAt)}</span>
                         {item.laporanId && (
                           <>
-                            <span className="text-slate-300">•</span>
-                            <span className="font-medium text-navy-primary/70">
+                            <span className="text-slate-300 dark:text-slate-600">
+                              •
+                            </span>
+                            <span className="font-medium text-navy-primary/70 dark:text-blue-pale/80">
                               Laporan #{item.laporanId}
                             </span>
                           </>
@@ -359,30 +371,37 @@ export function AdminPemdesNotificationsPage(): React.JSX.Element {
 
         {/* 4. Pagination Footer */}
         {!isLoading && !isError && meta.total > 0 && (
-          <div className="pt-4 border-t border-blue-pale/30 flex flex-col md:flex-row items-center justify-between gap-4 text-[12px] text-muted select-none">
+          <div className="pt-4 border-t border-blue-pale/30 dark:border-white/10 flex flex-col md:flex-row items-center justify-between gap-4 text-[12px] text-muted dark:text-[#8FA4BA] select-none">
             {/* Left: Summary */}
             <div>
               <span>
-                Menampilkan{' '}
+                Menampilkan{" "}
                 <span className="font-bold text-navy-deepest">
                   {startItem}–{endItem}
-                </span>{' '}
-                dari <span className="font-bold text-navy-deepest">{meta.total}</span> notifikasi
+                </span>{" "}
+                dari{" "}
+                <span className="font-bold text-navy-deepest">
+                  {meta.total}
+                </span>{" "}
+                notifikasi
               </span>
             </div>
 
             {/* Right: Controls */}
-            <div className="flex items-center gap-1.5" aria-label="Navigasi Halaman Notifikasi">
+            <div
+              className="flex items-center gap-1.5"
+              aria-label="Navigasi Halaman Notifikasi"
+            >
               {/* Previous Button */}
               <button
                 type="button"
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page <= 1}
                 className={cn(
-                  'w-8 h-8 rounded-full flex items-center justify-center border border-blue-pale/50 text-muted transition-colors',
+                  "w-8 h-8 rounded-full flex items-center justify-center border border-blue-pale/50 dark:border-white/10 text-muted dark:text-[#AFC0D4] transition-colors",
                   page <= 1
-                    ? 'opacity-40 cursor-not-allowed'
-                    : 'hover:bg-canvas hover:text-navy-deepest cursor-pointer'
+                    ? "opacity-40 cursor-not-allowed"
+                    : "hover:bg-canvas dark:hover:bg-white/5 hover:text-navy-deepest cursor-pointer",
                 )}
                 title="Halaman Sebelumnya"
                 aria-label="Halaman Sebelumnya"
@@ -392,9 +411,12 @@ export function AdminPemdesNotificationsPage(): React.JSX.Element {
 
               {/* Page Numbers */}
               {pageNumbers.map((p, idx) => {
-                if (p === '...') {
+                if (p === "...") {
                   return (
-                    <span key={`ellipsis-${idx}`} className="px-1 text-muted text-xs">
+                    <span
+                      key={`ellipsis-${idx}`}
+                      className="px-1 text-muted dark:text-[#8FA4BA] text-xs"
+                    >
                       ...
                     </span>
                   );
@@ -409,12 +431,12 @@ export function AdminPemdesNotificationsPage(): React.JSX.Element {
                     type="button"
                     onClick={() => setPage(pageNum)}
                     className={cn(
-                      'w-8 h-8 rounded-full flex items-center justify-center text-[12px] transition-colors cursor-pointer',
+                      "w-8 h-8 rounded-full flex items-center justify-center text-[12px] transition-colors cursor-pointer",
                       isActive
-                        ? 'bg-navy-primary text-white font-bold shadow-xs'
-                        : 'border border-blue-pale/50 hover:bg-canvas text-muted font-medium'
+                        ? "bg-navy-primary text-white font-bold shadow-xs"
+                        : "border border-blue-pale/50 dark:border-white/10 hover:bg-canvas dark:hover:bg-white/5 text-muted dark:text-[#AFC0D4] font-medium",
                     )}
-                    aria-current={isActive ? 'page' : undefined}
+                    aria-current={isActive ? "page" : undefined}
                     aria-label={`Halaman ${pageNum}`}
                   >
                     {pageNum}
@@ -428,10 +450,10 @@ export function AdminPemdesNotificationsPage(): React.JSX.Element {
                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                 disabled={page >= totalPages}
                 className={cn(
-                  'w-8 h-8 rounded-full flex items-center justify-center border border-blue-pale/50 text-muted transition-colors',
+                  "w-8 h-8 rounded-full flex items-center justify-center border border-blue-pale/50 dark:border-white/10 text-muted dark:text-[#AFC0D4] transition-colors",
                   page >= totalPages
-                    ? 'opacity-40 cursor-not-allowed'
-                    : 'hover:bg-canvas hover:text-navy-deepest cursor-pointer'
+                    ? "opacity-40 cursor-not-allowed"
+                    : "hover:bg-canvas dark:hover:bg-white/5 hover:text-navy-deepest cursor-pointer",
                 )}
                 title="Halaman Berikutnya"
                 aria-label="Halaman Berikutnya"

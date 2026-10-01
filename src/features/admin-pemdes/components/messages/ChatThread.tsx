@@ -1,7 +1,15 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { CheckCheck, MessageSquare, AlertCircle, RefreshCw, Loader2, X, ImageOff } from 'lucide-react';
-import { type BackendChatItem } from '../../api/useAdminPemdesData';
-import { formatMessageTime, formatDateSeparator } from './chatDateUtils';
+import React, { useEffect, useRef, useState } from "react";
+import {
+  CheckCheck,
+  MessageSquare,
+  AlertCircle,
+  RefreshCw,
+  Loader2,
+  X,
+  ImageOff,
+} from "lucide-react";
+import { type BackendChatItem } from "../../api/useAdminPemdesData";
+import { formatMessageTime, formatDateSeparator } from "./chatDateUtils";
 
 export interface ChatThreadProps {
   messages: BackendChatItem[];
@@ -25,11 +33,14 @@ export function ChatThread({
   const prevMessagesCountRef = useRef<number>(messages.length);
 
   // Lightbox / Image Preview Modal state
-  const [lightboxImage, setLightboxImage] = useState<{ url: string; title: string } | null>(null);
+  const [lightboxImage, setLightboxImage] = useState<{
+    url: string;
+    title: string;
+  } | null>(null);
   const [brokenImages, setBrokenImages] = useState<Record<string, boolean>>({});
 
   // Helper to scroll the message container ref directly (never window.scrollTo)
-  const scrollToBottom = (behavior: ScrollBehavior = 'auto') => {
+  const scrollToBottom = (behavior: ScrollBehavior = "auto") => {
     if (scrollContainerRef.current) {
       scrollContainerRef.current.scrollTo({
         top: scrollContainerRef.current.scrollHeight,
@@ -45,7 +56,7 @@ export function ChatThread({
         prevReportIdRef.current = reportId;
         prevMessagesCountRef.current = messages.length;
         requestAnimationFrame(() => {
-          scrollToBottom('auto');
+          scrollToBottom("auto");
         });
       }
     }
@@ -56,7 +67,8 @@ export function ChatThread({
     if (!isLoading && messages.length > 0) {
       const timer = setTimeout(() => {
         if (scrollContainerRef.current) {
-          scrollContainerRef.current.scrollTop = scrollContainerRef.current.scrollHeight;
+          scrollContainerRef.current.scrollTop =
+            scrollContainerRef.current.scrollHeight;
         }
       }, 50);
       return () => clearTimeout(timer);
@@ -67,7 +79,7 @@ export function ChatThread({
   const lastMsg = messages[messages.length - 1];
   const lastReplyKey = lastMsg
     ? `${lastMsg.id}-${Boolean(lastMsg.balasan)}-${Boolean(lastMsg.lampiran_balasan?.url || lastMsg.lampiran_balasan_url)}`
-    : '';
+    : "";
   const prevLastReplyKeyRef = useRef<string>(lastReplyKey);
 
   useEffect(() => {
@@ -76,7 +88,7 @@ export function ChatThread({
 
     if (isNewMessage || isNewReply) {
       requestAnimationFrame(() => {
-        scrollToBottom('smooth');
+        scrollToBottom("smooth");
       });
     }
 
@@ -87,15 +99,15 @@ export function ChatThread({
   // Handle ESC for Lightbox
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
+      if (e.key === "Escape") {
         setLightboxImage(null);
       }
     };
     if (lightboxImage) {
-      document.addEventListener('keydown', handleKeyDown);
+      document.addEventListener("keydown", handleKeyDown);
     }
     return () => {
-      document.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener("keydown", handleKeyDown);
     };
   }, [lightboxImage]);
 
@@ -116,7 +128,10 @@ export function ChatThread({
       {/* 1. Loading State */}
       {isLoading && (
         <div className="h-full flex flex-col items-center justify-center gap-3 text-slate-400 py-12">
-          <Loader2 className="w-6 h-6 animate-spin text-navy-primary" aria-hidden="true" />
+          <Loader2
+            className="w-6 h-6 animate-spin text-navy-primary"
+            aria-hidden="true"
+          />
           <p className="text-xs">Memuat riwayat pesan...</p>
         </div>
       )}
@@ -143,14 +158,15 @@ export function ChatThread({
       {/* 3. Empty Messages State */}
       {!isLoading && !error && messages.length === 0 && (
         <div className="h-full flex flex-col items-center justify-center text-center gap-2.5 py-16 text-muted">
-          <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-slate-400">
+          <div className="w-12 h-12 rounded-full bg-slate-100 dark:bg-white/5 flex items-center justify-center text-slate-400 dark:text-[#8FA4BA]">
             <MessageSquare className="w-6 h-6" aria-hidden="true" />
           </div>
           <p className="text-sm font-bold text-navy-deepest">
             Belum ada pesan
           </p>
-          <p className="text-xs text-slate-500 max-w-xs leading-relaxed">
-            {citizenName || 'Warga pelapor'} belum mengirimkan pesan atau pertanyaan untuk laporan ini.
+          <p className="text-xs text-slate-500 dark:text-[#AFC0D4] max-w-xs leading-relaxed">
+            {citizenName || "Warga pelapor"} belum mengirimkan pesan atau
+            pertanyaan untuk laporan ini.
           </p>
         </div>
       )}
@@ -161,7 +177,7 @@ export function ChatThread({
           {/* Date Divider */}
           {dateDividerText && (
             <div className="flex justify-center my-3 select-none">
-              <span className="bg-slate-100 text-slate-500 text-[11px] font-medium px-3.5 py-1 rounded-full shadow-2xs">
+              <span className="bg-slate-100 dark:bg-[#12233A] text-slate-500 dark:text-[#AFC0D4] text-[11px] font-medium px-3.5 py-1 rounded-full shadow-2xs">
                 {dateDividerText}
               </span>
             </div>
@@ -172,19 +188,21 @@ export function ChatThread({
             const formattedTimeBalas = formatMessageTime(msg.waktu_balas);
 
             const hasBalasanText = Boolean(msg.balasan && msg.balasan.trim());
-            const attachmentUrl = msg.lampiran_balasan?.url || msg.lampiran_balasan_url;
-            const attachmentName = msg.lampiran_balasan?.nama || 'Foto Lampiran';
+            const attachmentUrl =
+              msg.lampiran_balasan?.url || msg.lampiran_balasan_url;
+            const attachmentName =
+              msg.lampiran_balasan?.nama || "Foto Lampiran";
             const hasBalasan = hasBalasanText || Boolean(attachmentUrl);
 
             return (
               <div key={`chat-msg-${msg.id}`} className="space-y-4">
                 {/* Message from Citizen (Left Bubble) */}
                 <div className="flex flex-col items-start max-w-[75%] sm:max-w-[65%]">
-                  <div className="bg-[#EFF4FB] rounded-2xl rounded-tl-none p-3.5 text-sm text-navy-deepest leading-relaxed shadow-xs wrap-anywhere whitespace-pre-wrap">
+                  <div className="bg-[#EFF4FB] dark:bg-[#12233A] rounded-2xl rounded-tl-none p-3.5 text-sm text-navy-deepest leading-relaxed shadow-xs wrap-anywhere whitespace-pre-wrap">
                     {msg.pesan}
                   </div>
                   {formattedTimeKirim && (
-                    <span className="text-[10px] text-slate-400 mt-1 ml-1 font-medium">
+                    <span className="text-[10px] text-slate-400 dark:text-[#8FA4BA] mt-1 ml-1 font-medium">
                       {formattedTimeKirim}
                     </span>
                   )}
@@ -193,10 +211,12 @@ export function ChatThread({
                 {/* Reply from Admin Pemdes (Right Bubble) */}
                 {hasBalasan && (
                   <div className="flex flex-col items-end max-w-[80%] sm:max-w-[65%] ml-auto">
-                    <div className="bg-navy-primary text-white rounded-2xl rounded-tr-none p-3.5 text-sm leading-relaxed shadow-sm space-y-2.5 max-w-full">
+                    <div className="bg-navy-primary dark:bg-[#5483B3] text-white rounded-2xl rounded-tr-none p-3.5 text-sm leading-relaxed shadow-sm space-y-2.5 max-w-full">
                       {/* Optional Text Message */}
                       {hasBalasanText && (
-                        <p className="whitespace-pre-wrap wrap-anywhere">{msg.balasan}</p>
+                        <p className="whitespace-pre-wrap wrap-anywhere">
+                          {msg.balasan}
+                        </p>
                       )}
 
                       {/* Attachment Image Display */}
@@ -205,14 +225,21 @@ export function ChatThread({
                           {brokenImages[attachmentUrl] ? (
                             <div className="p-4 flex flex-col items-center justify-center text-center text-white/80 gap-1.5 py-6">
                               <ImageOff className="w-6 h-6 text-white/60" />
-                              <span className="text-xs">Gambar gagal dimuat</span>
+                              <span className="text-xs">
+                                Gambar gagal dimuat
+                              </span>
                             </div>
                           ) : (
                             <img
                               src={attachmentUrl}
                               alt={attachmentName}
                               loading="lazy"
-                              onClick={() => setLightboxImage({ url: attachmentUrl, title: attachmentName })}
+                              onClick={() =>
+                                setLightboxImage({
+                                  url: attachmentUrl,
+                                  title: attachmentName,
+                                })
+                              }
                               onError={() => handleImageError(attachmentUrl)}
                               className="max-h-60 max-w-full w-auto rounded-xl object-cover cursor-pointer hover:opacity-95 transition-opacity"
                               title="Klik untuk memperbesar gambar"
@@ -222,9 +249,12 @@ export function ChatThread({
                       )}
                     </div>
 
-                    <div className="text-[10px] text-slate-400 mt-1 mr-1 flex items-center gap-1 justify-end font-medium">
+                    <div className="text-[10px] text-slate-400 dark:text-[#8FA4BA] mt-1 mr-1 flex items-center gap-1 justify-end font-medium">
                       {formattedTimeBalas && <span>{formattedTimeBalas}</span>}
-                      <CheckCheck className="w-3.5 h-3.5 text-blue-medium shrink-0" aria-hidden="true" />
+                      <CheckCheck
+                        className="w-3.5 h-3.5 text-blue-medium dark:text-blue-pale shrink-0"
+                        aria-hidden="true"
+                      />
                     </div>
                   </div>
                 )}

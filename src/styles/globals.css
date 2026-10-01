@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --color-navy-deepest: #021024;
   --color-navy-primary: #052659;
@@ -31,12 +33,64 @@
   color-scheme: light;
 }
 
+:root.dark,
+[data-theme="dark"] {
+  color-scheme: dark;
+}
+
 body {
   margin: 0;
   min-height: 100vh;
   background-color: var(--color-canvas);
   color: var(--color-navy-deepest);
   font-family: var(--font-sans);
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.dark {
+  --color-canvas: #07111F;
+  --color-surface: #0D1A2D;
+  --color-surface-elevated: #12233A;
+  --color-navy-deepest: #F4F7FB;
+  --color-muted: #8FA4BA;
+  --color-border: rgba(193, 232, 255, 0.12);
+}
+
+.dark body {
+  background-color: #07111F;
+  color: #F4F7FB;
+}
+
+.dark .bg-white {
+  background-color: #0D1A2D;
+}
+
+.dark .bg-canvas {
+  background-color: #07111F;
+}
+
+.dark .text-navy-deepest {
+  color: #F4F7FB;
+}
+
+.dark .text-muted {
+  color: #8FA4BA;
+}
+
+.dark .border-blue-pale\/60,
+.dark .border-blue-pale\/50,
+.dark .border-blue-pale\/40,
+.dark .border-blue-pale\/30,
+.dark .border-blue-pale\/20,
+.dark .border-gray-100,
+.dark .border-gray-200 {
+  border-color: rgba(193, 232, 255, 0.12);
+}
+
+.dark .bg-\[\#F8F9FF\],
+.dark .bg-\[\#EEF5FB\],
+.dark .bg-blue-pale\/20 {
+  background-color: #12233A;
 }
 
 .map-grid-bg {

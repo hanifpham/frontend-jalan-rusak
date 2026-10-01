@@ -1,18 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import { useAuth } from '@/features/auth/useAuth';
+import React, { useState, useEffect } from "react";
+import { useAuth } from "@/features/auth/useAuth";
 import {
   useAdminChatInbox,
   useReportChat,
   useReplyChat,
   useAdminReportDetail,
-} from '../api/useAdminPemdesData';
-import { MessagesHeader } from '../components/messages/MessagesHeader';
-import { ConversationList } from '../components/messages/ConversationList';
-import { ChatHeader } from '../components/messages/ChatHeader';
-import { ReportContextBar } from '../components/messages/ReportContextBar';
-import { ChatThread } from '../components/messages/ChatThread';
-import { MessageComposer } from '../components/messages/MessageComposer';
-import { MessageSquare } from 'lucide-react';
+} from "../api/useAdminPemdesData";
+import { MessagesHeader } from "../components/messages/MessagesHeader";
+import { ConversationList } from "../components/messages/ConversationList";
+import { ChatHeader } from "../components/messages/ChatHeader";
+import { ReportContextBar } from "../components/messages/ReportContextBar";
+import { ChatThread } from "../components/messages/ChatThread";
+import { MessageComposer } from "../components/messages/MessageComposer";
+import { MessageSquare } from "lucide-react";
 
 export function AdminPemdesMessagesPage(): React.JSX.Element {
   const { user } = useAuth();
@@ -20,12 +20,12 @@ export function AdminPemdesMessagesPage(): React.JSX.Element {
   // Dynamic village name derived from authenticated session
   const villageName =
     user?.wilayahId === 2
-      ? 'Lobener Lor'
+      ? "Lobener Lor"
       : user?.wilayahId === 1
-      ? 'Indramayu'
-      : user?.wilayahId
-      ? `Wilayah #${user.wilayahId}`
-      : 'Lobener Lor';
+        ? "Indramayu"
+        : user?.wilayahId
+          ? `Wilayah #${user.wilayahId}`
+          : "Lobener Lor";
 
   // 1. Fetch Conversations Inbox from verified GET /api/admin/chat
   const {
@@ -54,7 +54,9 @@ export function AdminPemdesMessagesPage(): React.JSX.Element {
   }, [inbox, selectedReportId]);
 
   // Active inbox item metadata
-  const activeInboxItem = inbox.find((item) => item.laporan_id === selectedReportId);
+  const activeInboxItem = inbox.find(
+    (item) => item.laporan_id === selectedReportId,
+  );
 
   // 2. Fetch Chat Thread from verified GET /api/admin/laporan/:id/chat
   const {
@@ -65,25 +67,31 @@ export function AdminPemdesMessagesPage(): React.JSX.Element {
   } = useReportChat(selectedReportId ?? undefined);
 
   // 3. Fetch Report Context from verified GET /api/admin/laporan/:id
-  const {
-    data: reportDetailData,
-  } = useAdminReportDetail(selectedReportId ?? undefined);
+  const { data: reportDetailData } = useAdminReportDetail(
+    selectedReportId ?? undefined,
+  );
 
   // 4. Reply Mutation via verified PUT /api/admin/chat/:chat_id
   const replyMutation = useReplyChat(selectedReportId ?? undefined);
   const [sendError, setSendError] = useState<string | null>(null);
 
   // Handle Send Reply with optional attachment
-  const handleSendReply = async (messageText: string, attachmentFile?: File | null) => {
+  const handleSendReply = async (
+    messageText: string,
+    attachmentFile?: File | null,
+  ) => {
     if (!selectedReportId || messages.length === 0) return;
     setSendError(null);
 
     // Identify target chat_id to reply:
     // Prefer the latest unanswered citizen message; fallback to the latest message in thread
-    const unanswered = messages.filter((m) => !m.balasan && !m.lampiran_balasan?.url && !m.lampiran_balasan_url);
-    const targetChat = unanswered.length > 0
-      ? unanswered[unanswered.length - 1]
-      : messages[messages.length - 1];
+    const unanswered = messages.filter(
+      (m) => !m.balasan && !m.lampiran_balasan?.url && !m.lampiran_balasan_url,
+    );
+    const targetChat =
+      unanswered.length > 0
+        ? unanswered[unanswered.length - 1]
+        : messages[messages.length - 1];
 
     if (!targetChat) return;
 
@@ -95,7 +103,8 @@ export function AdminPemdesMessagesPage(): React.JSX.Element {
       });
       setSendError(null);
     } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Gagal mengirim balasan chat.';
+      const msg =
+        err instanceof Error ? err.message : "Gagal mengirim balasan chat.";
       setSendError(msg);
       throw err;
     }
@@ -107,10 +116,11 @@ export function AdminPemdesMessagesPage(): React.JSX.Element {
   };
 
   // Determine if composer should be disabled
-  const isComposerDisabled = !selectedReportId || (messages.length === 0 && !isChatLoading);
+  const isComposerDisabled =
+    !selectedReportId || (messages.length === 0 && !isChatLoading);
   const composerDisabledReason =
     messages.length === 0 && !isChatLoading
-      ? 'Belum ada pesan dari warga untuk dibalas'
+      ? "Belum ada pesan dari warga untuk dibalas"
       : undefined;
 
   return (
@@ -123,7 +133,7 @@ export function AdminPemdesMessagesPage(): React.JSX.Element {
         {/* Kolom Kiri: Daftar Percakapan (~300px) */}
         <div
           className={`w-full h-full min-h-0 ${
-            selectedReportId !== null ? 'hidden lg:block' : 'block'
+            selectedReportId !== null ? "hidden lg:block" : "block"
           }`}
         >
           <ConversationList
@@ -139,10 +149,10 @@ export function AdminPemdesMessagesPage(): React.JSX.Element {
         {/* Kolom Kanan: Area Chat (Card Putih Rounded 24px) */}
         <div
           className={`w-full h-full min-h-0 ${
-            selectedReportId === null ? 'hidden lg:block' : 'block'
+            selectedReportId === null ? "hidden lg:block" : "block"
           }`}
         >
-          <div className="w-full h-full rounded-[24px] bg-white border border-slate-200/80 shadow-sm p-5 flex flex-col min-h-0 overflow-hidden">
+          <div className="w-full h-full rounded-[24px] bg-white dark:bg-[#0D1A2D] border border-slate-200/80 dark:border-[rgba(193,232,255,0.12)] shadow-sm p-5 flex flex-col min-h-0 overflow-hidden">
             {selectedReportId && activeInboxItem ? (
               <>
                 {/* 2.1 Chat Header */}
@@ -190,15 +200,16 @@ export function AdminPemdesMessagesPage(): React.JSX.Element {
             ) : (
               /* Empty Selection State */
               <div className="h-full flex flex-col items-center justify-center text-center gap-3 p-8 text-muted">
-                <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center text-slate-400">
+                <div className="w-16 h-16 rounded-full bg-slate-100 dark:bg-white/5 flex items-center justify-center text-slate-400 dark:text-[#8FA4BA]">
                   <MessageSquare className="w-8 h-8" aria-hidden="true" />
                 </div>
                 <h3 className="text-base font-bold text-navy-deepest">
                   Pusat Percakapan Warga
                 </h3>
-                <p className="text-xs text-slate-500 max-w-sm leading-relaxed">
-                  Pilih salah satu percakapan dari daftar di sebelah kiri untuk melihat pesan
-                  dan membalas warga pelapor di wilayah penugasan Anda.
+                <p className="text-xs text-slate-500 dark:text-[#AFC0D4] max-w-sm leading-relaxed">
+                  Pilih salah satu percakapan dari daftar di sebelah kiri untuk
+                  melihat pesan dan membalas warga pelapor di wilayah penugasan
+                  Anda.
                 </p>
               </div>
             )}

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   MessageSquare,
   Send,
@@ -7,8 +7,12 @@ import {
   AlertCircle,
   X,
   CornerDownRight,
-} from 'lucide-react';
-import { useReportChat, useReplyChat, type BackendChatItem } from '../../api/useAdminPemdesData';
+} from "lucide-react";
+import {
+  useReportChat,
+  useReplyChat,
+  type BackendChatItem,
+} from "../../api/useAdminPemdesData";
 
 export interface ReportChatCardProps {
   reportId: number;
@@ -16,17 +20,16 @@ export interface ReportChatCardProps {
 }
 
 function getInitials(name?: string): string {
-  if (!name) return 'W';
+  if (!name) return "W";
   const parts = name.trim().split(/\s+/).filter(Boolean);
   const first = parts[0];
   const second = parts[1];
-  if (!first) return 'W';
+  if (!first) return "W";
   if (parts.length === 1 || !second) {
     return first.slice(0, 2).toUpperCase();
   }
   return `${first.charAt(0)}${second.charAt(0)}`.toUpperCase();
 }
-
 
 export function ReportChatCard({
   reportId,
@@ -35,8 +38,10 @@ export function ReportChatCard({
   const { data: messages = [], isLoading, error } = useReportChat(reportId);
   const replyMutation = useReplyChat(reportId);
 
-  const [activeReplyChatId, setActiveReplyChatId] = useState<number | null>(null);
-  const [replyText, setReplyText] = useState('');
+  const [activeReplyChatId, setActiveReplyChatId] = useState<number | null>(
+    null,
+  );
+  const [replyText, setReplyText] = useState("");
   const [actionError, setActionError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -53,29 +58,32 @@ export function ReportChatCard({
         chatId,
         balasan: replyText.trim(),
       });
-      setReplyText('');
+      setReplyText("");
       setActiveReplyChatId(null);
     } catch (err) {
       setActionError(
-        err instanceof Error ? err.message : 'Gagal mengirim balasan chat.'
+        err instanceof Error ? err.message : "Gagal mengirim balasan chat.",
       );
     }
   };
 
   return (
     <>
-      <div className="bg-white rounded-card border border-blue-pale/40 shadow-sm p-6 flex flex-col gap-4">
+      <div className="bg-white dark:bg-[#0D1A2D] rounded-card border border-blue-pale/40 dark:border-[rgba(193,232,255,0.12)] shadow-sm p-6 flex flex-col gap-4">
         {/* Header: Chat Icon + Title & Privat Badge */}
-        <div className="flex items-center justify-between border-b border-gray-100 pb-4">
+        <div className="flex items-center justify-between border-b border-gray-100 dark:border-white/10 pb-4">
           <div className="flex items-center gap-2">
-            <MessageSquare className="w-5 h-5 text-navy-primary" aria-hidden="true" />
+            <MessageSquare
+              className="w-5 h-5 text-navy-primary dark:text-blue-pale"
+              aria-hidden="true"
+            />
             <h2 className="text-[17px] font-bold text-navy-deepest">
               Chat dengan Pelapor
             </h2>
           </div>
 
           <span
-            className="inline-flex items-center gap-1 bg-canvas text-muted border border-blue-pale/40 px-2.5 py-0.5 rounded-full text-[11px] font-bold select-none"
+            className="inline-flex items-center gap-1 bg-canvas dark:bg-[#12233A] text-muted dark:text-[#AFC0D4] border border-blue-pale/40 dark:border-white/10 px-2.5 py-0.5 rounded-full text-[11px] font-bold select-none"
             title="Percakapan privat antara warga pelapor dan instansi berwenang"
           >
             Privat
@@ -84,15 +92,18 @@ export function ReportChatCard({
 
         {/* Loading State */}
         {isLoading && (
-          <div className="p-6 flex items-center justify-center gap-2 text-muted text-xs">
-            <Loader2 className="w-4 h-4 animate-spin text-navy-primary" aria-hidden="true" />
+          <div className="p-6 flex items-center justify-center gap-2 text-muted dark:text-[#AFC0D4] text-xs">
+            <Loader2
+              className="w-4 h-4 animate-spin text-navy-primary dark:text-blue-pale"
+              aria-hidden="true"
+            />
             <span>Memuat pesan percakapan...</span>
           </div>
         )}
 
         {/* Error State */}
         {!isLoading && error && (
-          <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-xs text-severity-berat flex items-center gap-2">
+          <div className="p-4 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/40 rounded-xl text-xs text-severity-berat flex items-center gap-2">
             <AlertCircle className="w-4 h-4 shrink-0" aria-hidden="true" />
             <span>Gagal memuat riwayat percakapan.</span>
           </div>
@@ -104,7 +115,7 @@ export function ReportChatCard({
             {latestMessage ? (
               <div className="flex flex-col gap-3">
                 {/* Latest Citizen Message Cardlet */}
-                <div className="flex items-start gap-3 p-3.5 bg-canvas/70 rounded-2xl border border-blue-pale/40">
+                <div className="flex items-start gap-3 p-3.5 bg-canvas/70 dark:bg-[#12233A] rounded-2xl border border-blue-pale/40 dark:border-white/10">
                   <div className="w-10 h-10 rounded-full bg-navy-primary text-white font-bold flex items-center justify-center shrink-0 text-[13px] shadow-xs select-none">
                     {getInitials(latestMessage.user?.name || reporterName)}
                   </div>
@@ -112,20 +123,23 @@ export function ReportChatCard({
                   <div className="flex-1 flex flex-col gap-1 min-w-0">
                     <div className="flex items-center justify-between gap-1">
                       <span className="text-[13px] font-bold text-navy-deepest truncate">
-                        {latestMessage.user?.name || reporterName || 'Pelapor'}
+                        {latestMessage.user?.name || reporterName || "Pelapor"}
                       </span>
-                      <span className="text-[11px] text-muted shrink-0">
+                      <span className="text-[11px] text-muted dark:text-[#8FA4BA] shrink-0">
                         {latestMessage.waktu_kirim}
                       </span>
                     </div>
-                    <p className="text-[12px] text-muted line-clamp-2 leading-relaxed">
+                    <p className="text-[12px] text-muted dark:text-[#AFC0D4] line-clamp-2 leading-relaxed">
                       &ldquo;{latestMessage.pesan}&rdquo;
                     </p>
 
                     {/* Admin Reply Indicator if already replied */}
                     {latestMessage.balasan ? (
-                      <div className="mt-1 pt-1.5 border-t border-blue-pale/30 flex items-start gap-1.5 text-[11px] text-navy-primary font-medium">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-status-selesai shrink-0 mt-0.5" aria-hidden="true" />
+                      <div className="mt-1 pt-1.5 border-t border-blue-pale/30 dark:border-white/10 flex items-start gap-1.5 text-[11px] text-navy-primary dark:text-blue-pale font-medium">
+                        <CheckCircle2
+                          className="w-3.5 h-3.5 text-status-selesai shrink-0 mt-0.5"
+                          aria-hidden="true"
+                        />
                         <span className="truncate">
                           Sudah dibalas: &ldquo;{latestMessage.balasan}&rdquo;
                         </span>
@@ -158,7 +172,7 @@ export function ReportChatCard({
                             type="button"
                             onClick={() => {
                               setActiveReplyChatId(null);
-                              setReplyText('');
+                              setReplyText("");
                             }}
                             className="px-3 py-1 rounded-full text-xs text-muted hover:bg-canvas"
                           >
@@ -166,7 +180,9 @@ export function ReportChatCard({
                           </button>
                           <button
                             type="button"
-                            disabled={replyMutation.isPending || !replyText.trim()}
+                            disabled={
+                              replyMutation.isPending || !replyText.trim()
+                            }
                             onClick={() => handleSendReply(latestMessage.id)}
                             className="inline-flex items-center gap-1.5 bg-navy-primary hover:bg-navy-deepest text-white px-3.5 py-1.5 rounded-full text-xs font-semibold disabled:opacity-50 cursor-pointer"
                           >
@@ -196,14 +212,18 @@ export function ReportChatCard({
               /* Honest Empty State (Rule 16: No fake messages) */
               <div className="py-6 px-4 flex flex-col items-center justify-center gap-2 bg-canvas/40 rounded-2xl border border-blue-pale/30 text-center">
                 <div className="w-10 h-10 rounded-full bg-canvas border border-blue-pale/50 flex items-center justify-center text-blue-medium">
-                  <MessageSquare className="w-5 h-5 text-muted/60" aria-hidden="true" />
+                  <MessageSquare
+                    className="w-5 h-5 text-muted/60"
+                    aria-hidden="true"
+                  />
                 </div>
                 <div className="space-y-0.5">
                   <p className="text-[13px] font-bold text-navy-deepest">
                     Belum Ada Pesan Percakapan
                   </p>
                   <p className="text-[11px] text-muted max-w-xs">
-                    Pelapor belum mengirimkan pertanyaan atau pesan lanjutan untuk laporan ini.
+                    Pelapor belum mengirimkan pertanyaan atau pesan lanjutan
+                    untuk laporan ini.
                   </p>
                 </div>
               </div>
@@ -223,7 +243,7 @@ export function ReportChatCard({
               <span>
                 {messages.length > 0
                   ? `Buka Chat Percakapan (${messages.length})`
-                  : 'Buka Chat Percakapan'}
+                  : "Buka Chat Percakapan"}
               </span>
             </button>
           </>
@@ -253,7 +273,7 @@ export function ReportChatCard({
                 </div>
                 <div>
                   <h3 className="text-sm font-bold text-navy-deepest">
-                    {reporterName || 'Warga Pelapor'}
+                    {reporterName || "Warga Pelapor"}
                   </h3>
                   <p className="text-[11px] text-muted">
                     Laporan #{reportId} • Jalur Privat Pemdes
@@ -288,7 +308,7 @@ export function ReportChatCard({
                       <div className="bg-white p-3.5 rounded-2xl rounded-tl-sm border border-blue-pale/40 shadow-xs space-y-1">
                         <div className="flex items-center justify-between gap-3 text-[10px] text-muted">
                           <span className="font-semibold text-navy-deepest">
-                            {msg.user?.name || reporterName || 'Pelapor'}
+                            {msg.user?.name || reporterName || "Pelapor"}
                           </span>
                           <span>{msg.waktu_kirim}</span>
                         </div>
@@ -319,7 +339,9 @@ export function ReportChatCard({
                         <div className="flex items-center gap-2">
                           <input
                             type="text"
-                            value={activeReplyChatId === msg.id ? replyText : ''}
+                            value={
+                              activeReplyChatId === msg.id ? replyText : ""
+                            }
                             onChange={(e) => {
                               setActiveReplyChatId(msg.id);
                               setReplyText(e.target.value);
@@ -337,7 +359,8 @@ export function ReportChatCard({
                             onClick={() => handleSendReply(msg.id)}
                             className="bg-navy-primary hover:bg-navy-deepest text-white px-3 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1 disabled:opacity-50 cursor-pointer"
                           >
-                            {replyMutation.isPending && activeReplyChatId === msg.id ? (
+                            {replyMutation.isPending &&
+                            activeReplyChatId === msg.id ? (
                               <Loader2 className="w-3.5 h-3.5 animate-spin" />
                             ) : (
                               <Send className="w-3.5 h-3.5" />

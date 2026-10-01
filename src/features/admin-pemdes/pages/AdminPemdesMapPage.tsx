@@ -1,38 +1,35 @@
-import React, { useState, useMemo } from 'react';
-import { useAuth } from '@/features/auth/useAuth';
-import { useAdminMapReports } from '../api/useAdminPemdesData';
-import { MapHeader } from '../components/map/MapHeader';
-import { MapScopeChips } from '../components/map/MapScopeChips';
+import React, { useState, useMemo } from "react";
+import { useAuth } from "@/features/auth/useAuth";
+import { useSettings } from "@/hooks/useSettings";
+import { useAdminMapReports } from "../api/useAdminPemdesData";
+import { MapHeader } from "../components/map/MapHeader";
+import { MapScopeChips } from "../components/map/MapScopeChips";
 import {
   MapFilters,
   type MapStatusFilter,
   type MapSortFilter,
-} from '../components/map/MapFilters';
-import { MapView } from '../components/map/MapView';
+} from "../components/map/MapFilters";
+import { MapView } from "../components/map/MapView";
 
 export function AdminPemdesMapPage(): React.JSX.Element {
   const { user } = useAuth();
+  const { data: settings } = useSettings();
 
   // Dynamic village name from authenticated user session (consistent with AdminPemdesReportsPage)
   const villageName =
     user?.wilayahId === 2
-      ? 'Lobener Lor'
+      ? "Lobener Lor"
       : user?.wilayahId
-      ? `Wilayah #${user.wilayahId}`
-      : undefined;
+        ? `Wilayah #${user.wilayahId}`
+        : undefined;
 
   // Filter states
-  const [search, setSearch] = useState('');
-  const [status, setStatus] = useState<MapStatusFilter>('all');
-  const [sortBy, setSortBy] = useState<MapSortFilter>('default');
+  const [search, setSearch] = useState("");
+  const [status, setStatus] = useState<MapStatusFilter>("all");
+  const [sortBy, setSortBy] = useState<MapSortFilter>("default");
 
   // React Query hook for verified GET /api/admin/map/laporan
-  const {
-    data: mapData,
-    isLoading,
-    error,
-    refetch,
-  } = useAdminMapReports();
+  const { data: mapData, isLoading, error, refetch } = useAdminMapReports();
 
   // Client-side filtering and sorting on verified backend coordinates
   const displayedReports = useMemo(() => {
@@ -46,16 +43,16 @@ export function AdminPemdesMapPage(): React.JSX.Element {
     }
 
     // 2. Status filter
-    if (status !== 'all') {
+    if (status !== "all") {
       list = list.filter((r) => r.status === status);
     }
 
     // 3. Sorting
-    if (sortBy === 'title_asc') {
+    if (sortBy === "title_asc") {
       list.sort((a, b) => a.judul.localeCompare(b.judul));
-    } else if (sortBy === 'title_desc') {
+    } else if (sortBy === "title_desc") {
       list.sort((a, b) => b.judul.localeCompare(a.judul));
-    } else if (sortBy === 'status') {
+    } else if (sortBy === "status") {
       list.sort((a, b) => a.status.localeCompare(b.status));
     }
 
@@ -63,9 +60,9 @@ export function AdminPemdesMapPage(): React.JSX.Element {
   }, [mapData?.reports, search, status, sortBy]);
 
   const handleResetFilters = () => {
-    setSearch('');
-    setStatus('all');
-    setSortBy('default');
+    setSearch("");
+    setStatus("all");
+    setSortBy("default");
   };
 
   const totalReportsCount = mapData?.total ?? 0;
@@ -99,6 +96,8 @@ export function AdminPemdesMapPage(): React.JSX.Element {
         isLoading={isLoading}
         error={error instanceof Error ? error.message : null}
         onRetry={refetch}
+        mapDefaultView={settings?.preferences?.map_default_view}
+        showLabels={settings?.preferences?.map_show_labels}
       />
     </div>
   );

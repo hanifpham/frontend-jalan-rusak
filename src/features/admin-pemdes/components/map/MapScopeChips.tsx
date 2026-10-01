@@ -1,6 +1,6 @@
-import React from 'react';
-import { Lock } from 'lucide-react';
-import { WilayahChip } from '../WilayahChip';
+import React from "react";
+import { Lock } from "lucide-react";
+import { WilayahChip } from "../WilayahChip";
 
 export interface MapScopeChipsProps {
   villageName?: string;
@@ -20,22 +20,30 @@ export function MapScopeChips({
 
       {/* 2. Authority Constraint Chip */}
       <div
-        className="inline-flex items-center gap-2 bg-white text-navy-deepest font-medium text-[13px] px-4 py-2 rounded-full border border-blue-pale/50 shadow-xs"
+        className="inline-flex items-center gap-2 bg-white dark:bg-[#0D1A2D] text-navy-deepest font-medium text-[13px] px-4 py-2 rounded-full border border-blue-pale/50 dark:border-[rgba(193,232,255,0.12)] shadow-xs"
         title="Kewenangan administrasi khusus jalan desa"
       >
-        <Lock className="w-3.5 h-3.5 text-muted shrink-0" aria-hidden="true" />
+        <Lock
+          className="w-3.5 h-3.5 text-muted dark:text-[#8FA4BA] shrink-0"
+          aria-hidden="true"
+        />
         <span>Jalan Desa</span>
       </div>
 
       {/* 3. Live Total Reports Count Chip */}
-      <div className="inline-flex items-center gap-2 bg-white text-navy-deepest text-[13px] font-medium px-4 py-2 rounded-full border border-blue-pale/50 shadow-xs">
-        <span className="w-2 h-2 rounded-full bg-blue-medium shrink-0" aria-hidden="true" />
+      <div className="inline-flex items-center gap-2 bg-white dark:bg-[#0D1A2D] text-navy-deepest text-[13px] font-medium px-4 py-2 rounded-full border border-blue-pale/50 dark:border-[rgba(193,232,255,0.12)] shadow-xs">
+        <span
+          className="w-2 h-2 rounded-full bg-blue-medium shrink-0"
+          aria-hidden="true"
+        />
         {isLoading ? (
-          <span className="inline-block w-6 h-4 bg-gray-200 rounded animate-pulse" />
+          <span className="inline-block w-6 h-4 bg-gray-200 dark:bg-white/10 rounded animate-pulse" />
         ) : (
-          <span className="font-bold text-navy-deepest">{totalReports}</span>
+          <span className="font-bold text-navy-deepest">
+            {totalReports}
+          </span>
         )}
-        <span className="text-muted">Laporan</span>
+        <span className="text-muted dark:text-[#AFC0D4]">Laporan</span>
       </div>
     </div>
   );

@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { Camera, ZoomIn, X, Image as ImageIcon } from 'lucide-react';
-import { type Detection } from '@/types/domain';
+import React, { useState, useEffect } from "react";
+import { Camera, ZoomIn, X, Image as ImageIcon } from "lucide-react";
+import { type Detection } from "@/types/domain";
 
 export interface ReportImageCardProps {
   imageUrl?: string;
@@ -19,19 +19,19 @@ export function ReportImageCard({
   // Close lightbox on Escape key
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === 'Escape') {
+      if (event.key === "Escape") {
         setIsLightboxOpen(false);
       }
     }
 
     if (isLightboxOpen) {
-      document.addEventListener('keydown', handleKeyDown);
-      document.body.style.overflow = 'hidden';
+      document.addEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = "hidden";
     }
 
     return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-      document.body.style.overflow = '';
+      document.removeEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = "";
     };
   }, [isLightboxOpen]);
 
@@ -39,11 +39,14 @@ export function ReportImageCard({
 
   return (
     <>
-      <div className="bg-white rounded-card border border-blue-pale/40 shadow-sm p-6 flex flex-col gap-4">
+      <div className="bg-white dark:bg-[#0D1A2D] rounded-card border border-blue-pale/40 dark:border-[rgba(193,232,255,0.12)] shadow-sm p-6 flex flex-col gap-4">
         {/* Card Header: Camera Icon + Title & Zoom Button */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Camera className="w-5 h-5 text-navy-primary" aria-hidden="true" />
+            <Camera
+              className="w-5 h-5 text-navy-primary dark:text-blue-pale"
+              aria-hidden="true"
+            />
             <h2 className="text-[17px] font-bold text-navy-deepest">
               Foto Kerusakan Jalan
             </h2>
@@ -53,7 +56,7 @@ export function ReportImageCard({
             <button
               type="button"
               onClick={() => setIsLightboxOpen(true)}
-              className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-navy-primary hover:bg-canvas px-3.5 py-1.5 rounded-full border border-blue-pale/40 transition-colors cursor-pointer select-none"
+              className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-navy-primary dark:text-navy-deepest hover:bg-canvas dark:hover:bg-white/5 px-3.5 py-1.5 rounded-full border border-blue-pale/40 dark:border-white/10 transition-colors cursor-pointer select-none"
               title="Perbesar Foto"
             >
               <ZoomIn className="w-4 h-4" aria-hidden="true" />
@@ -110,7 +113,8 @@ export function ReportImageCard({
                   Foto Tidak Tersedia
                 </p>
                 <p className="text-xs text-slate-400 max-w-xs">
-                  Foto kerusakan jalan belum diunggah atau tautan gambar tidak dapat dimuat.
+                  Foto kerusakan jalan belum diunggah atau tautan gambar tidak
+                  dapat dimuat.
                 </p>
               </div>
             </div>

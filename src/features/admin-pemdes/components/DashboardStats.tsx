@@ -1,5 +1,11 @@
-import React from 'react';
-import { BarChart3, Hourglass, HardHat, CheckCircle2, TrendingUp } from 'lucide-react';
+import React from "react";
+import {
+  BarChart3,
+  Hourglass,
+  HardHat,
+  CheckCircle2,
+  TrendingUp,
+} from "lucide-react";
 
 export interface DashboardStatsData {
   total_laporan: number;
@@ -29,10 +35,10 @@ export function DashboardStats({
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
       {/* 1. Total Laporan (Hero Navy Card) */}
-      <div className="bg-navy-primary rounded-card p-6 text-white shadow-[0_8px_24px_rgba(5,38,89,0.18)] flex flex-col justify-between relative overflow-hidden">
+      <div className="bg-navy-primary dark:bg-[#001234] rounded-card p-6 text-white shadow-[0_8px_24px_rgba(5,38,89,0.18)] dark:shadow-black/40 border border-transparent dark:border-white/10 flex flex-col justify-between relative overflow-hidden">
         <div className="absolute -right-4 -top-4 w-28 h-28 bg-white/5 rounded-full pointer-events-none" />
         <div className="flex items-center justify-between">
-          <span className="text-xs font-medium text-slate-300 tracking-wide uppercase">
+          <span className="text-xs font-medium text-slate-300 dark:text-[#AFC0D4] tracking-wide uppercase">
             Total Laporan
           </span>
           <span className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-slate-200">
@@ -50,19 +56,19 @@ export function DashboardStats({
           </div>
         </div>
 
-        <div className="flex items-center gap-1.5 text-xs text-blue-pale font-semibold">
+        <div className="flex items-center gap-1.5 text-xs text-blue-pale dark:text-blue-pale font-semibold">
           <TrendingUp className="w-4 h-4" aria-hidden="true" />
           <span>Laporan terdaftar</span>
         </div>
       </div>
 
       {/* 2. Menunggu Verifikasi */}
-      <div className="bg-white rounded-card p-6 shadow-[0_4px_20px_rgba(0,18,52,0.04)] border border-slate-100 flex flex-col justify-between hover:shadow-md transition-shadow">
+      <div className="bg-white dark:bg-[#0D1A2D] rounded-card p-6 shadow-[0_4px_20px_rgba(0,18,52,0.04)] dark:shadow-black/20 border border-slate-100 dark:border-white/10 flex flex-col justify-between hover:shadow-md transition-shadow">
         <div className="flex items-center justify-between">
-          <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
+          <span className="text-xs font-semibold text-slate-500 dark:text-[#8FA4BA] uppercase tracking-wide">
             Menunggu Verifikasi
           </span>
-          <span className="w-8 h-8 rounded-full bg-amber-50 text-status-menunggu flex items-center justify-center">
+          <span className="w-8 h-8 rounded-full bg-amber-50 dark:bg-amber-950/40 text-status-menunggu flex items-center justify-center">
             <Hourglass className="w-4 h-4" aria-hidden="true" />
           </span>
         </div>
@@ -70,7 +76,7 @@ export function DashboardStats({
         <div className="my-3">
           <div className="text-4xl font-extrabold text-navy-deepest tracking-tight">
             {isLoading ? (
-              <span className="inline-block w-14 h-10 bg-slate-100 rounded animate-pulse" />
+              <span className="inline-block w-14 h-10 bg-slate-100 dark:bg-white/10 rounded animate-pulse" />
             ) : (
               menunggu
             )}
@@ -78,20 +84,22 @@ export function DashboardStats({
         </div>
 
         <div className="flex items-center gap-1.5">
-          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-50 text-severity-berat">
+          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-50 dark:bg-red-950/40 text-severity-berat">
             <span className="w-1.5 h-1.5 rounded-full bg-severity-berat" />
-            {menunggu > 0 ? `${menunggu} laporan menunggu` : 'Tidak ada antrean'}
+            {menunggu > 0
+              ? `${menunggu} laporan menunggu`
+              : "Tidak ada antrean"}
           </span>
         </div>
       </div>
 
       {/* 3. Sedang Ditangani */}
-      <div className="bg-white rounded-card p-6 shadow-[0_4px_20px_rgba(0,18,52,0.04)] border border-slate-100 flex flex-col justify-between hover:shadow-md transition-shadow">
+      <div className="bg-white dark:bg-[#0D1A2D] rounded-card p-6 shadow-[0_4px_20px_rgba(0,18,52,0.04)] dark:shadow-black/20 border border-slate-100 dark:border-white/10 flex flex-col justify-between hover:shadow-md transition-shadow">
         <div className="flex items-center justify-between">
-          <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
+          <span className="text-xs font-semibold text-slate-500 dark:text-[#8FA4BA] uppercase tracking-wide">
             Sedang Ditangani
           </span>
-          <span className="w-8 h-8 rounded-full bg-blue-50 text-status-proses flex items-center justify-center">
+          <span className="w-8 h-8 rounded-full bg-blue-50 dark:bg-blue-950/40 text-status-proses flex items-center justify-center">
             <HardHat className="w-4 h-4" aria-hidden="true" />
           </span>
         </div>
@@ -99,15 +107,15 @@ export function DashboardStats({
         <div className="my-3">
           <div className="text-4xl font-extrabold text-navy-deepest tracking-tight">
             {isLoading ? (
-              <span className="inline-block w-14 h-10 bg-slate-100 rounded animate-pulse" />
+              <span className="inline-block w-14 h-10 bg-slate-100 dark:bg-white/10 rounded animate-pulse" />
             ) : (
               proses
             )}
           </div>
         </div>
 
-        <div className="flex items-center gap-1.5 text-xs text-slate-500 font-medium">
-          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-blue-50 text-status-proses">
+        <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-[#8FA4BA] font-medium">
+          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-blue-50 dark:bg-blue-950/40 text-status-proses">
             {prosesPct}% dari total
           </span>
           <span>sedang aktif</span>
@@ -115,12 +123,12 @@ export function DashboardStats({
       </div>
 
       {/* 4. Selesai */}
-      <div className="bg-white rounded-card p-6 shadow-[0_4px_20px_rgba(0,18,52,0.04)] border border-slate-100 flex flex-col justify-between hover:shadow-md transition-shadow">
+      <div className="bg-white dark:bg-[#0D1A2D] rounded-card p-6 shadow-[0_4px_20px_rgba(0,18,52,0.04)] dark:shadow-black/20 border border-slate-100 dark:border-white/10 flex flex-col justify-between hover:shadow-md transition-shadow">
         <div className="flex items-center justify-between">
-          <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
+          <span className="text-xs font-semibold text-slate-500 dark:text-[#8FA4BA] uppercase tracking-wide">
             Selesai
           </span>
-          <span className="w-8 h-8 rounded-full bg-emerald-50 text-status-selesai flex items-center justify-center">
+          <span className="w-8 h-8 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-status-selesai flex items-center justify-center">
             <CheckCircle2 className="w-4 h-4" aria-hidden="true" />
           </span>
         </div>
@@ -128,15 +136,15 @@ export function DashboardStats({
         <div className="my-3">
           <div className="text-4xl font-extrabold text-navy-deepest tracking-tight">
             {isLoading ? (
-              <span className="inline-block w-14 h-10 bg-slate-100 rounded animate-pulse" />
+              <span className="inline-block w-14 h-10 bg-slate-100 dark:bg-white/10 rounded animate-pulse" />
             ) : (
               selesai
             )}
           </div>
         </div>
 
-        <div className="flex items-center gap-1.5 text-xs text-slate-500 font-medium">
-          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-status-selesai">
+        <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-[#8FA4BA] font-medium">
+          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 dark:bg-emerald-950/40 text-status-selesai">
             {selesaiPct}% dari total
           </span>
           <span>tertangani baik</span>

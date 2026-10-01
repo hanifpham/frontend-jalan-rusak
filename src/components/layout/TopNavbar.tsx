@@ -20,6 +20,7 @@ import {
   useMarkNotificationRead,
   useMarkAllNotificationsRead,
 } from "@/hooks/useNotifications";
+import { useSettings, playNotificationSound } from "@/hooks/useSettings";
 import { NotificationDropdown } from "./NotificationDropdown";
 
 export interface TopNavbarProps {
@@ -80,14 +81,27 @@ export function TopNavbar({ onMenuToggle }: TopNavbarProps): React.JSX.Element {
   const markNotificationRead = useMarkNotificationRead();
   const markAllNotificationsRead = useMarkAllNotificationsRead();
 
-  const avatarSrc = profile?.avatar_url || user?.avatar_url || user?.profilePhoto;
+  const { data: settings } = useSettings();
+  const prevUnreadRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (prevUnreadRef.current !== null && unreadCount > prevUnreadRef.current) {
+      if (settings?.preferences?.notification_sound_enabled) {
+        playNotificationSound();
+      }
+    }
+    prevUnreadRef.current = unreadCount;
+  }, [unreadCount, settings?.preferences?.notification_sound_enabled]);
+
+  const avatarSrc =
+    profile?.avatar_url || user?.avatar_url || user?.profilePhoto;
   const displayName = profile?.name || user?.nama || "Admin Pemdes";
   const displayEmail = profile?.email || user?.email || "";
   const displayWilayah = profile?.wilayah?.nama
     ? `Desa ${profile.wilayah.nama}`
     : user?.wilayahId === 2
-    ? "Desa Lobener Lor"
-    : "Desa Sukamaju, Kec. Cikedung";
+      ? "Desa Lobener Lor"
+      : "Desa Sukamaju, Kec. Cikedung";
   const userInitial = displayName ? displayName.charAt(0).toUpperCase() : "A";
 
   // Automatically close both dropdowns on route changes
@@ -154,7 +168,7 @@ export function TopNavbar({ onMenuToggle }: TopNavbarProps): React.JSX.Element {
 
   return (
     <header
-      className="bg-white border border-blue-pale/40 shadow-sm flex items-center justify-between px-6 sm:px-8 md:px-12 h-22 sticky top-6 z-40 rounded-full mx-auto mt-6 w-[95%]"
+      className="bg-white dark:bg-[#0D1A2D] border border-blue-pale/40 dark:border-white/10 shadow-sm flex items-center justify-between px-6 sm:px-8 md:px-12 h-22 sticky top-6 z-40 rounded-full mx-auto mt-6 w-[95%]"
       aria-label="Navigasi Utama Aplikasi"
     >
       {/* Left: Mobile Toggle & Brand (Icon + ROADIS text) */}
@@ -163,7 +177,7 @@ export function TopNavbar({ onMenuToggle }: TopNavbarProps): React.JSX.Element {
           <button
             type="button"
             onClick={onMenuToggle}
-            className="md:hidden p-2 rounded-full hover:bg-blue-pale/20 hover:text-navy-deepest text-navy-deepest transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-medium"
+            className="md:hidden p-2 rounded-full hover:bg-blue-pale/20 dark:hover:bg-white/10 hover:text-navy-deepest dark:hover:text-white text-navy-deepest transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-medium"
             aria-label="Buka Menu Navigasi"
           >
             <Menu className="w-5 h-5" aria-hidden="true" />
@@ -175,7 +189,7 @@ export function TopNavbar({ onMenuToggle }: TopNavbarProps): React.JSX.Element {
           className="flex items-center gap-2 group select-none"
           title="Beranda ROADIS"
         >
-          <RoadLogoIcon className="text-navy-primary group-hover:text-navy-deepest transition-colors" />
+          <RoadLogoIcon className="text-navy-primary dark:text-[#5483B3] group-hover:text-navy-deepest dark:group-hover:text-white transition-colors" />
           <span className="text-[26px] font-bold text-navy-deepest tracking-tight select-none leading-none">
             ROADIS
           </span>
@@ -184,7 +198,7 @@ export function TopNavbar({ onMenuToggle }: TopNavbarProps): React.JSX.Element {
 
       {/* Center: Desktop Navigation Pills */}
       <nav
-        className="hidden md:flex items-center bg-canvas p-1.5 rounded-full border border-blue-pale/40"
+        className="hidden md:flex items-center bg-canvas dark:bg-[#07111F] p-1.5 rounded-full border border-blue-pale/40 dark:border-white/10"
         aria-label="Daftar Menu"
       >
         {navItems.map((item) => (
@@ -195,8 +209,8 @@ export function TopNavbar({ onMenuToggle }: TopNavbarProps): React.JSX.Element {
               cn(
                 "px-6 py-2.5 rounded-full text-[14px] transition-colors duration-200 select-none",
                 isActive
-                  ? "bg-white shadow-sm text-navy-primary font-bold"
-                  : "text-muted hover:text-navy-deepest hover:bg-blue-pale/20 font-medium",
+                  ? "bg-white dark:bg-[#0D1A2D] shadow-sm text-navy-primary dark:text-navy-deepest font-bold"
+                  : "text-muted dark:text-[#AFC0D4] hover:text-navy-deepest dark:hover:text-white hover:bg-blue-pale/20 dark:hover:bg-white/5 font-medium",
               )
             }
           >
@@ -210,7 +224,7 @@ export function TopNavbar({ onMenuToggle }: TopNavbarProps): React.JSX.Element {
         {/* Search Button */}
         <button
           type="button"
-          className="w-11 h-11 rounded-full bg-canvas flex items-center justify-center text-muted hover:bg-blue-pale/20 hover:text-navy-deepest hover:border-blue-pale/60 transition-colors border border-blue-pale/40 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-medium"
+          className="w-11 h-11 rounded-full bg-canvas dark:bg-[#07111F] flex items-center justify-center text-muted dark:text-[#AFC0D4] hover:bg-blue-pale/20 dark:hover:bg-white/5 hover:text-navy-deepest dark:hover:text-white hover:border-blue-pale/60 dark:hover:border-white/20 transition-colors border border-blue-pale/40 dark:border-white/10 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-medium"
           title="Cari"
           aria-label="Pencarian Laporan"
         >
@@ -226,8 +240,9 @@ export function TopNavbar({ onMenuToggle }: TopNavbarProps): React.JSX.Element {
               setProfileMenuOpen(false);
             }}
             className={cn(
-              "w-11 h-11 rounded-full bg-canvas flex items-center justify-center text-muted hover:bg-blue-pale/20 hover:text-navy-deepest hover:border-blue-pale/60 transition-colors relative border border-blue-pale/40 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-medium",
-              notifOpen && "bg-blue-pale/20 text-navy-deepest border-blue-pale/60"
+              "w-11 h-11 rounded-full bg-canvas dark:bg-[#07111F] flex items-center justify-center text-muted dark:text-[#AFC0D4] hover:bg-blue-pale/20 dark:hover:bg-white/5 hover:text-navy-deepest dark:hover:text-white hover:border-blue-pale/60 dark:hover:border-white/20 transition-colors relative border border-blue-pale/40 dark:border-white/10 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-medium",
+              notifOpen &&
+                "bg-blue-pale/20 dark:bg-white/10 text-navy-deepest dark:text-white border-blue-pale/60 dark:border-white/20",
             )}
             title="Notifikasi"
             aria-label="Notifikasi"
@@ -271,15 +286,15 @@ export function TopNavbar({ onMenuToggle }: TopNavbarProps): React.JSX.Element {
             className={cn(
               "flex items-center gap-2 sm:gap-3 cursor-pointer p-1.5 pr-2.5 sm:pr-3 rounded-full transition-colors border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-medium group select-none",
               profileMenuOpen
-                ? "bg-blue-pale/20 border-blue-pale/40 text-navy-deepest"
-                : "hover:bg-blue-pale/20 hover:text-navy-deepest border-transparent hover:border-blue-pale/40"
+                ? "bg-blue-pale/20 dark:bg-white/10 border-blue-pale/40 dark:border-white/20 text-navy-deepest dark:text-white"
+                : "hover:bg-blue-pale/20 dark:hover:bg-white/5 hover:text-navy-deepest dark:hover:text-white border-transparent hover:border-blue-pale/40 dark:hover:border-white/20",
             )}
             aria-expanded={profileMenuOpen}
             aria-haspopup="true"
             aria-label="Menu Profil Pengguna"
           >
             <div
-              className="w-9 h-9 rounded-full bg-blue-pale text-navy-primary font-bold flex items-center justify-center text-xs ring-1 ring-blue-pale/60 shadow-xs overflow-hidden"
+              className="w-9 h-9 rounded-full bg-blue-pale dark:bg-blue-medium/30 text-navy-primary dark:text-blue-pale font-bold flex items-center justify-center text-xs ring-1 ring-blue-pale/60 dark:ring-white/10 shadow-xs overflow-hidden"
               aria-hidden="true"
             >
               {avatarSrc ? (
@@ -297,8 +312,9 @@ export function TopNavbar({ onMenuToggle }: TopNavbarProps): React.JSX.Element {
             </div>
             <ChevronDown
               className={cn(
-                "w-4 h-4 text-muted group-hover:text-navy-deepest transition-all duration-200",
-                profileMenuOpen && "rotate-180 text-navy-deepest",
+                "w-4 h-4 text-muted dark:text-[#AFC0D4] group-hover:text-navy-deepest dark:group-hover:text-white transition-all duration-200",
+                profileMenuOpen &&
+                  "rotate-180 text-navy-deepest dark:text-white",
               )}
               aria-hidden="true"
             />
@@ -308,14 +324,14 @@ export function TopNavbar({ onMenuToggle }: TopNavbarProps): React.JSX.Element {
           {profileMenuOpen && (
             <div
               ref={dropdownRef}
-              className="absolute right-0 top-[calc(100%+12px)] w-80 bg-white rounded-3xl shadow-2xl shadow-navy-deepest/12 border border-blue-pale/40 z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-150"
+              className="absolute right-0 top-[calc(100%+12px)] w-80 bg-white dark:bg-[#0D1A2D] rounded-3xl shadow-2xl shadow-navy-deepest/12 border border-blue-pale/40 dark:border-white/10 z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-150"
               role="menu"
               aria-label="Profil Pengguna"
             >
               {/* Header Profile Cardlet */}
-              <div className="p-4 bg-linear-to-br from-canvas via-white to-blue-pale/20 border-b border-blue-pale/30">
+              <div className="p-4 bg-linear-to-br from-canvas via-white to-blue-pale/20 dark:from-[#0D1A2D] dark:via-[#0D1A2D] dark:to-[#12233A] border-b border-blue-pale/30 dark:border-white/10">
                 <div className="flex items-start gap-3">
-                  <div className="w-12 h-12 rounded-full bg-linear-to-tr from-navy-primary to-blue-medium text-white font-bold text-lg flex items-center justify-center shadow-md ring-2 ring-white shrink-0 overflow-hidden">
+                  <div className="w-12 h-12 rounded-full bg-linear-to-tr from-navy-primary to-blue-medium text-white font-bold text-lg flex items-center justify-center shadow-md ring-2 ring-white dark:ring-white/20 shrink-0 overflow-hidden">
                     {avatarSrc ? (
                       <img
                         src={avatarSrc}
@@ -333,10 +349,10 @@ export function TopNavbar({ onMenuToggle }: TopNavbarProps): React.JSX.Element {
                     <p className="text-sm font-bold text-navy-deepest truncate">
                       {displayName}
                     </p>
-                    <p className="text-[11px] text-muted truncate mt-0.5">
+                    <p className="text-[11px] text-muted dark:text-[#AFC0D4] truncate mt-0.5">
                       {displayEmail}
                     </p>
-                    <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-white text-navy-primary border border-blue-pale/60 shadow-xs">
+                    <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-white dark:bg-[#12233A] text-navy-primary dark:text-navy-deepest border border-blue-pale/60 dark:border-white/10 shadow-xs">
                       <span className="w-1.5 h-1.5 rounded-full bg-status-selesai animate-pulse" />
                       {formatRoleLabel(role)}
                     </div>
@@ -345,12 +361,12 @@ export function TopNavbar({ onMenuToggle }: TopNavbarProps): React.JSX.Element {
               </div>
 
               {/* Assigned Territory Section */}
-              <div className="px-4 py-3 bg-canvas/60 border-b border-blue-pale/20 flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-white border border-blue-pale/40 flex items-center justify-center text-blue-medium shadow-xs shrink-0">
+              <div className="px-4 py-3 bg-canvas/60 dark:bg-[#07111F]/60 border-b border-blue-pale/20 dark:border-white/10 flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-white dark:bg-[#12233A] border border-blue-pale/40 dark:border-white/10 flex items-center justify-center text-blue-medium shadow-xs shrink-0">
                   <MapPin className="w-4 h-4" aria-hidden="true" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-[10px] uppercase font-bold tracking-wider text-muted">
+                  <p className="text-[10px] uppercase font-bold tracking-wider text-muted dark:text-[#AFC0D4]">
                     Wilayah Penugasan
                   </p>
                   <p className="text-xs font-semibold text-navy-deepest truncate">
@@ -362,53 +378,55 @@ export function TopNavbar({ onMenuToggle }: TopNavbarProps): React.JSX.Element {
               {/* Quick Links */}
               <div className="p-2 space-y-1">
                 <NavLink
-                  to={role === "admin_pemdes" ? "/pemdes/profil" : "/settings"}
+                  to={role === "admin_pemdes" ? "/pemdes/profil" : "/profile"}
                   onClick={() => setProfileMenuOpen(false)}
-                  className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium text-navy-deepest hover:bg-canvas hover:text-navy-primary transition-colors cursor-pointer group"
+                  className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium text-navy-deepest hover:bg-canvas dark:hover:bg-white/5 hover:text-navy-primary dark:hover:text-white transition-colors cursor-pointer group"
                   role="menuitem"
                 >
                   <div className="flex items-center gap-2.5">
                     <User
-                      className="w-4 h-4 text-muted group-hover:text-navy-primary transition-colors"
+                      className="w-4 h-4 text-muted dark:text-[#AFC0D4] group-hover:text-navy-primary dark:group-hover:text-white transition-colors"
                       aria-hidden="true"
                     />
                     <span>Profil Pengguna</span>
                   </div>
                   <ChevronRight
-                    className="w-3.5 h-3.5 text-muted/60 group-hover:text-navy-primary group-hover:translate-x-0.5 transition-all"
+                    className="w-3.5 h-3.5 text-muted/60 dark:text-[#AFC0D4]/60 group-hover:text-navy-primary dark:group-hover:text-white group-hover:translate-x-0.5 transition-all"
                     aria-hidden="true"
                   />
                 </NavLink>
 
                 <NavLink
-                  to="/settings"
+                  to={
+                    role === "admin_pemdes" ? "/pemdes/pengaturan" : "/settings"
+                  }
                   onClick={() => setProfileMenuOpen(false)}
-                  className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium text-navy-deepest hover:bg-canvas hover:text-navy-primary transition-colors cursor-pointer group"
+                  className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium text-navy-deepest hover:bg-canvas dark:hover:bg-white/5 hover:text-navy-primary dark:hover:text-white transition-colors cursor-pointer group"
                   role="menuitem"
                 >
                   <div className="flex items-center gap-2.5">
                     <Settings
-                      className="w-4 h-4 text-muted group-hover:text-navy-primary transition-colors"
+                      className="w-4 h-4 text-muted dark:text-[#AFC0D4] group-hover:text-navy-primary dark:group-hover:text-white transition-colors"
                       aria-hidden="true"
                     />
                     <span>Pengaturan Sistem</span>
                   </div>
                   <ChevronRight
-                    className="w-3.5 h-3.5 text-muted/60 group-hover:text-navy-primary group-hover:translate-x-0.5 transition-all"
+                    className="w-3.5 h-3.5 text-muted/60 dark:text-[#AFC0D4]/60 group-hover:text-navy-primary dark:group-hover:text-white group-hover:translate-x-0.5 transition-all"
                     aria-hidden="true"
                   />
                 </NavLink>
               </div>
 
               {/* Logout Action */}
-              <div className="p-2 border-t border-blue-pale/30 bg-gray-50/50">
+              <div className="p-2 border-t border-blue-pale/30 dark:border-white/10 bg-gray-50/50 dark:bg-[#07111F]/50">
                 <button
                   type="button"
                   onClick={() => {
                     setProfileMenuOpen(false);
                     logout();
                   }}
-                  className="w-full flex items-center justify-between px-3 py-2.5 text-xs font-semibold text-severity-berat hover:bg-red-50 rounded-2xl transition-all cursor-pointer group"
+                  className="w-full flex items-center justify-between px-3 py-2.5 text-xs font-semibold text-severity-berat dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-2xl transition-all cursor-pointer group"
                   role="menuitem"
                 >
                   <div className="flex items-center gap-2.5">

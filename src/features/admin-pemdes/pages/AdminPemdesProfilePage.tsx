@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import {
   User,
   Mail,
@@ -14,15 +15,16 @@ import {
   AlertCircle,
   RotateCw,
   Check,
-} from 'lucide-react';
-import { useProfile } from '@/hooks/useProfile';
-import { formatDateTimeIndo } from '@/lib/date';
-import { EditProfileModal } from '../components/profile/EditProfileModal';
-import { AvatarUploadModal } from '../components/profile/AvatarUploadModal';
-import { DeleteAvatarDialog } from '../components/profile/DeleteAvatarDialog';
-import { ChangePasswordModal } from '../components/profile/ChangePasswordModal';
+} from "lucide-react";
+import { useProfile } from "@/hooks/useProfile";
+import { formatDateTimeIndo } from "@/lib/date";
+import { EditProfileModal } from "../components/profile/EditProfileModal";
+import { AvatarUploadModal } from "../components/profile/AvatarUploadModal";
+import { DeleteAvatarDialog } from "../components/profile/DeleteAvatarDialog";
+import { ChangePasswordModal } from "../components/profile/ChangePasswordModal";
 
 export function AdminPemdesProfilePage(): React.JSX.Element {
+  const location = useLocation();
   const { data: profile, isLoading, isError, refetch } = useProfile();
 
   // Modals state
@@ -30,6 +32,15 @@ export function AdminPemdesProfilePage(): React.JSX.Element {
   const [isAvatarModalOpen, setIsAvatarModalOpen] = useState(false);
   const [isDeleteAvatarOpen, setIsDeleteAvatarOpen] = useState(false);
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+
+  useEffect(() => {
+    if (
+      (location.state as { openPasswordModal?: boolean })?.openPasswordModal
+    ) {
+      setIsPasswordModalOpen(true);
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
 
   // Toast feedback state
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -42,7 +53,7 @@ export function AdminPemdesProfilePage(): React.JSX.Element {
   };
 
   const getInitials = (name?: string): string => {
-    if (!name) return 'AP';
+    if (!name) return "AP";
     const parts = name.trim().split(/\s+/).filter(Boolean);
     const first = parts[0];
     const second = parts[1];
@@ -56,8 +67,8 @@ export function AdminPemdesProfilePage(): React.JSX.Element {
   const wilayahName = profile?.wilayah?.nama
     ? `Desa ${profile.wilayah.nama}`
     : profile?.wilayah_id
-    ? `Wilayah #${profile.wilayah_id}`
-    : 'Wilayah Desa';
+      ? `Wilayah #${profile.wilayah_id}`
+      : "Wilayah Desa";
 
   return (
     <div className="flex flex-col gap-6 max-w-full">
@@ -68,7 +79,10 @@ export function AdminPemdesProfilePage(): React.JSX.Element {
           aria-live="polite"
           className="fixed bottom-6 right-6 z-50 bg-navy-deepest text-white px-5 py-3 rounded-2xl shadow-2xl border border-blue-pale/30 flex items-center gap-3 text-xs font-semibold animate-in slide-in-from-bottom-4 duration-200"
         >
-          <CheckCircle2 className="w-4 h-4 text-status-selesai shrink-0" aria-hidden="true" />
+          <CheckCircle2
+            className="w-4 h-4 text-status-selesai shrink-0"
+            aria-hidden="true"
+          />
           <span>{toastMessage}</span>
           <button
             type="button"
@@ -83,7 +97,10 @@ export function AdminPemdesProfilePage(): React.JSX.Element {
 
       {/* 1. Header & Breadcrumb */}
       <div className="flex flex-col gap-1.5">
-        <nav aria-label="Breadcrumb" className="text-xs text-muted font-medium flex items-center gap-1.5">
+        <nav
+          aria-label="Breadcrumb"
+          className="text-xs text-muted font-medium flex items-center gap-1.5"
+        >
           <span>Admin Pemdes</span>
           <span className="text-slate-300">/</span>
           <span className="text-navy-primary font-bold">Profil</span>
@@ -142,7 +159,8 @@ export function AdminPemdesProfilePage(): React.JSX.Element {
             Profil tidak dapat dimuat.
           </h2>
           <p className="text-xs text-muted mt-1 max-w-sm">
-            Terjadi kendala saat mengambil data profil dari server. Silakan coba muat ulang halaman.
+            Terjadi kendala saat mengambil data profil dari server. Silakan coba
+            muat ulang halaman.
           </p>
           <button
             type="button"
@@ -163,13 +181,13 @@ export function AdminPemdesProfilePage(): React.JSX.Element {
           {/* ============================================================ */}
           <div className="lg:col-span-5 flex flex-col gap-6">
             {/* CARD A: Profile Summary */}
-            <div className="bg-white rounded-card border border-blue-pale/40 shadow-sm p-6 sm:p-7 flex flex-col items-center text-center relative overflow-hidden">
+            <div className="bg-white dark:bg-[#0D1A2D] rounded-card border border-blue-pale/40 dark:border-white/10 shadow-sm p-6 sm:p-7 flex flex-col items-center text-center relative overflow-hidden">
               {/* Background Ambient Decorative Accent */}
-              <div className="absolute top-0 inset-x-0 h-24 bg-linear-to-b from-blue-pale/25 via-blue-pale/10 to-transparent pointer-events-none" />
+              <div className="absolute top-0 inset-x-0 h-24 bg-linear-to-b from-blue-pale/25 dark:from-white/5 via-blue-pale/10 dark:via-transparent to-transparent pointer-events-none" />
 
               {/* Large Avatar with Camera Trigger Overlay */}
               <div className="relative mt-2 mb-4 group">
-                <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-full overflow-hidden bg-blue-pale text-navy-primary font-bold text-2xl sm:text-3xl flex items-center justify-center ring-4 ring-white shadow-lg border border-blue-pale/60 relative">
+                <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-full overflow-hidden bg-blue-pale dark:bg-white/10 text-navy-primary dark:text-navy-deepest font-bold text-2xl sm:text-3xl flex items-center justify-center ring-4 ring-white dark:ring-[#0D1A2D] shadow-lg border border-blue-pale/60 dark:border-white/10 relative">
                   {profile.avatar_url ? (
                     <img
                       src={profile.avatar_url}
@@ -184,7 +202,7 @@ export function AdminPemdesProfilePage(): React.JSX.Element {
                 <button
                   type="button"
                   onClick={() => setIsAvatarModalOpen(true)}
-                  className="absolute bottom-1 right-1 w-9 h-9 rounded-full bg-navy-primary hover:bg-navy-deepest text-white flex items-center justify-center shadow-md ring-2 ring-white transition-transform active:scale-95 cursor-pointer"
+                  className="absolute bottom-1 right-1 w-9 h-9 rounded-full bg-navy-primary dark:bg-[#5483B3] hover:bg-navy-deepest dark:hover:bg-[#5483B3]/80 text-white flex items-center justify-center shadow-md ring-2 ring-white dark:ring-[#0D1A2D] transition-transform active:scale-95 cursor-pointer"
                   title="Ubah foto profil"
                   aria-label="Ubah foto profil"
                 >
@@ -197,24 +215,27 @@ export function AdminPemdesProfilePage(): React.JSX.Element {
                 {profile.name}
               </h2>
 
-              <div className="mt-2 inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-blue-pale/40 text-navy-primary border border-blue-pale/70 shadow-xs">
+              <div className="mt-2 inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-blue-pale/40 dark:bg-white/10 text-navy-primary dark:text-blue-pale border border-blue-pale/70 dark:border-white/10 shadow-xs">
                 <span className="w-2 h-2 rounded-full bg-status-selesai" />
                 <span>Admin Pemdes</span>
               </div>
 
               {/* Wilayah & Email Info */}
-              <div className="mt-3.5 space-y-1 text-xs text-muted">
-                <div className="flex items-center justify-center gap-1.5 font-semibold text-slate-700">
-                  <MapPin className="w-3.5 h-3.5 text-blue-medium shrink-0" aria-hidden="true" />
+              <div className="mt-3.5 space-y-1 text-xs text-muted dark:text-[#8FA4BA]">
+                <div className="flex items-center justify-center gap-1.5 font-semibold text-slate-700 dark:text-[#AFC0D4]">
+                  <MapPin
+                    className="w-3.5 h-3.5 text-blue-medium shrink-0"
+                    aria-hidden="true"
+                  />
                   <span>{wilayahName}</span>
                 </div>
-                <p className="truncate max-w-60 text-muted text-[11px]">
+                <p className="truncate max-w-60 text-muted dark:text-[#8FA4BA] text-[11px]">
                   {profile.email}
                 </p>
               </div>
 
               {/* Action Buttons */}
-              <div className="w-full mt-6 pt-5 border-t border-blue-pale/30 flex flex-col sm:flex-row items-center justify-center gap-2.5">
+              <div className="w-full mt-6 pt-5 border-t border-blue-pale/30 dark:border-white/10 flex flex-col sm:flex-row items-center justify-center gap-2.5">
                 <button
                   type="button"
                   onClick={() => setIsEditModalOpen(true)}
@@ -227,9 +248,12 @@ export function AdminPemdesProfilePage(): React.JSX.Element {
                 <button
                   type="button"
                   onClick={() => setIsAvatarModalOpen(true)}
-                  className="w-full sm:flex-1 py-2.5 px-4 rounded-full text-xs font-semibold border border-blue-pale/60 bg-white hover:bg-blue-pale/20 text-navy-primary transition-colors cursor-pointer flex items-center justify-center gap-1.5"
+                  className="w-full sm:flex-1 py-2.5 px-4 rounded-full text-xs font-semibold border border-blue-pale/60 dark:border-white/10 bg-white dark:bg-[#12233A] hover:bg-blue-pale/20 dark:hover:bg-white/10 text-navy-primary dark:text-navy-deepest transition-colors cursor-pointer flex items-center justify-center gap-1.5"
                 >
-                  <Camera className="w-3.5 h-3.5 text-blue-medium" aria-hidden="true" />
+                  <Camera
+                    className="w-3.5 h-3.5 text-blue-medium"
+                    aria-hidden="true"
+                  />
                   <span>Ubah Foto</span>
                 </button>
 
@@ -237,7 +261,7 @@ export function AdminPemdesProfilePage(): React.JSX.Element {
                   <button
                     type="button"
                     onClick={() => setIsDeleteAvatarOpen(true)}
-                    className="p-2.5 rounded-full text-muted hover:text-severity-berat hover:bg-red-50 transition-colors border border-transparent hover:border-red-200 cursor-pointer shrink-0"
+                    className="p-2.5 rounded-full text-muted hover:text-severity-berat hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors border border-transparent hover:border-red-200 dark:hover:border-red-900/50 cursor-pointer shrink-0"
                     title="Hapus foto profil"
                     aria-label="Hapus foto profil"
                   >
@@ -248,17 +272,19 @@ export function AdminPemdesProfilePage(): React.JSX.Element {
             </div>
 
             {/* CARD C: Role & Hak Akses */}
-            <div className="bg-white rounded-card border border-blue-pale/40 shadow-sm p-6 sm:p-7 flex flex-col gap-4">
-              <div className="flex items-center justify-between border-b border-blue-pale/30 pb-3.5">
+            <div className="bg-white dark:bg-[#0D1A2D] rounded-card border border-blue-pale/40 dark:border-white/10 shadow-sm p-6 sm:p-7 flex flex-col gap-4">
+              <div className="flex items-center justify-between border-b border-blue-pale/30 dark:border-white/10 pb-3.5">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-full bg-blue-pale/50 text-navy-primary flex items-center justify-center shrink-0">
+                  <div className="w-8 h-8 rounded-full bg-blue-pale/50 dark:bg-white/10 text-navy-primary dark:text-blue-pale flex items-center justify-center shrink-0">
                     <Shield className="w-4 h-4" aria-hidden="true" />
                   </div>
                   <div>
                     <h3 className="text-sm font-bold text-navy-deepest">
                       Peran &amp; Akses
                     </h3>
-                    <p className="text-[11px] text-muted">Kewenangan akun Anda</p>
+                    <p className="text-[11px] text-muted dark:text-[#8FA4BA]">
+                      Kewenangan akun Anda
+                    </p>
                   </div>
                 </div>
                 <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-navy-primary text-white">
@@ -267,14 +293,19 @@ export function AdminPemdesProfilePage(): React.JSX.Element {
               </div>
 
               {/* Authorized Capability Checklist */}
-              <div className="space-y-2.5 text-xs text-slate-700">
+              <div className="space-y-2.5 text-xs text-slate-700 dark:text-[#AFC0D4]">
                 <div className="flex items-start gap-2.5">
                   <div className="w-4 h-4 rounded-full bg-status-selesai/15 text-status-selesai flex items-center justify-center shrink-0 mt-0.5">
                     <Check className="w-3 h-3 stroke-3" aria-hidden="true" />
                   </div>
                   <div>
-                    <p className="font-semibold text-navy-deepest">Laporan Jalan Desa</p>
-                    <p className="text-[11px] text-muted">Pantau dan verifikasi pelaporan kerusakan jalan wilayah desa</p>
+                    <p className="font-semibold text-navy-deepest">
+                      Laporan Jalan Desa
+                    </p>
+                    <p className="text-[11px] text-muted dark:text-[#8FA4BA]">
+                      Pantau dan verifikasi pelaporan kerusakan jalan wilayah
+                      desa
+                    </p>
                   </div>
                 </div>
 
@@ -283,8 +314,13 @@ export function AdminPemdesProfilePage(): React.JSX.Element {
                     <Check className="w-3 h-3 stroke-3" aria-hidden="true" />
                   </div>
                   <div>
-                    <p className="font-semibold text-navy-deepest">Peta Laporan Desa</p>
-                    <p className="text-[11px] text-muted">Visualisasi geospasial titik kerusakan jalan desa penugasan</p>
+                    <p className="font-semibold text-navy-deepest">
+                      Peta Laporan Desa
+                    </p>
+                    <p className="text-[11px] text-muted dark:text-[#8FA4BA]">
+                      Visualisasi geospasial titik kerusakan jalan desa
+                      penugasan
+                    </p>
                   </div>
                 </div>
 
@@ -293,8 +329,12 @@ export function AdminPemdesProfilePage(): React.JSX.Element {
                     <Check className="w-3 h-3 stroke-3" aria-hidden="true" />
                   </div>
                   <div>
-                    <p className="font-semibold text-navy-deepest">Pesan dengan Warga</p>
-                    <p className="text-[11px] text-muted">Komunikasi langsung dan tindak lanjut aduan warga</p>
+                    <p className="font-semibold text-navy-deepest">
+                      Pesan dengan Warga
+                    </p>
+                    <p className="text-[11px] text-muted dark:text-[#8FA4BA]">
+                      Komunikasi langsung dan tindak lanjut aduan warga
+                    </p>
                   </div>
                 </div>
 
@@ -303,8 +343,12 @@ export function AdminPemdesProfilePage(): React.JSX.Element {
                     <Check className="w-3 h-3 stroke-3" aria-hidden="true" />
                   </div>
                   <div>
-                    <p className="font-semibold text-navy-deepest">Notifikasi Sistem</p>
-                    <p className="text-[11px] text-muted">Pemberitahuan real-time terkait aduan dan pembaruan</p>
+                    <p className="font-semibold text-navy-deepest">
+                      Notifikasi Sistem
+                    </p>
+                    <p className="text-[11px] text-muted dark:text-[#8FA4BA]">
+                      Pemberitahuan real-time terkait aduan dan pembaruan
+                    </p>
                   </div>
                 </div>
 
@@ -313,14 +357,19 @@ export function AdminPemdesProfilePage(): React.JSX.Element {
                     <Check className="w-3 h-3 stroke-3" aria-hidden="true" />
                   </div>
                   <div>
-                    <p className="font-semibold text-navy-deepest">Detail Laporan Sesuai Kewenangan</p>
-                    <p className="text-[11px] text-muted">Akses informasi pelapor dan bukti foto wilayah desa</p>
+                    <p className="font-semibold text-navy-deepest">
+                      Detail Laporan Sesuai Kewenangan
+                    </p>
+                    <p className="text-[11px] text-muted dark:text-[#8FA4BA]">
+                      Akses informasi pelapor dan bukti foto wilayah desa
+                    </p>
                   </div>
                 </div>
               </div>
 
-              <div className="p-3 bg-canvas rounded-2xl border border-blue-pale/40 text-[11px] text-muted leading-relaxed">
-                Peran dan cakupan hak akses ditetapkan oleh Administrator Utama sistem dan tidak dapat diubah secara mandiri.
+              <div className="p-3 bg-canvas dark:bg-[#07111F] rounded-2xl border border-blue-pale/40 dark:border-white/10 text-[11px] text-muted dark:text-[#8FA4BA] leading-relaxed">
+                Peran dan cakupan hak akses ditetapkan oleh Administrator Utama
+                sistem dan tidak dapat diubah secara mandiri.
               </div>
             </div>
           </div>
@@ -330,20 +379,20 @@ export function AdminPemdesProfilePage(): React.JSX.Element {
           {/* ================================================================= */}
           <div className="lg:col-span-7 flex flex-col gap-6">
             {/* CARD B: Informasi Profil */}
-            <div className="bg-white rounded-card border border-blue-pale/40 shadow-sm p-6 sm:p-7 flex flex-col gap-5">
-              <div className="flex items-center justify-between border-b border-blue-pale/30 pb-4">
+            <div className="bg-white dark:bg-[#0D1A2D] rounded-card border border-blue-pale/40 dark:border-white/10 shadow-sm p-6 sm:p-7 flex flex-col gap-5">
+              <div className="flex items-center justify-between border-b border-blue-pale/30 dark:border-white/10 pb-4">
                 <div>
                   <h3 className="text-base font-bold text-navy-deepest">
                     Informasi Profil
                   </h3>
-                  <p className="text-xs text-muted">
+                  <p className="text-xs text-muted dark:text-[#8FA4BA]">
                     Detail data identitas akun Admin Pemdes Anda.
                   </p>
                 </div>
                 <button
                   type="button"
                   onClick={() => setIsEditModalOpen(true)}
-                  className="px-4 py-1.5 rounded-full text-xs font-semibold bg-blue-pale/30 hover:bg-blue-pale/50 text-navy-primary border border-blue-pale/60 transition-colors cursor-pointer flex items-center gap-1.5"
+                  className="px-4 py-1.5 rounded-full text-xs font-semibold bg-blue-pale/30 dark:bg-white/10 hover:bg-blue-pale/50 dark:hover:bg-white/15 text-navy-primary dark:text-blue-pale border border-blue-pale/60 dark:border-white/10 transition-colors cursor-pointer flex items-center gap-1.5"
                 >
                   <Edit3 className="w-3.5 h-3.5" aria-hidden="true" />
                   <span>Ubah</span>
@@ -353,9 +402,12 @@ export function AdminPemdesProfilePage(): React.JSX.Element {
               {/* Data Fields Grid */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
                 {/* 1. Nama Lengkap */}
-                <div className="p-3.5 rounded-2xl bg-canvas border border-blue-pale/30">
-                  <div className="flex items-center gap-2 text-muted mb-1 font-semibold text-[11px]">
-                    <User className="w-3.5 h-3.5 text-blue-medium" aria-hidden="true" />
+                <div className="p-3.5 rounded-2xl bg-canvas dark:bg-[#07111F] border border-blue-pale/30 dark:border-white/10">
+                  <div className="flex items-center gap-2 text-muted dark:text-[#8FA4BA] mb-1 font-semibold text-[11px]">
+                    <User
+                      className="w-3.5 h-3.5 text-blue-medium"
+                      aria-hidden="true"
+                    />
                     <span>Nama Lengkap</span>
                   </div>
                   <p className="font-bold text-navy-deepest text-sm truncate">
@@ -364,36 +416,49 @@ export function AdminPemdesProfilePage(): React.JSX.Element {
                 </div>
 
                 {/* 2. Nomor Telepon */}
-                <div className="p-3.5 rounded-2xl bg-canvas border border-blue-pale/30">
-                  <div className="flex items-center gap-2 text-muted mb-1 font-semibold text-[11px]">
-                    <Phone className="w-3.5 h-3.5 text-blue-medium" aria-hidden="true" />
+                <div className="p-3.5 rounded-2xl bg-canvas dark:bg-[#07111F] border border-blue-pale/30 dark:border-white/10">
+                  <div className="flex items-center gap-2 text-muted dark:text-[#8FA4BA] mb-1 font-semibold text-[11px]">
+                    <Phone
+                      className="w-3.5 h-3.5 text-blue-medium"
+                      aria-hidden="true"
+                    />
                     <span>Nomor Telepon</span>
                   </div>
                   <p className="font-bold text-navy-deepest text-sm truncate">
-                    {profile.phone || <span className="font-normal text-muted italic">Belum diisi</span>}
+                    {profile.phone || (
+                      <span className="font-normal text-muted dark:text-[#8FA4BA] italic">
+                        Belum diisi
+                      </span>
+                    )}
                   </p>
                 </div>
 
                 {/* 3. Alamat Email (Readonly) */}
-                <div className="p-3.5 rounded-2xl bg-canvas border border-blue-pale/30 sm:col-span-2 flex items-center justify-between gap-3">
+                <div className="p-3.5 rounded-2xl bg-canvas dark:bg-[#07111F] border border-blue-pale/30 dark:border-white/10 sm:col-span-2 flex items-center justify-between gap-3">
                   <div className="min-w-0">
-                    <div className="flex items-center gap-2 text-muted mb-1 font-semibold text-[11px]">
-                      <Mail className="w-3.5 h-3.5 text-blue-medium" aria-hidden="true" />
+                    <div className="flex items-center gap-2 text-muted dark:text-[#8FA4BA] mb-1 font-semibold text-[11px]">
+                      <Mail
+                        className="w-3.5 h-3.5 text-blue-medium"
+                        aria-hidden="true"
+                      />
                       <span>Alamat Email</span>
                     </div>
                     <p className="font-bold text-navy-deepest text-sm truncate">
                       {profile.email}
                     </p>
                   </div>
-                  <span className="text-[10px] font-bold bg-white text-muted px-2 py-0.5 rounded-full border border-blue-pale/50 shrink-0">
+                  <span className="text-[10px] font-bold bg-white dark:bg-[#12233A] text-muted dark:text-[#8FA4BA] px-2 py-0.5 rounded-full border border-blue-pale/50 dark:border-white/10 shrink-0">
                     Terkunci
                   </span>
                 </div>
 
                 {/* 4. Peran Akun (Readonly) */}
-                <div className="p-3.5 rounded-2xl bg-canvas border border-blue-pale/30">
-                  <div className="flex items-center gap-2 text-muted mb-1 font-semibold text-[11px]">
-                    <Shield className="w-3.5 h-3.5 text-blue-medium" aria-hidden="true" />
+                <div className="p-3.5 rounded-2xl bg-canvas dark:bg-[#07111F] border border-blue-pale/30 dark:border-white/10">
+                  <div className="flex items-center gap-2 text-muted dark:text-[#8FA4BA] mb-1 font-semibold text-[11px]">
+                    <Shield
+                      className="w-3.5 h-3.5 text-blue-medium"
+                      aria-hidden="true"
+                    />
                     <span>Peran Akun</span>
                   </div>
                   <p className="font-bold text-navy-deepest text-sm truncate">
@@ -402,9 +467,12 @@ export function AdminPemdesProfilePage(): React.JSX.Element {
                 </div>
 
                 {/* 5. Wilayah Penugasan (Readonly) */}
-                <div className="p-3.5 rounded-2xl bg-canvas border border-blue-pale/30">
-                  <div className="flex items-center gap-2 text-muted mb-1 font-semibold text-[11px]">
-                    <MapPin className="w-3.5 h-3.5 text-blue-medium" aria-hidden="true" />
+                <div className="p-3.5 rounded-2xl bg-canvas dark:bg-[#07111F] border border-blue-pale/30 dark:border-white/10">
+                  <div className="flex items-center gap-2 text-muted dark:text-[#8FA4BA] mb-1 font-semibold text-[11px]">
+                    <MapPin
+                      className="w-3.5 h-3.5 text-blue-medium"
+                      aria-hidden="true"
+                    />
                     <span>Wilayah Penugasan</span>
                   </div>
                   <p className="font-bold text-navy-deepest text-sm truncate">
@@ -414,61 +482,73 @@ export function AdminPemdesProfilePage(): React.JSX.Element {
               </div>
 
               {/* Explanatory Banner */}
-              <div className="p-3.5 bg-blue-pale/15 rounded-2xl border border-blue-pale/40 text-[11px] text-muted flex items-start gap-2.5">
-                <AlertCircle className="w-4 h-4 text-blue-medium shrink-0 mt-0.5" aria-hidden="true" />
+              <div className="p-3.5 bg-blue-pale/15 dark:bg-[#5483B3]/10 rounded-2xl border border-blue-pale/40 dark:border-white/10 text-[11px] text-muted dark:text-[#8FA4BA] flex items-start gap-2.5">
+                <AlertCircle
+                  className="w-4 h-4 text-blue-medium shrink-0 mt-0.5"
+                  aria-hidden="true"
+                />
                 <p className="leading-relaxed">
-                  Alamat email, peran, dan wilayah penugasan dikelola langsung oleh sistem ROADIS. Jika terdapat perubahan wilayah dinas, hubungi Administrator Kabupaten.
+                  Alamat email, peran, dan wilayah penugasan dikelola langsung
+                  oleh sistem ROADIS. Jika terdapat perubahan wilayah dinas,
+                  hubungi Administrator Kabupaten.
                 </p>
               </div>
             </div>
 
             {/* CARD D: Keamanan Akun */}
-            <div className="bg-white rounded-card border border-blue-pale/40 shadow-sm p-6 sm:p-7 flex flex-col gap-5">
-              <div className="border-b border-blue-pale/30 pb-4">
+            <div className="bg-white dark:bg-[#0D1A2D] rounded-card border border-blue-pale/40 dark:border-white/10 shadow-sm p-6 sm:p-7 flex flex-col gap-5">
+              <div className="border-b border-blue-pale/30 dark:border-white/10 pb-4">
                 <h3 className="text-base font-bold text-navy-deepest">
                   Keamanan Akun
                 </h3>
-                <p className="text-xs text-muted">
+                <p className="text-xs text-muted dark:text-[#8FA4BA]">
                   Kelola kata sandi dan pantau aktivitas sesi masuk Anda.
                 </p>
               </div>
 
               {/* Password Row */}
-              <div className="p-4 rounded-2xl bg-canvas border border-blue-pale/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="p-4 rounded-2xl bg-canvas dark:bg-[#07111F] border border-blue-pale/30 dark:border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-full bg-white border border-blue-pale/40 flex items-center justify-center text-navy-primary shrink-0 shadow-xs">
+                  <div className="w-9 h-9 rounded-full bg-white dark:bg-[#12233A] border border-blue-pale/40 dark:border-white/10 flex items-center justify-center text-navy-primary dark:text-navy-deepest shrink-0 shadow-xs">
                     <Lock className="w-4 h-4" aria-hidden="true" />
                   </div>
                   <div>
-                    <p className="text-xs font-bold text-navy-deepest">Password Akun</p>
-                    <p className="text-xs text-muted tracking-widest mt-0.5">••••••••••••</p>
+                    <p className="text-xs font-bold text-navy-deepest">
+                      Password Akun
+                    </p>
+                    <p className="text-xs text-muted dark:text-[#8FA4BA] tracking-widest mt-0.5">
+                      ••••••••••••
+                    </p>
                   </div>
                 </div>
 
                 <button
                   type="button"
                   onClick={() => setIsPasswordModalOpen(true)}
-                  className="px-4 py-2 rounded-full text-xs font-semibold bg-white hover:bg-blue-pale/20 text-navy-primary border border-blue-pale/60 shadow-xs transition-colors cursor-pointer self-start sm:self-auto"
+                  className="px-4 py-2 rounded-full text-xs font-semibold bg-white dark:bg-[#12233A] hover:bg-blue-pale/20 dark:hover:bg-white/10 text-navy-primary dark:text-navy-deepest border border-blue-pale/60 dark:border-white/10 shadow-xs transition-colors cursor-pointer self-start sm:self-auto"
                 >
                   Ubah Password
                 </button>
               </div>
 
               {/* Last Login Info Row */}
-              <div className="p-4 rounded-2xl bg-canvas border border-blue-pale/30 flex items-center gap-3">
-                <div className="w-9 h-9 rounded-full bg-white border border-blue-pale/40 flex items-center justify-center text-blue-medium shrink-0 shadow-xs">
+              <div className="p-4 rounded-2xl bg-canvas dark:bg-[#07111F] border border-blue-pale/30 dark:border-white/10 flex items-center gap-3">
+                <div className="w-9 h-9 rounded-full bg-white dark:bg-[#12233A] border border-blue-pale/40 dark:border-white/10 flex items-center justify-center text-blue-medium shrink-0 shadow-xs">
                   <Clock className="w-4 h-4" aria-hidden="true" />
                 </div>
                 <div>
-                  <p className="text-xs font-bold text-navy-deepest">Login Terakhir</p>
-                  <p className="text-xs text-slate-700 font-medium mt-0.5">
+                  <p className="text-xs font-bold text-navy-deepest">
+                    Login Terakhir
+                  </p>
+                  <p className="text-xs text-slate-700 dark:text-[#AFC0D4] font-medium mt-0.5">
                     {formatDateTimeIndo(profile.last_login_at)}
                   </p>
                 </div>
               </div>
 
-              <div className="p-3.5 bg-amber-50/70 border border-amber-200/70 rounded-2xl text-[11px] text-amber-900 leading-relaxed">
-                Gunakan password yang kuat dan jangan bagikan kepada pihak manapun untuk menjaga integritas data infrastruktur jalan desa.
+              <div className="p-3.5 bg-amber-50/70 dark:bg-amber-950/20 border border-amber-200/70 dark:border-amber-500/20 rounded-2xl text-[11px] text-amber-900 dark:text-amber-200 leading-relaxed">
+                Gunakan password yang kuat dan jangan bagikan kepada pihak
+                manapun untuk menjaga integritas data infrastruktur jalan desa.
               </div>
             </div>
           </div>

@@ -1,6 +1,6 @@
-import React from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import React from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export interface ReportPaginationProps {
   currentPage: number;
@@ -26,47 +26,58 @@ export function ReportPagination({
     }
 
     if (currentPage <= 3) {
-      return [1, 2, 3, '...', totalPages];
+      return [1, 2, 3, "...", totalPages];
     }
 
     if (currentPage >= totalPages - 2) {
-      return [1, '...', totalPages - 2, totalPages - 1, totalPages];
+      return [1, "...", totalPages - 2, totalPages - 1, totalPages];
     }
 
-    return [1, '...', currentPage, '...', totalPages];
+    return [1, "...", currentPage, "...", totalPages];
   };
 
   const pages = getPageNumbers();
 
   return (
-    <div className="pt-4 border-t border-blue-pale/30 flex flex-col md:flex-row items-center justify-between gap-4 text-[12px] text-muted select-none">
+    <div className="pt-4 border-t border-blue-pale/30 dark:border-white/10 flex flex-col md:flex-row items-center justify-between gap-4 text-[12px] text-muted dark:text-[#8FA4BA] select-none">
       {/* Left: Summary Results */}
       <div>
         {totalItems === 0 ? (
-          <span>Menampilkan <b className="font-bold text-navy-deepest">0</b> laporan</span>
+          <span>
+            Menampilkan{" "}
+            <b className="font-bold text-navy-deepest">0</b>{" "}
+            laporan
+          </span>
         ) : (
           <span>
-            Menampilkan{' '}
+            Menampilkan{" "}
             <span className="font-bold text-navy-deepest">
               {startItem}–{endItem}
-            </span>{' '}
-            dari <span className="font-bold text-navy-deepest">{totalItems}</span> laporan
+            </span>{" "}
+            dari{" "}
+            <span className="font-bold text-navy-deepest">
+              {totalItems}
+            </span>{" "}
+            laporan
           </span>
         )}
       </div>
 
       {/* Right: Pagination Controls */}
-      <div className="flex items-center gap-1.5" aria-label="Navigasi Halaman Laporan">
+      <div
+        className="flex items-center gap-1.5"
+        aria-label="Navigasi Halaman Laporan"
+      >
         {/* Previous Button */}
         <button
           type="button"
           onClick={() => onPageChange(currentPage - 1)}
           disabled={currentPage <= 1}
           className={cn(
-            'w-8 h-8 rounded-full flex items-center justify-center border border-blue-pale/50 text-muted transition-colors',
+            "w-8 h-8 rounded-full flex items-center justify-center border border-blue-pale/50 dark:border-white/10 text-muted dark:text-[#AFC0D4] transition-colors",
             currentPage <= 1
-              ? 'opacity-40 cursor-not-allowed'
-              : 'hover:bg-canvas hover:text-navy-deepest cursor-pointer'
+              ? "opacity-40 cursor-not-allowed"
+              : "hover:bg-canvas dark:hover:bg-white/5 hover:text-navy-deepest cursor-pointer",
           )}
           title="Halaman Sebelumnya"
           aria-label="Halaman Sebelumnya"
@@ -76,9 +87,12 @@ export function ReportPagination({
 
         {/* Page Buttons */}
         {pages.map((p, idx) => {
-          if (p === '...') {
+          if (p === "...") {
             return (
-              <span key={`ellipsis-${idx}`} className="px-1 text-muted text-xs">
+              <span
+                key={`ellipsis-${idx}`}
+                className="px-1 text-muted dark:text-[#8FA4BA] text-xs"
+              >
                 ...
               </span>
             );
@@ -93,12 +107,12 @@ export function ReportPagination({
               type="button"
               onClick={() => onPageChange(pageNumber)}
               className={cn(
-                'w-8 h-8 rounded-full flex items-center justify-center text-[12px] transition-colors cursor-pointer',
+                "w-8 h-8 rounded-full flex items-center justify-center text-[12px] transition-colors cursor-pointer",
                 isActive
-                  ? 'bg-navy-primary text-white font-bold shadow-xs'
-                  : 'border border-blue-pale/50 hover:bg-canvas text-muted font-medium'
+                  ? "bg-navy-primary text-white font-bold shadow-xs dark:bg-[#001234] dark:border dark:border-white/20"
+                  : "border border-blue-pale/50 dark:border-white/10 hover:bg-canvas dark:hover:bg-white/5 text-muted dark:text-[#AFC0D4] font-medium",
               )}
-              aria-current={isActive ? 'page' : undefined}
+              aria-current={isActive ? "page" : undefined}
               aria-label={`Halaman ${pageNumber}`}
             >
               {pageNumber}
@@ -112,10 +126,10 @@ export function ReportPagination({
           onClick={() => onPageChange(currentPage + 1)}
           disabled={currentPage >= totalPages}
           className={cn(
-            'w-8 h-8 rounded-full flex items-center justify-center border border-blue-pale/50 text-muted transition-colors',
+            "w-8 h-8 rounded-full flex items-center justify-center border border-blue-pale/50 dark:border-white/10 text-muted dark:text-[#AFC0D4] transition-colors",
             currentPage >= totalPages
-              ? 'opacity-40 cursor-not-allowed'
-              : 'hover:bg-canvas hover:text-navy-deepest cursor-pointer'
+              ? "opacity-40 cursor-not-allowed"
+              : "hover:bg-canvas dark:hover:bg-white/5 hover:text-navy-deepest cursor-pointer",
           )}
           title="Halaman Berikutnya"
           aria-label="Halaman Berikutnya"

@@ -1,16 +1,16 @@
-import React from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, AlertCircle, RefreshCw } from 'lucide-react';
-import { useAuth } from '@/features/auth/useAuth';
-import { isForbiddenError } from '@/services/api/errors';
-import { useAdminReportDetail } from '../api/useAdminPemdesData';
-import { ReportDetailHeader } from '../components/reports/ReportDetailHeader';
-import { ReportImageCard } from '../components/reports/ReportImageCard';
-import { ReportDetectionCard } from '../components/reports/ReportDetectionCard';
-import { ReportLocationCard } from '../components/reports/ReportLocationCard';
-import { ReportInformationCard } from '../components/reports/ReportInformationCard';
-import { ReportStatusUpdateCard } from '../components/reports/ReportStatusUpdateCard';
-import { ReportChatCard } from '../components/reports/ReportChatCard';
+import React from "react";
+import { useParams, Link } from "react-router-dom";
+import { ArrowLeft, AlertCircle, RefreshCw } from "lucide-react";
+import { useAuth } from "@/features/auth/useAuth";
+import { isForbiddenError } from "@/services/api/errors";
+import { useAdminReportDetail } from "../api/useAdminPemdesData";
+import { ReportDetailHeader } from "../components/reports/ReportDetailHeader";
+import { ReportImageCard } from "../components/reports/ReportImageCard";
+import { ReportDetectionCard } from "../components/reports/ReportDetectionCard";
+import { ReportLocationCard } from "../components/reports/ReportLocationCard";
+import { ReportInformationCard } from "../components/reports/ReportInformationCard";
+import { ReportStatusUpdateCard } from "../components/reports/ReportStatusUpdateCard";
+import { ReportChatCard } from "../components/reports/ReportChatCard";
 
 export function AdminPemdesReportDetailPage(): React.JSX.Element {
   const { id } = useParams<{ id: string }>();
@@ -19,24 +19,23 @@ export function AdminPemdesReportDetailPage(): React.JSX.Element {
   // Dynamic user village fallback if report's village is unassigned
   const userVillageName =
     user?.wilayahId === 2
-      ? 'Lobener Lor'
+      ? "Lobener Lor"
       : user?.wilayahId
-      ? `Wilayah #${user.wilayahId}`
-      : undefined;
+        ? `Wilayah #${user.wilayahId}`
+        : undefined;
 
-  const {
-    data,
-    isLoading,
-    error,
-    refetch,
-  } = useAdminReportDetail(id);
+  const { data, isLoading, error, refetch } = useAdminReportDetail(id);
 
   const report = data?.report;
 
   // 1. Loading State: Skeleton structure preserving exact 12-column layout
   if (isLoading) {
     return (
-      <div className="flex flex-col gap-6 max-w-full animate-pulse select-none" aria-busy="true" aria-label="Memuat detail laporan">
+      <div
+        className="flex flex-col gap-6 max-w-full animate-pulse select-none"
+        aria-busy="true"
+        aria-label="Memuat detail laporan"
+      >
         {/* Header Skeleton */}
         <div className="flex flex-col gap-3">
           <div className="flex items-center justify-between flex-wrap gap-3">
@@ -100,7 +99,6 @@ export function AdminPemdesReportDetailPage(): React.JSX.Element {
               <div className="flex-1 bg-gray-150 rounded-2xl" />
             </div>
           </div>
-
         </div>
       </div>
     );
@@ -110,44 +108,47 @@ export function AdminPemdesReportDetailPage(): React.JSX.Element {
   if (error || !report) {
     const isForbidden = isForbiddenError(error);
     const errorMessage =
-      error instanceof Error ? error.message : 'Laporan tidak ditemukan';
+      error instanceof Error ? error.message : "Laporan tidak ditemukan";
 
     return (
       <div className="flex flex-col gap-6 max-w-full py-8">
         <div>
           <Link
             to="/pemdes/laporan"
-            className="inline-flex items-center gap-2 bg-white hover:bg-canvas border border-blue-pale/40 px-4 py-2 rounded-full text-[13px] font-semibold text-navy-deepest shadow-xs transition-colors select-none"
+            className="inline-flex items-center gap-2 bg-white dark:bg-[#0D1A2D] hover:bg-canvas dark:hover:bg-white/5 border border-blue-pale/40 dark:border-[rgba(193,232,255,0.12)] px-4 py-2 rounded-full text-[13px] font-semibold text-navy-deepest shadow-xs transition-colors select-none"
           >
-            <ArrowLeft className="w-4 h-4 text-navy-primary" aria-hidden="true" />
+            <ArrowLeft
+              className="w-4 h-4 text-navy-primary dark:text-blue-pale"
+              aria-hidden="true"
+            />
             <span>Kembali ke Laporan</span>
           </Link>
         </div>
 
-        <div className="bg-white rounded-card border border-blue-pale/40 shadow-sm p-10 flex flex-col items-center justify-center text-center gap-4 max-w-xl mx-auto w-full">
-          <div className="w-16 h-16 rounded-full bg-red-50 text-severity-berat flex items-center justify-center">
+        <div className="bg-white dark:bg-[#0D1A2D] rounded-card border border-blue-pale/40 dark:border-[rgba(193,232,255,0.12)] shadow-sm p-10 flex flex-col items-center justify-center text-center gap-4 max-w-xl mx-auto w-full">
+          <div className="w-16 h-16 rounded-full bg-red-50 dark:bg-red-950/30 text-severity-berat flex items-center justify-center">
             <AlertCircle className="w-8 h-8" aria-hidden="true" />
           </div>
 
           <div className="space-y-1">
             <h2 className="text-xl font-bold text-navy-deepest">
-              {isForbidden ? 'Akses Ditolak' : 'Laporan Tidak Ditemukan'}
+              {isForbidden ? "Akses Ditolak" : "Laporan Tidak Ditemukan"}
             </h2>
-            <p className="text-xs text-muted max-w-md leading-relaxed">
+            <p className="text-xs text-muted dark:text-[#AFC0D4] max-w-md leading-relaxed">
               {isForbidden
-                ? (errorMessage || 'Anda tidak memiliki hak akses untuk melihat laporan ini. Pastikan laporan berada dalam wilayah kewenangan desa Anda.')
-                : errorMessage === 'Laporan tidak ditemukan'
-                ? `Laporan dengan ID #${id} tidak ditemukan pada daftar laporan terverifikasi atau berada di luar cakupan wilayah kewenangan akun Pemdes Anda.`
-                : errorMessage}
+                ? errorMessage ||
+                  "Anda tidak memiliki hak akses untuk melihat laporan ini. Pastikan laporan berada dalam wilayah kewenangan desa Anda."
+                : errorMessage === "Laporan tidak ditemukan"
+                  ? `Laporan dengan ID #${id} tidak ditemukan pada daftar laporan terverifikasi atau berada di luar cakupan wilayah kewenangan akun Pemdes Anda.`
+                  : errorMessage}
             </p>
           </div>
-
 
           <div className="flex items-center gap-3 pt-2">
             <button
               type="button"
               onClick={() => refetch()}
-              className="inline-flex items-center gap-2 bg-canvas hover:bg-gray-200 text-navy-deepest text-xs font-semibold px-4 py-2.5 rounded-full transition-colors cursor-pointer"
+              className="inline-flex items-center gap-2 bg-canvas dark:bg-[#12233A] hover:bg-gray-200 dark:hover:bg-white/10 text-navy-deepest text-xs font-semibold px-4 py-2.5 rounded-full transition-colors cursor-pointer"
             >
               <RefreshCw className="w-4 h-4" aria-hidden="true" />
               <span>Coba Lagi</span>
@@ -204,7 +205,11 @@ export function AdminPemdesReportDetailPage(): React.JSX.Element {
             longitude={report.longitude}
             roadName={report.roadName}
             villageName={effectiveVillage}
-            roadAuthority={report.roadAuthority === 'desa' ? 'Jalan Desa' : report.roadAuthority}
+            roadAuthority={
+              report.roadAuthority === "desa"
+                ? "Jalan Desa"
+                : report.roadAuthority
+            }
             status={report.status}
           />
         </div>

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from "react";
 import {
   Edit3,
   CloudUpload,
@@ -7,10 +7,10 @@ import {
   Loader2,
   AlertCircle,
   X,
-} from 'lucide-react';
-import { type ReportStatus } from '@/types/domain';
-import { useUpdateReportStatus } from '../../api/useAdminPemdesData';
-import { cn } from '@/lib/utils';
+} from "lucide-react";
+import { type ReportStatus } from "@/types/domain";
+import { useUpdateReportStatus } from "../../api/useAdminPemdesData";
+import { cn } from "@/lib/utils";
 
 export interface ReportStatusUpdateCardProps {
   reportId: number;
@@ -22,10 +22,11 @@ export interface ReportStatusUpdateCardProps {
 export function ReportStatusUpdateCard({
   reportId,
   initialStatus,
-  initialHandlingNote = '',
+  initialHandlingNote = "",
   existingEvidenceUrl,
 }: ReportStatusUpdateCardProps): React.JSX.Element {
-  const [selectedStatus, setSelectedStatus] = useState<ReportStatus>(initialStatus);
+  const [selectedStatus, setSelectedStatus] =
+    useState<ReportStatus>(initialStatus);
   const [catatanAdmin, setCatatanAdmin] = useState(initialHandlingNote);
   const [evidenceFile, setEvidenceFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -38,7 +39,7 @@ export function ReportStatusUpdateCard({
   // Synchronize initial values when report data changes
   useEffect(() => {
     setSelectedStatus(initialStatus);
-    setCatatanAdmin(initialHandlingNote || '');
+    setCatatanAdmin(initialHandlingNote || "");
   }, [initialStatus, initialHandlingNote]);
 
   // Clean up object URL when file changes
@@ -60,13 +61,13 @@ export function ReportStatusUpdateCard({
     if (!file) return;
 
     // File validation: Type and Size (5 MB max)
-    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
-      setValidationError('Format file harus berupa JPG, PNG, atau WEBP.');
+    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+      setValidationError("Format file harus berupa JPG, PNG, atau WEBP.");
       return;
     }
 
     if (file.size > 5 * 1024 * 1024) {
-      setValidationError('Ukuran foto maksimal adalah 5 MB.');
+      setValidationError("Ukuran foto maksimal adalah 5 MB.");
       return;
     }
 
@@ -81,13 +82,13 @@ export function ReportStatusUpdateCard({
     const file = e.dataTransfer.files?.[0];
     if (!file) return;
 
-    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
-      setValidationError('Format file harus berupa JPG, PNG, atau WEBP.');
+    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+      setValidationError("Format file harus berupa JPG, PNG, atau WEBP.");
       return;
     }
 
     if (file.size > 5 * 1024 * 1024) {
-      setValidationError('Ukuran foto maksimal adalah 5 MB.');
+      setValidationError("Ukuran foto maksimal adalah 5 MB.");
       return;
     }
 
@@ -103,7 +104,7 @@ export function ReportStatusUpdateCard({
   const handleRemoveFile = () => {
     setEvidenceFile(null);
     if (fileInputRef.current) {
-      fileInputRef.current.value = '';
+      fileInputRef.current.value = "";
     }
   };
 
@@ -114,17 +115,17 @@ export function ReportStatusUpdateCard({
 
     // Business rule validation:
     // If status is "selesai", handling note and repair evidence are required by business rule.
-    if (selectedStatus === 'selesai') {
+    if (selectedStatus === "selesai") {
       if (!catatanAdmin.trim()) {
         setValidationError(
-          'Catatan penanganan wajib diisi sebelum laporan dapat ditandai Selesai.'
+          "Catatan penanganan wajib diisi sebelum laporan dapat ditandai Selesai.",
         );
         return;
       }
 
       if (!evidenceFile && !existingEvidenceUrl) {
         setValidationError(
-          'Foto bukti perbaikan wajib diunggah sebelum laporan dapat ditandai Selesai.'
+          "Foto bukti perbaikan wajib diunggah sebelum laporan dapat ditandai Selesai.",
         );
         return;
       }
@@ -138,10 +139,10 @@ export function ReportStatusUpdateCard({
         fotoBukti: evidenceFile,
       });
 
-      setSuccessFeedback('Status penanganan laporan berhasil diperbarui.');
+      setSuccessFeedback("Status penanganan laporan berhasil diperbarui.");
       setEvidenceFile(null);
       if (fileInputRef.current) {
-        fileInputRef.current.value = '';
+        fileInputRef.current.value = "";
       }
 
       // Auto dismiss success feedback after 5 seconds
@@ -150,24 +151,29 @@ export function ReportStatusUpdateCard({
       }, 5000);
     } catch (err) {
       setValidationError(
-        err instanceof Error ? err.message : 'Gagal memperbarui status laporan.'
+        err instanceof Error
+          ? err.message
+          : "Gagal memperbarui status laporan.",
       );
     }
   };
 
   return (
-    <div className="bg-white rounded-card border border-blue-pale/40 shadow-sm p-6 flex flex-col gap-5">
+    <div className="bg-white dark:bg-[#0D1A2D] rounded-card border border-blue-pale/40 dark:border-[rgba(193,232,255,0.12)] shadow-sm p-6 flex flex-col gap-5">
       {/* Header: Edit Icon + Title & Admin Badge */}
-      <div className="flex items-center justify-between border-b border-gray-100 pb-4">
+      <div className="flex items-center justify-between border-b border-gray-100 dark:border-white/10 pb-4">
         <div className="flex items-center gap-2">
-          <Edit3 className="w-5 h-5 text-navy-primary" aria-hidden="true" />
+          <Edit3
+            className="w-5 h-5 text-navy-primary dark:text-blue-pale"
+            aria-hidden="true"
+          />
           <h2 className="text-[17px] font-bold text-navy-deepest">
             Update Status Penanganan
           </h2>
         </div>
 
         <span
-          className="inline-flex items-center gap-1 bg-canvas text-navy-primary border border-blue-pale/40 px-3 py-1 rounded-full text-[11px] font-bold select-none"
+          className="inline-flex items-center gap-1 bg-canvas dark:bg-[#12233A] text-navy-primary dark:text-blue-pale border border-blue-pale/40 dark:border-white/10 px-3 py-1 rounded-full text-[11px] font-bold select-none"
           title="Tingkat Otoritas"
         >
           Admin Pemdes
@@ -176,25 +182,27 @@ export function ReportStatusUpdateCard({
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-5">
         {/* Status Selector: 3 Pill Buttons */}
-        <div className="flex items-center justify-between gap-2 p-1.5 bg-canvas rounded-2xl border border-blue-pale/40">
+        <div className="flex items-center justify-between gap-2 p-1.5 bg-canvas dark:bg-[#07111F] rounded-2xl border border-blue-pale/40 dark:border-white/10">
           {/* Menunggu */}
           <button
             type="button"
             onClick={() => {
-              setSelectedStatus('menunggu');
+              setSelectedStatus("menunggu");
               setValidationError(null);
             }}
             className={cn(
-              'flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl text-[12px] font-bold transition-all cursor-pointer select-none',
-              selectedStatus === 'menunggu'
-                ? 'bg-status-menunggu text-white shadow-xs'
-                : 'text-muted hover:bg-white hover:text-navy-deepest'
+              "flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl text-[12px] font-bold transition-all cursor-pointer select-none",
+              selectedStatus === "menunggu"
+                ? "bg-status-menunggu text-white shadow-xs"
+                : "text-muted dark:text-[#8FA4BA] hover:bg-white dark:hover:bg-white/10 hover:text-navy-deepest",
             )}
           >
             <span
               className={cn(
-                'w-2 h-2 rounded-full',
-                selectedStatus === 'menunggu' ? 'bg-white' : 'bg-status-menunggu'
+                "w-2 h-2 rounded-full",
+                selectedStatus === "menunggu"
+                  ? "bg-white"
+                  : "bg-status-menunggu",
               )}
               aria-hidden="true"
             />
@@ -205,20 +213,20 @@ export function ReportStatusUpdateCard({
           <button
             type="button"
             onClick={() => {
-              setSelectedStatus('proses');
+              setSelectedStatus("proses");
               setValidationError(null);
             }}
             className={cn(
-              'flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl text-[12px] font-bold transition-all cursor-pointer select-none',
-              selectedStatus === 'proses'
-                ? 'bg-status-proses text-white shadow-xs'
-                : 'text-muted hover:bg-white hover:text-navy-deepest'
+              "flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl text-[12px] font-bold transition-all cursor-pointer select-none",
+              selectedStatus === "proses"
+                ? "bg-status-proses text-white shadow-xs"
+                : "text-muted dark:text-[#8FA4BA] hover:bg-white dark:hover:bg-white/10 hover:text-navy-deepest",
             )}
           >
             <span
               className={cn(
-                'w-2 h-2 rounded-full',
-                selectedStatus === 'proses' ? 'bg-white' : 'bg-status-proses'
+                "w-2 h-2 rounded-full",
+                selectedStatus === "proses" ? "bg-white" : "bg-status-proses",
               )}
               aria-hidden="true"
             />
@@ -229,20 +237,20 @@ export function ReportStatusUpdateCard({
           <button
             type="button"
             onClick={() => {
-              setSelectedStatus('selesai');
+              setSelectedStatus("selesai");
               setValidationError(null);
             }}
             className={cn(
-              'flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl text-[12px] font-bold transition-all cursor-pointer select-none',
-              selectedStatus === 'selesai'
-                ? 'bg-status-selesai text-white shadow-xs'
-                : 'text-muted hover:bg-white hover:text-navy-deepest'
+              "flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl text-[12px] font-bold transition-all cursor-pointer select-none",
+              selectedStatus === "selesai"
+                ? "bg-status-selesai text-white shadow-xs"
+                : "text-muted dark:text-[#8FA4BA] hover:bg-white dark:hover:bg-white/10 hover:text-navy-deepest",
             )}
           >
             <span
               className={cn(
-                'w-2 h-2 rounded-full',
-                selectedStatus === 'selesai' ? 'bg-white' : 'bg-status-selesai'
+                "w-2 h-2 rounded-full",
+                selectedStatus === "selesai" ? "bg-white" : "bg-status-selesai",
               )}
               aria-hidden="true"
             />
@@ -257,12 +265,12 @@ export function ReportStatusUpdateCard({
             className="text-[13px] font-bold text-navy-deepest flex items-center justify-between"
           >
             <span>
-              Catatan Penanganan{' '}
-              {selectedStatus === 'selesai' && (
+              Catatan Penanganan{" "}
+              {selectedStatus === "selesai" && (
                 <span className="text-severity-berat">*</span>
               )}
             </span>
-            <span className="text-[11px] font-normal text-muted">
+            <span className="text-[11px] font-normal text-muted dark:text-[#8FA4BA]">
               Rencana aksi desa
             </span>
           </label>
@@ -272,7 +280,7 @@ export function ReportStatusUpdateCard({
             value={catatanAdmin}
             onChange={(e) => setCatatanAdmin(e.target.value)}
             placeholder="Masukkan rencana tindakan (misal: Dijadwalkan pengurukan dan penambalan cold-mix besok pagi oleh Tim Sarpras Pemdes)..."
-            className="w-full bg-white border border-blue-pale/50 rounded-xl p-3 text-[13px] text-navy-deepest placeholder:text-muted/60 focus:outline-none focus:border-navy-primary focus:ring-1 focus:ring-navy-primary transition-all resize-y"
+            className="w-full bg-white dark:bg-[#12233A] border border-blue-pale/50 dark:border-white/10 rounded-xl p-3 text-[13px] text-navy-deepest placeholder:text-muted/60 dark:placeholder:text-[#8FA4BA]/60 focus:outline-none focus:border-navy-primary focus:ring-1 focus:ring-navy-primary transition-all resize-y"
           />
         </div>
 
@@ -280,8 +288,8 @@ export function ReportStatusUpdateCard({
         <div className="flex flex-col gap-2">
           <label className="text-[13px] font-bold text-navy-deepest flex items-center justify-between">
             <span>
-              Foto Bukti Perbaikan{' '}
-              {selectedStatus === 'selesai' && (
+              Foto Bukti Perbaikan{" "}
+              {selectedStatus === "selesai" && (
                 <span className="text-severity-berat">*</span>
               )}
             </span>
@@ -302,12 +310,12 @@ export function ReportStatusUpdateCard({
 
           {/* Display Existing Evidence if available and no new file selected */}
           {!previewUrl && existingEvidenceUrl && (
-            <div className="p-3 bg-canvas/70 rounded-2xl border border-blue-pale/40 flex items-center justify-between gap-3">
+            <div className="p-3 bg-canvas/70 dark:bg-[#12233A] rounded-2xl border border-blue-pale/40 dark:border-white/10 flex items-center justify-between gap-3">
               <div className="flex items-center gap-3 min-w-0">
                 <img
                   src={existingEvidenceUrl}
                   alt="Bukti perbaikan tersimpan"
-                  className="w-12 h-12 rounded-xl object-cover ring-1 ring-blue-pale/60 shrink-0"
+                  className="w-12 h-12 rounded-xl object-cover ring-1 ring-blue-pale/60 dark:ring-white/20 shrink-0"
                 />
                 <div className="min-w-0">
                   <p className="text-xs font-semibold text-navy-deepest truncate">
@@ -322,7 +330,7 @@ export function ReportStatusUpdateCard({
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="text-[11px] font-semibold text-navy-primary hover:text-navy-deepest bg-white border border-blue-pale/50 px-3 py-1.5 rounded-full hover:bg-canvas transition-colors shrink-0 cursor-pointer"
+                className="text-[11px] font-semibold text-navy-primary dark:text-blue-pale hover:text-navy-deepest dark:hover:text-white bg-white dark:bg-[#0D1A2D] border border-blue-pale/50 dark:border-white/10 px-3 py-1.5 rounded-full hover:bg-canvas dark:hover:bg-white/5 transition-colors shrink-0 cursor-pointer"
               >
                 Ganti Foto
               </button>
@@ -331,18 +339,18 @@ export function ReportStatusUpdateCard({
 
           {/* New Selected File Preview */}
           {previewUrl && evidenceFile && (
-            <div className="p-3 bg-canvas/70 rounded-2xl border border-blue-pale/40 flex items-center justify-between gap-3">
+            <div className="p-3 bg-canvas/70 dark:bg-[#12233A] rounded-2xl border border-blue-pale/40 dark:border-white/10 flex items-center justify-between gap-3">
               <div className="flex items-center gap-3 min-w-0">
                 <img
                   src={previewUrl}
                   alt="Pratinjau bukti perbaikan"
-                  className="w-12 h-12 rounded-xl object-cover ring-1 ring-blue-pale/60 shrink-0"
+                  className="w-12 h-12 rounded-xl object-cover ring-1 ring-blue-pale/60 dark:ring-white/20 shrink-0"
                 />
                 <div className="min-w-0">
                   <p className="text-xs font-semibold text-navy-deepest truncate">
                     {evidenceFile.name}
                   </p>
-                  <p className="text-[11px] text-muted">
+                  <p className="text-[11px] text-muted dark:text-[#AFC0D4]">
                     {(evidenceFile.size / 1024).toFixed(0)} KB • Siap diunggah
                   </p>
                 </div>
@@ -350,7 +358,7 @@ export function ReportStatusUpdateCard({
               <button
                 type="button"
                 onClick={handleRemoveFile}
-                className="w-8 h-8 rounded-full bg-white hover:bg-red-50 text-muted hover:text-severity-berat flex items-center justify-center border border-gray-200 transition-colors shrink-0 cursor-pointer"
+                className="w-8 h-8 rounded-full bg-white dark:bg-[#0D1A2D] hover:bg-red-50 dark:hover:bg-red-950/30 text-muted dark:text-[#8FA4BA] hover:text-severity-berat flex items-center justify-center border border-gray-200 dark:border-white/10 transition-colors shrink-0 cursor-pointer"
                 title="Batalkan foto"
                 aria-label="Batalkan foto"
               >
@@ -365,11 +373,11 @@ export function ReportStatusUpdateCard({
               onDrop={handleDrop}
               onDragOver={handleDragOver}
               onClick={() => fileInputRef.current?.click()}
-              className="border-2 border-dashed border-blue-pale/70 hover:border-navy-primary/60 rounded-2xl p-5 flex flex-col items-center justify-center gap-2 bg-canvas/40 hover:bg-canvas transition-colors cursor-pointer text-center select-none"
+              className="border-2 border-dashed border-blue-pale/70 dark:border-white/20 hover:border-navy-primary/60 dark:hover:border-white/40 rounded-2xl p-5 flex flex-col items-center justify-center gap-2 bg-canvas/40 dark:bg-[#12233A]/40 hover:bg-canvas dark:hover:bg-[#12233A] transition-colors cursor-pointer text-center select-none"
               role="button"
               tabIndex={0}
               onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
+                if (e.key === "Enter" || e.key === " ") {
                   fileInputRef.current?.click();
                 }
               }}
@@ -389,9 +397,13 @@ export function ReportStatusUpdateCard({
 
           {/* Subtext Note */}
           <span className="text-[11px] text-muted/90 italic flex items-center gap-1.5 mt-0.5">
-            <CheckCircle className="w-3.5 h-3.5 text-navy-primary shrink-0" aria-hidden="true" />
+            <CheckCircle
+              className="w-3.5 h-3.5 text-navy-primary shrink-0"
+              aria-hidden="true"
+            />
             <span>
-              Foto bukti perbaikan wajib diunggah sebelum laporan dapat ditandai Selesai.
+              Foto bukti perbaikan wajib diunggah sebelum laporan dapat ditandai
+              Selesai.
             </span>
           </span>
         </div>
@@ -399,7 +411,10 @@ export function ReportStatusUpdateCard({
         {/* Validation Error Banner */}
         {validationError && (
           <div className="p-3 bg-red-50 border border-red-200 text-severity-berat rounded-xl text-xs flex items-start gap-2">
-            <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" aria-hidden="true" />
+            <AlertCircle
+              className="w-4 h-4 shrink-0 mt-0.5"
+              aria-hidden="true"
+            />
             <p className="leading-snug">{validationError}</p>
           </div>
         )}
@@ -407,7 +422,10 @@ export function ReportStatusUpdateCard({
         {/* Success Feedback Banner */}
         {successFeedback && (
           <div className="p-3 bg-emerald-50 border border-emerald-200 text-status-selesai rounded-xl text-xs flex items-start gap-2">
-            <CheckCircle className="w-4 h-4 shrink-0 mt-0.5" aria-hidden="true" />
+            <CheckCircle
+              className="w-4 h-4 shrink-0 mt-0.5"
+              aria-hidden="true"
+            />
             <p className="leading-snug font-medium">{successFeedback}</p>
           </div>
         )}

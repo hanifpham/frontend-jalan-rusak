@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 export function MapHeader(): React.JSX.Element {
   return (
@@ -6,7 +6,7 @@ export function MapHeader(): React.JSX.Element {
       <h1 className="text-[28px] font-bold text-navy-deepest tracking-tight leading-tight">
         Peta Laporan
       </h1>
-      <p className="text-[14px] text-muted leading-normal">
+      <p className="text-[14px] text-muted dark:text-[#AFC0D4] leading-normal">
         Pantau lokasi laporan kerusakan jalan desa di wilayah Anda.
       </p>
     </div>

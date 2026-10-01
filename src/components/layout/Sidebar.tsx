@@ -1,5 +1,5 @@
 import React from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import {
   LayoutDashboard,
   FileText,
@@ -43,7 +43,16 @@ export function Sidebar({
   onClose,
 }: SidebarProps): React.JSX.Element {
   const { role, logout } = useAuth();
+  const location = useLocation();
   const navItems = getAuthorizedNavigation(role);
+
+  const settingsPath =
+    role === "admin_pemdes" ? "/pemdes/pengaturan" : "/settings";
+  const isSettingsActive =
+    location.pathname === "/pemdes/pengaturan" ||
+    location.pathname.startsWith("/pemdes/pengaturan/") ||
+    location.pathname === "/settings" ||
+    location.pathname === "/pengaturan";
 
   const desktopContent = (
     <nav
@@ -51,7 +60,7 @@ export function Sidebar({
       aria-label="Navigasi Samping"
     >
       {/* Top Main Navigation Pill Container */}
-      <div className="p-3 flex flex-col gap-4 items-center border border-blue-pale/40 shadow-sm rounded-full bg-white">
+      <div className="p-3 flex flex-col gap-4 items-center border border-blue-pale/40 dark:border-white/10 shadow-sm rounded-full bg-white dark:bg-[#0D1A2D]">
         {navItems.map((item) => {
           const IconComponent = iconRegistry[item.iconName] || LayoutDashboard;
 
@@ -64,8 +73,8 @@ export function Sidebar({
                 cn(
                   "w-12 h-12 rounded-full flex items-center justify-center transition-all active:scale-95 select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-medium",
                   isActive
-                    ? "bg-navy-primary text-white shadow-md"
-                    : "text-muted hover:bg-blue-pale/20 hover:text-navy-deepest",
+                    ? "bg-navy-primary dark:bg-[#001234] text-white shadow-md"
+                    : "text-muted dark:text-[#AFC0D4] hover:bg-[#EEF5FB] dark:hover:bg-white/5 hover:text-navy-deepest dark:hover:text-white",
                 )
               }
               aria-label={item.label}
@@ -77,19 +86,18 @@ export function Sidebar({
       </div>
 
       {/* Bottom Navigation Pill Container: Pengaturan & Keluar */}
-      <div className="mt-auto p-3 flex flex-col gap-4 items-center border border-blue-pale/40 shadow-sm rounded-full bg-white">
+      <div className="mt-auto p-3 flex flex-col gap-4 items-center border border-blue-pale/40 dark:border-white/10 shadow-sm rounded-full bg-white dark:bg-[#0D1A2D]">
         <NavLink
-          to="/settings"
+          to={settingsPath}
           title="Pengaturan"
-          className={({ isActive }) =>
-            cn(
-              "w-12 h-12 rounded-full flex items-center justify-center transition-all active:scale-95 select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-medium",
-              isActive
-                ? "bg-navy-primary text-white shadow-md"
-                : "text-muted hover:bg-blue-pale/20 hover:text-navy-deepest",
-            )
-          }
+          className={cn(
+            "w-12 h-12 rounded-full flex items-center justify-center transition-all active:scale-95 select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-medium",
+            isSettingsActive
+              ? "bg-navy-primary dark:bg-[#001234] text-white shadow-md"
+              : "text-muted dark:text-[#AFC0D4] hover:bg-[#EEF5FB] dark:hover:bg-white/5 hover:text-navy-deepest dark:hover:text-white",
+          )}
           aria-label="Pengaturan"
+          aria-current={isSettingsActive ? "page" : undefined}
         >
           <Settings className="w-5 h-5" aria-hidden="true" />
         </NavLink>
@@ -98,7 +106,7 @@ export function Sidebar({
           type="button"
           onClick={logout}
           title="Keluar dari Akun"
-          className="w-12 h-12 rounded-full text-muted hover:bg-red-50 hover:text-severity-berat flex items-center justify-center transition-all active:scale-95 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-severity-berat"
+          className="w-12 h-12 rounded-full text-muted dark:text-[#AFC0D4] hover:bg-red-50 dark:hover:bg-red-950/30 hover:text-severity-berat dark:hover:text-red-400 flex items-center justify-center transition-all active:scale-95 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-severity-berat"
           aria-label="Keluar dari akun"
         >
           <LogOut className="w-5 h-5" aria-hidden="true" />
@@ -108,15 +116,15 @@ export function Sidebar({
   );
 
   const mobileDrawerContent = (
-    <div className="flex flex-col h-full bg-white rounded-3xl border border-blue-pale/50 shadow-xl p-5">
-      <div className="flex items-center justify-between pb-3 mb-4 border-b border-gray-100">
+    <div className="flex flex-col h-full bg-white dark:bg-[#0D1A2D] rounded-3xl border border-blue-pale/50 dark:border-white/10 shadow-xl p-5">
+      <div className="flex items-center justify-between pb-3 mb-4 border-b border-gray-100 dark:border-white/10">
         <span className="font-bold text-sm text-navy-deepest">
           Menu Navigasi ROADIS
         </span>
         <button
           type="button"
           onClick={onClose}
-          className="p-1.5 rounded-full hover:bg-canvas text-muted hover:text-navy-deepest"
+          className="p-1.5 rounded-full hover:bg-canvas dark:hover:bg-white/5 text-muted dark:text-[#AFC0D4] hover:text-navy-deepest dark:hover:text-white"
           aria-label="Tutup Menu"
         >
           <X className="w-5 h-5" aria-hidden="true" />
@@ -135,8 +143,8 @@ export function Sidebar({
                 cn(
                   "flex items-center gap-3 px-4 py-3 rounded-full text-sm font-medium transition-colors",
                   isActive
-                    ? "bg-navy-primary text-white font-bold shadow-sm"
-                    : "text-muted hover:bg-blue-pale/20 hover:text-navy-deepest",
+                    ? "bg-navy-primary dark:bg-[#001234] text-white font-bold shadow-sm"
+                    : "text-muted dark:text-[#AFC0D4] hover:bg-[#EEF5FB] dark:hover:bg-white/5 hover:text-navy-deepest dark:hover:text-white",
                 )
               }
             >
@@ -147,18 +155,17 @@ export function Sidebar({
         })}
       </nav>
 
-      <div className="pt-4 border-t border-gray-100 space-y-1.5">
+      <div className="pt-4 border-t border-gray-100 dark:border-white/10 space-y-1.5">
         <NavLink
-          to="/settings"
+          to={settingsPath}
           onClick={onClose}
-          className={({ isActive }) =>
-            cn(
-              "flex items-center gap-3 px-4 py-3 rounded-full text-sm font-medium transition-colors",
-              isActive
-                ? "bg-navy-primary text-white font-bold shadow-sm"
-                : "text-muted hover:bg-blue-pale/20 hover:text-navy-deepest",
-            )
-          }
+          className={cn(
+            "flex items-center gap-3 px-4 py-3 rounded-full text-sm font-medium transition-colors select-none",
+            isSettingsActive
+              ? "bg-navy-primary dark:bg-[#001234] text-white font-bold shadow-sm"
+              : "text-muted dark:text-[#AFC0D4] hover:bg-[#EEF5FB] dark:hover:bg-white/5 hover:text-navy-deepest dark:hover:text-white",
+          )}
+          aria-current={isSettingsActive ? "page" : undefined}
         >
           <Settings className="w-5 h-5" aria-hidden="true" />
           <span>Pengaturan</span>
@@ -170,7 +177,7 @@ export function Sidebar({
             onClose?.();
             logout();
           }}
-          className="w-full flex items-center gap-3 px-4 py-3 rounded-full text-sm font-semibold text-severity-berat hover:bg-red-50 transition-colors cursor-pointer"
+          className="w-full flex items-center gap-3 px-4 py-3 rounded-full text-sm font-semibold text-severity-berat dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors cursor-pointer"
         >
           <LogOut className="w-5 h-5" aria-hidden="true" />
           <span>Keluar</span>

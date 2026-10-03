@@ -22,6 +22,7 @@ import {
 } from "@/hooks/useNotifications";
 import { useSettings, playNotificationSound } from "@/hooks/useSettings";
 import { NotificationDropdown } from "./NotificationDropdown";
+import { GlobalQuickSearchModal } from "./GlobalQuickSearchModal";
 
 export interface TopNavbarProps {
   onMenuToggle?: () => void;
@@ -68,6 +69,8 @@ export function TopNavbar({ onMenuToggle }: TopNavbarProps): React.JSX.Element {
   const [notifOpen, setNotifOpen] = useState(false);
   const notifRef = useRef<HTMLDivElement | null>(null);
 
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+
   const {
     data: notifData,
     isLoading: isNotifLoading,
@@ -104,11 +107,25 @@ export function TopNavbar({ onMenuToggle }: TopNavbarProps): React.JSX.Element {
       : "Desa Sukamaju, Kec. Cikedung";
   const userInitial = displayName ? displayName.charAt(0).toUpperCase() : "A";
 
-  // Automatically close both dropdowns on route changes
+  // Automatically close dropdowns and search on route changes
   useEffect(() => {
     setNotifOpen(false);
     setProfileMenuOpen(false);
+    setIsSearchOpen(false);
   }, [location.pathname]);
+
+  // Global keyboard shortcut (Ctrl+K / Cmd+K)
+  useEffect(() => {
+    function handleGlobalKeyDown(event: KeyboardEvent) {
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
+        event.preventDefault();
+        setIsSearchOpen((prev) => !prev);
+      }
+    }
+
+    window.addEventListener("keydown", handleGlobalKeyDown);
+    return () => window.removeEventListener("keydown", handleGlobalKeyDown);
+  }, []);
 
   // Close profile dropdown on click outside or Escape key press
   useEffect(() => {
@@ -167,7 +184,8 @@ export function TopNavbar({ onMenuToggle }: TopNavbarProps): React.JSX.Element {
   }, [notifOpen]);
 
   return (
-    <header
+    <>
+      <header
       className="bg-white dark:bg-[#0D1A2D] border border-blue-pale/40 dark:border-white/10 shadow-sm flex items-center justify-between px-6 sm:px-8 md:px-12 h-22 sticky top-6 z-40 rounded-full mx-auto mt-6 w-[95%]"
       aria-label="Navigasi Utama Aplikasi"
     >
@@ -224,9 +242,10 @@ export function TopNavbar({ onMenuToggle }: TopNavbarProps): React.JSX.Element {
         {/* Search Button */}
         <button
           type="button"
+          onClick={() => setIsSearchOpen(true)}
           className="w-11 h-11 rounded-full bg-canvas dark:bg-[#07111F] flex items-center justify-center text-muted dark:text-[#AFC0D4] hover:bg-blue-pale/20 dark:hover:bg-white/5 hover:text-navy-deepest dark:hover:text-white hover:border-blue-pale/60 dark:hover:border-white/20 transition-colors border border-blue-pale/40 dark:border-white/10 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-medium"
-          title="Cari"
-          aria-label="Pencarian Laporan"
+          title="Cari (Ctrl+K)"
+          aria-label="Pencarian Cepat"
         >
           <Search className="w-5 h-5" aria-hidden="true" />
         </button>
@@ -442,5 +461,14 @@ export function TopNavbar({ onMenuToggle }: TopNavbarProps): React.JSX.Element {
         </div>
       </div>
     </header>
+
+    {/* Global Quick Search Modal */}
+    {isSearchOpen && (
+      <GlobalQuickSearchModal
+        isOpen={isSearchOpen}
+        onClose={() => setIsSearchOpen(false)}
+      />
+    )}
+  </>
   );
 }

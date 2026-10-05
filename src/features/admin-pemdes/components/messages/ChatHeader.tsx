@@ -22,6 +22,7 @@ export interface ChatHeaderProps {
   fallbackTitle?: string;
   fallbackStatus?: string;
   fallbackJenisJalan?: string;
+  detailPath?: string;
   onBackToList?: () => void;
   onRefreshConversation?: () => Promise<void> | void;
 }
@@ -35,6 +36,7 @@ export function ChatHeader({
   fallbackTitle,
   fallbackStatus,
   fallbackJenisJalan,
+  detailPath,
   onBackToList,
   onRefreshConversation,
 }: ChatHeaderProps): React.JSX.Element {
@@ -213,7 +215,9 @@ export function ChatHeader({
             <span>•</span>
             <span>
               {villageName
-                ? `Desa ${villageName.replace(/^Desa\s+/i, "")}`
+                ? villageName.startsWith("Kabupaten") || villageName.startsWith("Desa")
+                  ? villageName
+                  : `Desa ${villageName.replace(/^Desa\s+/i, "")}`
                 : "Jalan Desa"}
             </span>
           </p>
@@ -231,7 +235,7 @@ export function ChatHeader({
         )}
 
         <Link
-          to={`/pemdes/laporan/${reportId}`}
+          to={detailPath || `/pemdes/laporan/${reportId}`}
           className="rounded-full px-3.5 py-1.5 border border-slate-200 dark:border-white/10 text-xs font-semibold text-navy-primary dark:text-navy-deepest hover:bg-slate-50 dark:hover:bg-white/5 flex items-center gap-1.5 transition-colors shadow-xs select-none"
           title="Lihat Detail Laporan"
         >

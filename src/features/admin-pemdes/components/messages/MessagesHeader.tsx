@@ -3,6 +3,10 @@ import { MapPin, Lock } from "lucide-react";
 
 export interface MessagesHeaderProps {
   villageName?: string;
+  locationName?: string;
+  scopeLabel?: string;
+  title?: string;
+  subtitle?: string;
 }
 
 /**
@@ -11,19 +15,30 @@ export interface MessagesHeaderProps {
  */
 export function MessagesHeader({
   villageName = "Sukamaju",
+  locationName,
+  scopeLabel,
+  title = "Pusat Pesan & Percakapan",
+  subtitle,
 }: MessagesHeaderProps): React.JSX.Element {
-  const displayVillage = villageName.startsWith("Desa")
-    ? villageName
-    : `Desa ${villageName}`;
+  const displayVillage = locationName
+    ? locationName
+    : villageName.startsWith("Desa")
+      ? villageName
+      : `Desa ${villageName}`;
+
+  const displaySubtitle =
+    subtitle || `Komunikasi privat dengan warga pelapor di wilayah ${displayVillage}.`;
+
+  const displayScope = scopeLabel || "Jalan Desa • Privat";
 
   return (
     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-1">
       <div>
         <h1 className="text-2xl font-bold text-navy-deepest tracking-tight">
-          Pusat Pesan &amp; Percakapan
+          {title}
         </h1>
         <p className="text-sm text-muted dark:text-[#AFC0D4] mt-0.5">
-          Komunikasi privat dengan warga pelapor di wilayah {displayVillage}.
+          {displaySubtitle}
         </p>
       </div>
 
@@ -49,7 +64,7 @@ export function MessagesHeader({
             className="w-3.5 h-3.5 text-slate-500 dark:text-[#8FA4BA] shrink-0"
             aria-hidden="true"
           />
-          <span>Jalan Desa • Privat</span>
+          <span>{displayScope}</span>
         </div>
       </div>
     </div>

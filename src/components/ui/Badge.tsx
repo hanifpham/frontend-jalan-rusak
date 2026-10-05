@@ -136,3 +136,5 @@ export function Badge({
     </span>
   );
 }
+
+export { AuthorityBadge, type AuthorityBadgeProps } from './AuthorityBadge';

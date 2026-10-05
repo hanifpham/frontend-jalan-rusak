@@ -15,6 +15,7 @@ export interface MessageComposerProps {
   error?: string | null;
   disabled?: boolean;
   disabledReason?: string;
+  quickReplies?: string[];
 }
 
 const QUICK_REPLIES = [
@@ -33,6 +34,7 @@ export function MessageComposer({
   error,
   disabled = false,
   disabledReason,
+  quickReplies = QUICK_REPLIES,
 }: MessageComposerProps): React.JSX.Element {
   const [inputText, setInputText] = useState("");
   const [selectedAttachment, setSelectedAttachment] = useState<File | null>(
@@ -137,7 +139,7 @@ export function MessageComposer({
           <span className="text-xs text-slate-400 dark:text-[#8FA4BA] font-medium shrink-0">
             Balasan cepat:
           </span>
-          {QUICK_REPLIES.map((reply) => (
+          {quickReplies.map((reply) => (
             <button
               key={reply}
               type="button"

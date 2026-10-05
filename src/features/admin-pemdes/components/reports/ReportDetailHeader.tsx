@@ -4,6 +4,8 @@ import { ArrowLeft, MapPin, AlertTriangle } from "lucide-react";
 import { type ReportStatus, type Severity } from "@/types/domain";
 import { cn } from "@/lib/utils";
 
+import { AuthorityBadge } from "@/components/ui/AuthorityBadge";
+
 export interface ReportDetailHeaderProps {
   reportId: number | string;
   villageName?: string;
@@ -19,44 +21,7 @@ export interface ReportDetailHeaderProps {
  * Authority badge pill matching Stitch design tokens
  */
 function AuthorityPill({ authority }: { authority?: string }): React.JSX.Element {
-  let label = "Tidak Teridentifikasi";
-  let color =
-    "bg-gray-100 dark:bg-white/10 text-muted dark:text-[#8FA4BA] border-gray-200 dark:border-white/10";
-
-  switch ((authority || "").toLowerCase()) {
-    case "kabupaten":
-      label = "Jalan Kabupaten";
-      color =
-        "bg-blue-pale/50 dark:bg-[#5483B3]/25 text-navy-deepest dark:text-blue-pale border-blue-supporting/40 dark:border-[#5483B3]/40";
-      break;
-    case "desa":
-      label = "Jalan Desa";
-      color =
-        "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30";
-      break;
-    case "provinsi":
-      label = "Jalan Provinsi";
-      color =
-        "bg-purple-500/15 text-purple-700 dark:text-purple-300 border-purple-500/30";
-      break;
-    case "nasional":
-      label = "Jalan Nasional";
-      color =
-        "bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30";
-      break;
-  }
-
-  return (
-    <span
-      className={cn(
-        "inline-flex items-center px-3 py-1.5 rounded-full text-[12px] font-bold border shadow-xs select-none",
-        color,
-      )}
-      title={`Kewenangan: ${label}`}
-    >
-      {label}
-    </span>
-  );
+  return <AuthorityBadge authority={authority} size="lg" />;
 }
 
 /**

@@ -18,19 +18,9 @@ export function ReportScopeChips({
   locationLabel,
 }: ReportScopeChipsProps): React.JSX.Element {
   return (
-    <div className="flex items-center gap-3 flex-wrap">
+    <div className="flex items-center gap-3 flex-wrap select-none">
       {/* 1. Location Chip */}
-      {locationLabel ? (
-        <div
-          className="inline-flex items-center gap-1.5 bg-white dark:bg-[#0D1A2D] text-navy-deepest dark:text-white text-[12px] font-semibold px-3.5 py-2 rounded-full border border-blue-pale/50 dark:border-white/10 shadow-xs select-none"
-          title="Wilayah Administrasi Dinas PUPR"
-        >
-          <span className="w-2 h-2 rounded-full bg-navy-primary dark:bg-[#5483B3]" />
-          <span>{locationLabel}</span>
-        </div>
-      ) : (
-        <WilayahChip villageName={villageName} />
-      )}
+      <WilayahChip villageName={villageName} locationLabel={locationLabel} />
 
       {/* 2. Locked Scope Indicator */}
       <div
@@ -53,9 +43,7 @@ export function ReportScopeChips({
         {isLoading ? (
           <span className="inline-block w-6 h-3.5 bg-gray-200 dark:bg-white/10 rounded animate-pulse" />
         ) : (
-          <span className="text-navy-deepest font-bold">
-            {totalReports}
-          </span>
+          <span className="text-navy-deepest font-bold">{totalReports}</span>
         )}
         <span className="text-muted dark:text-[#8FA4BA] font-medium">
           Laporan

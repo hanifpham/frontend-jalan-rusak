@@ -196,23 +196,23 @@ export function MapView({
       let authorityLabel = "Jalan Desa";
       let authorityBadgeText = "DESA";
       let authorityColor = "#10B981"; // emerald
-      let authorityBg = "bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 border-emerald-500/40";
+      let authorityBg = "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30";
 
       if (authorityLower === "kabupaten") {
         authorityLabel = "Jalan Kabupaten";
         authorityBadgeText = "KABUPATEN";
         authorityColor = "#2563EB"; // blue
-        authorityBg = "bg-blue-pale/80 dark:bg-[#5483B3]/30 text-navy-deepest dark:text-blue-pale border-blue-supporting/50 dark:border-[#5483B3]/50";
+        authorityBg = "bg-blue-500/15 text-blue-700 dark:text-blue-300 border-blue-500/30";
       } else if (authorityLower === "provinsi") {
         authorityLabel = "Jalan Provinsi";
         authorityBadgeText = "PROVINSI";
         authorityColor = "#8B5CF6"; // purple
-        authorityBg = "bg-purple-500/20 text-purple-800 dark:text-purple-300 border-purple-500/40";
+        authorityBg = "bg-purple-500/15 text-purple-700 dark:text-purple-300 border-purple-500/30";
       } else if (authorityLower === "nasional") {
         authorityLabel = "Jalan Nasional";
         authorityBadgeText = "NASIONAL";
         authorityColor = "#F59E0B"; // amber
-        authorityBg = "bg-amber-500/20 text-amber-800 dark:text-amber-300 border-amber-500/40";
+        authorityBg = "bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30";
       }
 
       // Severity info

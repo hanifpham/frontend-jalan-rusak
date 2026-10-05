@@ -56,7 +56,7 @@ export function AdminPemdesMapPage(): React.JSX.Element {
     // 3. Severity filter
     if (severity !== "all") {
       list = list.filter(
-        (r) => (r.severity || "").toLowerCase() === severity.toLowerCase()
+        (r) => (r.severity || "").toLowerCase() === severity.toLowerCase(),
       );
     }
 

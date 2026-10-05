@@ -134,7 +134,7 @@ export function AdminPUMapPage(): React.JSX.Element {
   const totalReportsCount = rawReports.length;
 
   const scopeLabelDisplay = useMemo(() => {
-    if (authority === 'all') return 'Seluruh Kewenangan Jalan';
+    if (authority === 'all') return 'Semua Kewenangan';
     return `Jalan ${authority.charAt(0).toUpperCase() + authority.slice(1)}`;
   }, [authority]);
 

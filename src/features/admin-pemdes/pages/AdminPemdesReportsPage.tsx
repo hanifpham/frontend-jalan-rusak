@@ -1,18 +1,18 @@
-import React, { useState, useMemo } from 'react';
-import { useAuth } from '@/features/auth/useAuth';
-import { useSettings } from '@/hooks/useSettings';
-import { useAdminLaporan } from '../api/useAdminPemdesData';
-import { ReportPageHeader } from '../components/reports/ReportPageHeader';
-import { ReportScopeChips } from '../components/reports/ReportScopeChips';
+import React, { useState, useMemo } from "react";
+import { useAuth } from "@/features/auth/useAuth";
+import { useSettings } from "@/hooks/useSettings";
+import { useAdminLaporan } from "../api/useAdminPemdesData";
+import { ReportPageHeader } from "../components/reports/ReportPageHeader";
+import { ReportScopeChips } from "../components/reports/ReportScopeChips";
 import {
   ReportFilters,
   type StatusFilterValue,
   type SeverityFilterValue,
   type DateFilterValue,
   type SortFilterValue,
-} from '../components/reports/ReportFilters';
-import { ReportTable } from '../components/reports/ReportTable';
-import { ReportPagination } from '../components/reports/ReportPagination';
+} from "../components/reports/ReportFilters";
+import { ReportTable } from "../components/reports/ReportTable";
+import { ReportPagination } from "../components/reports/ReportPagination";
 
 export function AdminPemdesReportsPage(): React.JSX.Element {
   const { user } = useAuth();
@@ -21,17 +21,17 @@ export function AdminPemdesReportsPage(): React.JSX.Element {
   // Dynamic village name from authenticated user session
   const villageName =
     user?.wilayahId === 2
-      ? 'Lobener Lor'
+      ? "Lobener Lor"
       : user?.wilayahId
-      ? `Wilayah #${user.wilayahId}`
-      : undefined;
+        ? `Wilayah #${user.wilayahId}`
+        : undefined;
 
   // Filter and pagination states
-  const [search, setSearch] = useState('');
-  const [status, setStatus] = useState<StatusFilterValue>('all');
-  const [severity, setSeverity] = useState<SeverityFilterValue>('all');
-  const [dateFilter, setDateFilter] = useState<DateFilterValue>('this_month');
-  const [sortBy, setSortBy] = useState<SortFilterValue>('newest');
+  const [search, setSearch] = useState("");
+  const [status, setStatus] = useState<StatusFilterValue>("all");
+  const [severity, setSeverity] = useState<SeverityFilterValue>("all");
+  const [dateFilter, setDateFilter] = useState<DateFilterValue>("this_month");
+  const [sortBy, setSortBy] = useState<SortFilterValue>("newest");
   const [page, setPage] = useState(1);
   const pageSize = 5;
 
@@ -46,7 +46,10 @@ export function AdminPemdesReportsPage(): React.JSX.Element {
     limit: 100,
   });
 
-  const rawReports = useMemo(() => laporanData?.reports || [], [laporanData?.reports]);
+  const rawReports = useMemo(
+    () => laporanData?.reports || [],
+    [laporanData?.reports],
+  );
 
   // Client-side filtering & sorting on verified dataset
   const filteredReports = useMemo(() => {
@@ -57,33 +60,48 @@ export function AdminPemdesReportsPage(): React.JSX.Element {
       const q = search.trim().toLowerCase();
       list = list.filter((r) => {
         const titleMatch = r.title ? r.title.toLowerCase().includes(q) : false;
-        const descMatch = r.description ? r.description.toLowerCase().includes(q) : false;
-        const reporterMatch = r.reporterName ? r.reporterName.toLowerCase().includes(q) : false;
-        const roadMatch = r.roadName ? r.roadName.toLowerCase().includes(q) : false;
-        const damageMatch = r.damageType ? r.damageType.toLowerCase().includes(q) : false;
-        return titleMatch || descMatch || reporterMatch || roadMatch || damageMatch;
+        const descMatch = r.description
+          ? r.description.toLowerCase().includes(q)
+          : false;
+        const reporterMatch = r.reporterName
+          ? r.reporterName.toLowerCase().includes(q)
+          : false;
+        const roadMatch = r.roadName
+          ? r.roadName.toLowerCase().includes(q)
+          : false;
+        const damageMatch = r.damageType
+          ? r.damageType.toLowerCase().includes(q)
+          : false;
+        return (
+          titleMatch || descMatch || reporterMatch || roadMatch || damageMatch
+        );
       });
     }
 
     // 2. Status filtering
-    if (status !== 'all') {
-      list = list.filter((r) => (r.status || '').toLowerCase() === status.toLowerCase());
+    if (status !== "all") {
+      list = list.filter(
+        (r) => (r.status || "").toLowerCase() === status.toLowerCase(),
+      );
     }
 
     // 3. Severity filtering
-    if (severity !== 'all') {
-      list = list.filter((r) => (r.severity || 'sedang').toLowerCase() === severity.toLowerCase());
+    if (severity !== "all") {
+      list = list.filter(
+        (r) =>
+          (r.severity || "sedang").toLowerCase() === severity.toLowerCase(),
+      );
     }
 
     // 4. Date filtering
-    if (dateFilter !== 'all') {
+    if (dateFilter !== "all") {
       const now = new Date();
       list = list.filter((r) => {
         if (!r.createdAt) return true;
         const itemDate = new Date(r.createdAt);
         if (isNaN(itemDate.getTime())) return true;
 
-        if (dateFilter === 'today') {
+        if (dateFilter === "today") {
           return (
             itemDate.getDate() === now.getDate() &&
             itemDate.getMonth() === now.getMonth() &&
@@ -91,14 +109,14 @@ export function AdminPemdesReportsPage(): React.JSX.Element {
           );
         }
 
-        if (dateFilter === 'this_week') {
+        if (dateFilter === "this_week") {
           const sevenDaysAgo = new Date();
           sevenDaysAgo.setDate(now.getDate() - 7);
           sevenDaysAgo.setHours(0, 0, 0, 0);
           return itemDate >= sevenDaysAgo && itemDate <= now;
         }
 
-        if (dateFilter === 'this_month') {
+        if (dateFilter === "this_month") {
           // "Bulan Ini" in operational context: current calendar month OR rolling last 30 days
           const thirtyDaysAgo = new Date();
           thirtyDaysAgo.setDate(now.getDate() - 30);
@@ -108,7 +126,8 @@ export function AdminPemdesReportsPage(): React.JSX.Element {
             itemDate.getMonth() === now.getMonth() &&
             itemDate.getFullYear() === now.getFullYear();
 
-          const isWithinLast30Days = itemDate >= thirtyDaysAgo && itemDate <= now;
+          const isWithinLast30Days =
+            itemDate >= thirtyDaysAgo && itemDate <= now;
 
           return isCurrentCalendarMonth || isWithinLast30Days;
         }
@@ -121,7 +140,7 @@ export function AdminPemdesReportsPage(): React.JSX.Element {
     list.sort((a, b) => {
       const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
       const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
-      if (sortBy === 'oldest') {
+      if (sortBy === "oldest") {
         if (dateA !== dateB) return dateA - dateB;
         return (a.id ?? 0) - (b.id ?? 0);
       }
@@ -165,11 +184,11 @@ export function AdminPemdesReportsPage(): React.JSX.Element {
   };
 
   const handleResetFilters = () => {
-    setSearch('');
-    setStatus('all');
-    setSeverity('all');
-    setDateFilter('this_month');
-    setSortBy('newest');
+    setSearch("");
+    setStatus("all");
+    setSeverity("all");
+    setDateFilter("this_month");
+    setSortBy("newest");
     setPage(1);
   };
 

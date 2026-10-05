@@ -26,63 +26,8 @@ export interface ReportTableProps {
   showAuthorityColumn?: boolean;
 }
 
-/**
- * Badge / chip component for Road Authority
- */
-export function AuthorityBadge({
-  authority,
-}: {
-  authority?: string;
-}): React.JSX.Element {
-  const norm = (authority || "").toLowerCase();
-  switch (norm) {
-    case "desa":
-      return (
-        <span
-          className="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 select-none tracking-wide"
-          title="Kewenangan: Jalan Desa"
-        >
-          DESA
-        </span>
-      );
-    case "kabupaten":
-      return (
-        <span
-          className="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold bg-blue-pale/60 dark:bg-[#5483B3]/25 text-navy-deepest dark:text-blue-pale border border-blue-supporting/40 dark:border-[#5483B3]/40 select-none tracking-wide"
-          title="Kewenangan: Jalan Kabupaten"
-        >
-          KABUPATEN
-        </span>
-      );
-    case "provinsi":
-      return (
-        <span
-          className="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold bg-purple-500/15 text-purple-700 dark:text-purple-300 border border-purple-500/30 select-none tracking-wide"
-          title="Kewenangan: Jalan Provinsi"
-        >
-          PROVINSI
-        </span>
-      );
-    case "nasional":
-      return (
-        <span
-          className="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30 select-none tracking-wide"
-          title="Kewenangan: Jalan Nasional"
-        >
-          NASIONAL
-        </span>
-      );
-    default:
-      return (
-        <span
-          className="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold bg-gray-100 dark:bg-white/10 text-muted dark:text-[#8FA4BA] border border-gray-200 dark:border-white/10 select-none"
-          title="Kewenangan: Tidak Teridentifikasi"
-        >
-          Tidak Teridentifikasi
-        </span>
-      );
-  }
-}
+import { AuthorityBadge } from '@/components/ui/AuthorityBadge';
+export { AuthorityBadge };
 
 /**
  * Formats ISO date string to Indonesian formatted date (e.g. 24 Jun 2026)

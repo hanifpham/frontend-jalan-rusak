@@ -6,6 +6,7 @@ import { ReportScopeChips } from '@/features/admin-pemdes/components/reports/Rep
 import {
   ReportFilters,
   type StatusFilterValue,
+  type AuthorityFilterValue,
   type SeverityFilterValue,
   type DateFilterValue,
   type SortFilterValue,
@@ -24,6 +25,7 @@ export function AdminPUReportsPage(): React.JSX.Element {
   const [search, setSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [status, setStatus] = useState<StatusFilterValue>('all');
+  const [authority, setAuthority] = useState<AuthorityFilterValue>('all');
   const [severity, setSeverity] = useState<SeverityFilterValue>('all');
   const [dateFilter, setDateFilter] = useState<DateFilterValue>('all');
   const [sortBy, setSortBy] = useState<SortFilterValue>('newest');
@@ -38,7 +40,7 @@ export function AdminPUReportsPage(): React.JSX.Element {
   }, [search]);
 
   // Query live backend endpoint with true server-side pagination & filtering:
-  // GET /api/admin/laporan?page={page}&limit={pageSize}&status={status}&search={debouncedSearch}&jenis_jalan=kabupaten
+  // PU-5.1: Admin PU views reports from all road authorities, or filtered by jenis_jalan if chosen
   const {
     data: laporanData,
     isLoading,
@@ -49,15 +51,19 @@ export function AdminPUReportsPage(): React.JSX.Element {
     limit: pageSize,
     status: status !== 'all' ? status : undefined,
     search: debouncedSearch.trim() || undefined,
-    jenis_jalan: 'kabupaten',
+    jenis_jalan: authority !== 'all' ? authority : undefined,
   });
 
-  // Business rule & defensive verification: Admin PU list only views jenis_jalan = "kabupaten"
+  // Client-side handling for authority filtering
   const rawReports = useMemo(() => {
-    return (laporanData?.reports || []).filter(
-      (r) => (r.roadAuthority || '').toLowerCase() === 'kabupaten'
-    );
-  }, [laporanData?.reports]);
+    let list = laporanData?.reports || [];
+    if (authority !== 'all') {
+      list = list.filter(
+        (r) => (r.roadAuthority || '').toLowerCase() === authority.toLowerCase()
+      );
+    }
+    return list;
+  }, [laporanData?.reports, authority]);
 
   // Client-side handling for attributes not in backend SQL query (severity, date range, client sort reversal)
   const displayedReports = useMemo(() => {
@@ -128,6 +134,11 @@ export function AdminPUReportsPage(): React.JSX.Element {
     setPage(1);
   };
 
+  const handleAuthorityChange = (val: AuthorityFilterValue) => {
+    setAuthority(val);
+    setPage(1);
+  };
+
   const handleSeverityChange = (val: SeverityFilterValue) => {
     setSeverity(val);
     setPage(1);
@@ -147,6 +158,7 @@ export function AdminPUReportsPage(): React.JSX.Element {
     setSearch('');
     setDebouncedSearch('');
     setStatus('all');
+    setAuthority('all');
     setSeverity('all');
     setDateFilter('all');
     setSortBy('newest');
@@ -154,31 +166,38 @@ export function AdminPUReportsPage(): React.JSX.Element {
   };
 
   const totalReports = laporanData?.total ?? 0;
-  const isFiltered = (status !== 'all' || debouncedSearch.trim() !== '' || severity !== 'all' || dateFilter !== 'all') && (totalReports === 0 || displayedReports.length === 0);
+  const isFiltered = (status !== 'all' || authority !== 'all' || debouncedSearch.trim() !== '' || severity !== 'all' || dateFilter !== 'all') && (totalReports === 0 || displayedReports.length === 0);
+
+  const scopeLabelDisplay = useMemo(() => {
+    if (authority === 'all') return 'Semua Kewenangan';
+    return `Jalan ${authority.charAt(0).toUpperCase() + authority.slice(1)}`;
+  }, [authority]);
 
   return (
     <div className="flex flex-col gap-6 max-w-full">
       {/* 1. Header & Subtitle */}
       <ReportPageHeader
-        title="Daftar Laporan Jalan Kabupaten"
-        subtitle="Pusat inventarisasi dan disposisi laporan kerusakan jalan kewenangan Kabupaten Indramayu."
+        title="Daftar Laporan Kerusakan Jalan"
+        subtitle="Pusat inventarisasi dan pemantauan laporan kerusakan jalan seluruh kewenangan di Kabupaten Indramayu."
       />
 
       {/* 2. Scope Chips (Lokasi, Wewenang & Counter from Backend Total) */}
       <ReportScopeChips
         locationLabel="Kabupaten Indramayu"
-        scopeLabel="Jalan Kabupaten"
+        scopeLabel={scopeLabelDisplay}
         totalReports={totalReports}
         isLoading={isLoading}
       />
 
-      {/* 3. Toolbar & Filters (Search, Status, Severity, Date, Sort, Reset, Export) */}
+      {/* 3. Toolbar & Filters (Search, Status, Kewenangan, Severity, Date, Sort, Reset, Export) */}
       <ReportFilters
         search={search}
         onSearchChange={handleSearchChange}
         searchPlaceholder="Cari judul, deskripsi, atau pelapor..."
         status={status}
         onStatusChange={handleStatusChange}
+        authority={authority}
+        onAuthorityChange={handleAuthorityChange}
         severity={severity}
         onSeverityChange={handleSeverityChange}
         dateFilter={dateFilter}
@@ -195,11 +214,12 @@ export function AdminPUReportsPage(): React.JSX.Element {
           isLoading={isLoading}
           error={error instanceof Error ? error.message : null}
           onRetry={refetch}
-          scopeLabel="Jalan Kabupaten"
+          scopeLabel="Seluruh Kewenangan Jalan"
           detailPathPrefix="/pu/laporan"
           density={settings?.preferences?.report_display_preference}
           isFiltered={isFiltered}
           onResetFilters={handleResetFilters}
+          showAuthorityColumn={true}
         />
 
         {/* Table Footer with True Backend Pagination */}

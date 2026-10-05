@@ -6,6 +6,9 @@ import { MapScopeChips } from '@/features/admin-pemdes/components/map/MapScopeCh
 import {
   MapFilters,
   type MapStatusFilter,
+  type MapAuthorityFilter,
+  type MapSeverityFilter,
+  type MapDateFilter,
   type MapSortFilter,
 } from '@/features/admin-pemdes/components/map/MapFilters';
 import { MapView } from '@/features/admin-pemdes/components/map/MapView';
@@ -13,8 +16,9 @@ import { MapView } from '@/features/admin-pemdes/components/map/MapView';
 /**
  * AdminPUMapPage
  * Renders the GIS Leaflet Map specifically for Admin PU.
- * Business Rule: Admin PU on Map only views reports with jenis_jalan = "kabupaten".
- * Detail button inside popups strictly routes to /pu/laporan/:id.
+ * PU-5.1: Admin PU views markers from ALL road authorities (Desa, Kabupaten, Provinsi, Nasional).
+ * Filters include: Status, Kewenangan, Keparahan, Tanggal, Search, Sorting.
+ * Detail button inside popups routes to /pu/laporan/:id.
  */
 export function AdminPUMapPage(): React.JSX.Element {
   const { data: settings } = useSettings();
@@ -22,26 +26,39 @@ export function AdminPUMapPage(): React.JSX.Element {
   // Filter states
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState<MapStatusFilter>('all');
+  const [authority, setAuthority] = useState<MapAuthorityFilter>('all');
+  const [severity, setSeverity] = useState<MapSeverityFilter>('all');
+  const [dateFilter, setDateFilter] = useState<MapDateFilter>('all');
   const [sortBy, setSortBy] = useState<MapSortFilter>('default');
 
   // React Query hook for verified GET /api/admin/map/laporan
-  const { data: mapData, isLoading, error, refetch } = useAdminMapReports();
+  const { data: mapData, isLoading, error, refetch } = useAdminMapReports({
+    jenis_jalan: authority !== 'all' ? authority : undefined,
+  });
 
-  // Business rule & defensive verification: Admin PU list strictly limits to jenis_jalan = "kabupaten"
-  const rawKabupatenReports = useMemo(() => {
-    return (mapData?.reports || []).filter(
-      (r) => (r.jenisJalan || '').toLowerCase() === 'kabupaten'
-    );
-  }, [mapData?.reports]);
+  // PU-5.1: Include reports from all road authorities; filter by authority if chosen
+  const rawReports = useMemo(() => {
+    let list = mapData?.reports || [];
+    if (authority !== 'all') {
+      list = list.filter(
+        (r) => (r.jenisJalan || '').toLowerCase() === authority.toLowerCase()
+      );
+    }
+    return list;
+  }, [mapData?.reports, authority]);
 
-  // Client-side filtering & sorting on kabupaten reports
+  // Client-side filtering & sorting on map reports
   const displayedReports = useMemo(() => {
-    let list = [...rawKabupatenReports];
+    let list = [...rawReports];
 
-    // 1. Search filter by title
+    // 1. Search filter by title or damage type
     if (search.trim()) {
       const query = search.trim().toLowerCase();
-      list = list.filter((r) => r.judul.toLowerCase().includes(query));
+      list = list.filter(
+        (r) =>
+          r.judul.toLowerCase().includes(query) ||
+          r.tipeKerusakan.toLowerCase().includes(query)
+      );
     }
 
     // 2. Status filter
@@ -49,7 +66,39 @@ export function AdminPUMapPage(): React.JSX.Element {
       list = list.filter((r) => r.status === status);
     }
 
-    // 3. Sorting
+    // 3. Severity filter
+    if (severity !== 'all') {
+      list = list.filter(
+        (r) => (r.severity || '').toLowerCase() === severity.toLowerCase()
+      );
+    }
+
+    // 4. Date filter (graceful handling: if timestamp exists filter, otherwise retain)
+    if (dateFilter !== 'all') {
+      const now = new Date();
+      list = list.filter((r) => {
+        if (!r.createdAt) return true;
+        const d = new Date(r.createdAt);
+        if (isNaN(d.getTime())) return true;
+        if (dateFilter === 'today') {
+          return d.toDateString() === now.toDateString();
+        }
+        if (dateFilter === 'this_week') {
+          const weekAgo = new Date();
+          weekAgo.setDate(now.getDate() - 7);
+          return d >= weekAgo;
+        }
+        if (dateFilter === 'this_month') {
+          return (
+            d.getMonth() === now.getMonth() &&
+            d.getFullYear() === now.getFullYear()
+          );
+        }
+        return true;
+      });
+    }
+
+    // 5. Sorting
     if (sortBy === 'title_asc') {
       list.sort((a, b) => a.judul.localeCompare(b.judul));
     } else if (sortBy === 'title_desc') {
@@ -59,7 +108,7 @@ export function AdminPUMapPage(): React.JSX.Element {
     }
 
     return list;
-  }, [rawKabupatenReports, search, status, sortBy]);
+  }, [rawReports, search, status, severity, dateFilter, sortBy]);
 
   // Coordinate validation: ensure only valid, non-zero coordinates are rendered
   const validReports = useMemo(() => {
@@ -76,33 +125,48 @@ export function AdminPUMapPage(): React.JSX.Element {
   const handleResetFilters = () => {
     setSearch('');
     setStatus('all');
+    setAuthority('all');
+    setSeverity('all');
+    setDateFilter('all');
     setSortBy('default');
   };
 
-  const totalReportsCount = rawKabupatenReports.length;
+  const totalReportsCount = rawReports.length;
+
+  const scopeLabelDisplay = useMemo(() => {
+    if (authority === 'all') return 'Seluruh Kewenangan Jalan';
+    return `Jalan ${authority.charAt(0).toUpperCase() + authority.slice(1)}`;
+  }, [authority]);
 
   return (
     <div className="flex flex-col gap-6 max-w-full">
       {/* 1. Header & Subtitle */}
       <MapHeader
-        title="Peta Laporan Jalan Kabupaten"
-        subtitle="Pantau sebaran spasial titik laporan kerusakan jalan kewenangan Kabupaten Indramayu."
+        title="Peta Laporan Kerusakan Jalan"
+        subtitle="Pantau sebaran spasial titik laporan kerusakan jalan seluruh kewenangan di Kabupaten Indramayu."
       />
 
       {/* 2. Scope Chips (Lokasi, Wewenang & Counter) */}
       <MapScopeChips
         locationLabel="Kabupaten Indramayu"
-        scopeLabel="Jalan Kabupaten"
+        scopeLabel={scopeLabelDisplay}
         totalReports={totalReportsCount}
         isLoading={isLoading}
       />
 
-      {/* 3. Toolbar & Filters (Search, Status, Severity, Date, Sort, Reset, Export) */}
+      {/* 3. Toolbar & Filters (Search, Status, Kewenangan, Keparahan, Tanggal, Sort, Reset, Export) */}
       <MapFilters
         search={search}
         onSearchChange={setSearch}
         status={status}
         onStatusChange={setStatus}
+        authority={authority}
+        onAuthorityChange={setAuthority}
+        allowedAuthorities={['all', 'desa', 'kabupaten', 'provinsi', 'nasional']}
+        severity={severity}
+        onSeverityChange={setSeverity}
+        dateFilter={dateFilter}
+        onDateFilterChange={setDateFilter}
         sortBy={sortBy}
         onSortByChange={setSortBy}
         onReset={handleResetFilters}
@@ -118,8 +182,9 @@ export function AdminPUMapPage(): React.JSX.Element {
         defaultZoom={11}
         mapDefaultView={settings?.preferences?.map_default_view}
         showLabels={settings?.preferences?.map_show_labels}
-        scopeLabel="100% Kewenangan Jalan Kabupaten"
+        scopeLabel="Monitoring Seluruh Kewenangan Jalan"
         detailPathPrefix="/pu/laporan"
+        showAuthorityLegend={true}
       />
     </div>
   );

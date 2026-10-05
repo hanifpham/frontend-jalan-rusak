@@ -7,6 +7,9 @@ import { MapScopeChips } from "../components/map/MapScopeChips";
 import {
   MapFilters,
   type MapStatusFilter,
+  type MapAuthorityFilter,
+  type MapSeverityFilter,
+  type MapDateFilter,
   type MapSortFilter,
 } from "../components/map/MapFilters";
 import { MapView } from "../components/map/MapView";
@@ -26,6 +29,9 @@ export function AdminPemdesMapPage(): React.JSX.Element {
   // Filter states
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<MapStatusFilter>("all");
+  const [authority, setAuthority] = useState<MapAuthorityFilter>("desa");
+  const [severity, setSeverity] = useState<MapSeverityFilter>("all");
+  const [dateFilter, setDateFilter] = useState<MapDateFilter>("all");
   const [sortBy, setSortBy] = useState<MapSortFilter>("default");
 
   // React Query hook for verified GET /api/admin/map/laporan
@@ -47,7 +53,39 @@ export function AdminPemdesMapPage(): React.JSX.Element {
       list = list.filter((r) => r.status === status);
     }
 
-    // 3. Sorting
+    // 3. Severity filter
+    if (severity !== "all") {
+      list = list.filter(
+        (r) => (r.severity || "").toLowerCase() === severity.toLowerCase()
+      );
+    }
+
+    // 4. Date filter (graceful handling: if timestamp exists filter, otherwise retain)
+    if (dateFilter !== "all") {
+      const now = new Date();
+      list = list.filter((r) => {
+        if (!r.createdAt) return true;
+        const d = new Date(r.createdAt);
+        if (isNaN(d.getTime())) return true;
+        if (dateFilter === "today") {
+          return d.toDateString() === now.toDateString();
+        }
+        if (dateFilter === "this_week") {
+          const weekAgo = new Date();
+          weekAgo.setDate(now.getDate() - 7);
+          return d >= weekAgo;
+        }
+        if (dateFilter === "this_month") {
+          return (
+            d.getMonth() === now.getMonth() &&
+            d.getFullYear() === now.getFullYear()
+          );
+        }
+        return true;
+      });
+    }
+
+    // 5. Sorting
     if (sortBy === "title_asc") {
       list.sort((a, b) => a.judul.localeCompare(b.judul));
     } else if (sortBy === "title_desc") {
@@ -57,11 +95,14 @@ export function AdminPemdesMapPage(): React.JSX.Element {
     }
 
     return list;
-  }, [mapData?.reports, search, status, sortBy]);
+  }, [mapData?.reports, search, status, severity, dateFilter, sortBy]);
 
   const handleResetFilters = () => {
     setSearch("");
     setStatus("all");
+    setAuthority("desa");
+    setSeverity("all");
+    setDateFilter("all");
     setSortBy("default");
   };
 
@@ -79,12 +120,19 @@ export function AdminPemdesMapPage(): React.JSX.Element {
         isLoading={isLoading}
       />
 
-      {/* 3. Toolbar & Filters (Search, Status, Severity, Date, Sort, Reset, Export) */}
+      {/* 3. Toolbar & Filters (Search, Status, Kewenangan, Keparahan, Tanggal, Urutkan, Reset, Export) */}
       <MapFilters
         search={search}
         onSearchChange={setSearch}
         status={status}
         onStatusChange={setStatus}
+        authority={authority}
+        onAuthorityChange={setAuthority}
+        allowedAuthorities={["desa"]}
+        severity={severity}
+        onSeverityChange={setSeverity}
+        dateFilter={dateFilter}
+        onDateFilterChange={setDateFilter}
         sortBy={sortBy}
         onSortByChange={setSortBy}
         onReset={handleResetFilters}

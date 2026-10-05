@@ -9,11 +9,13 @@ import {
   Download,
   ChevronDown,
   Check,
+  Building2,
 } from "lucide-react";
 import { ReportExportModal } from "./ReportExportModal";
 import { cn } from "@/lib/utils";
 
 export type StatusFilterValue = "all" | "menunggu" | "proses" | "selesai" | "ditolak";
+export type AuthorityFilterValue = "all" | "desa" | "kabupaten" | "provinsi" | "nasional";
 export type SeverityFilterValue = "all" | "ringan" | "sedang" | "berat";
 export type DateFilterValue = "all" | "today" | "this_week" | "this_month";
 export type SortFilterValue = "newest" | "oldest";
@@ -23,6 +25,8 @@ export interface ReportFiltersProps {
   onSearchChange: (value: string) => void;
   status: StatusFilterValue;
   onStatusChange: (status: StatusFilterValue) => void;
+  authority?: AuthorityFilterValue;
+  onAuthorityChange?: (authority: AuthorityFilterValue) => void;
   severity: SeverityFilterValue;
   onSeverityChange: (severity: SeverityFilterValue) => void;
   dateFilter: DateFilterValue;
@@ -38,6 +42,8 @@ export function ReportFilters({
   onSearchChange,
   status,
   onStatusChange,
+  authority,
+  onAuthorityChange,
   severity,
   onSeverityChange,
   dateFilter,
@@ -82,6 +88,14 @@ export function ReportFilters({
     proses: "Proses",
     selesai: "Selesai",
     ditolak: "Ditolak",
+  };
+
+  const authorityLabels: Record<AuthorityFilterValue, string> = {
+    all: "Semua Kewenangan",
+    desa: "Desa",
+    kabupaten: "Kabupaten",
+    provinsi: "Provinsi",
+    nasional: "Nasional",
   };
 
   const severityLabels: Record<SeverityFilterValue, string> = {
@@ -193,7 +207,76 @@ export function ReportFilters({
             )}
           </div>
 
-          {/* 2. Filter: Keparahan */}
+          {/* 2. Filter: Kewenangan (Only rendered when authority & onAuthorityChange are provided) */}
+          {authority !== undefined && onAuthorityChange !== undefined && (
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => toggleDropdown("authority")}
+                className={cn(
+                  "flex items-center gap-2 bg-white dark:bg-[#0D1A2D] hover:bg-canvas dark:hover:bg-white/5 border border-blue-pale/50 dark:border-white/10 px-3.5 py-2 rounded-full text-[13px] font-medium text-navy-deepest shadow-xs transition-colors cursor-pointer select-none",
+                  openDropdown === "authority" &&
+                    "ring-2 ring-blue-medium/30 border-blue-medium",
+                )}
+                aria-expanded={openDropdown === "authority"}
+                aria-haspopup="true"
+              >
+                <Building2
+                  className="w-4 h-4 text-blue-medium shrink-0"
+                  aria-hidden="true"
+                />
+                <span>
+                  Kewenangan:{" "}
+                  <b className="font-semibold text-navy-deepest">
+                    {authorityLabels[authority]}
+                  </b>
+                </span>
+                <ChevronDown
+                  className={cn(
+                    "w-3.5 h-3.5 text-muted dark:text-[#8FA4BA] transition-transform duration-200",
+                    openDropdown === "authority" && "rotate-180",
+                  )}
+                  aria-hidden="true"
+                />
+              </button>
+
+              {openDropdown === "authority" && (
+                <div className="absolute right-0 top-[calc(100%+6px)] w-52 bg-white dark:bg-[#0D1A2D] rounded-2xl shadow-xl border border-blue-pale/50 dark:border-white/10 py-1.5 z-50 animate-in fade-in zoom-in-95 duration-100">
+                  {(
+                    [
+                      "all",
+                      "desa",
+                      "kabupaten",
+                      "provinsi",
+                      "nasional",
+                    ] as AuthorityFilterValue[]
+                  ).map((val) => (
+                    <button
+                      key={val}
+                      type="button"
+                      onClick={() => {
+                        onAuthorityChange(val);
+                        setOpenDropdown(null);
+                      }}
+                      className={cn(
+                        "w-full flex items-center justify-between px-4 py-2 text-xs text-left hover:bg-canvas dark:hover:bg-white/5 transition-colors cursor-pointer",
+                        authority === val
+                          ? "font-bold text-navy-primary dark:text-blue-pale bg-blue-pale/20 dark:bg-white/10"
+                          : "text-navy-deepest",
+                      )}
+                    >
+                      <span>{authorityLabels[val]}</span>
+                      {authority === val && (
+                        <Check className="w-3.5 h-3.5 text-navy-primary dark:text-[#5483B3]" />
+                      )}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* 3. Filter: Keparahan */}
           <div className="relative">
             <button
               type="button"

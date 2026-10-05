@@ -23,6 +23,65 @@ export interface ReportTableProps {
   density?: "comfortable" | "compact";
   isFiltered?: boolean;
   onResetFilters?: () => void;
+  showAuthorityColumn?: boolean;
+}
+
+/**
+ * Badge / chip component for Road Authority
+ */
+export function AuthorityBadge({
+  authority,
+}: {
+  authority?: string;
+}): React.JSX.Element {
+  const norm = (authority || "").toLowerCase();
+  switch (norm) {
+    case "desa":
+      return (
+        <span
+          className="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 select-none tracking-wide"
+          title="Kewenangan: Jalan Desa"
+        >
+          DESA
+        </span>
+      );
+    case "kabupaten":
+      return (
+        <span
+          className="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold bg-blue-pale/60 dark:bg-[#5483B3]/25 text-navy-deepest dark:text-blue-pale border border-blue-supporting/40 dark:border-[#5483B3]/40 select-none tracking-wide"
+          title="Kewenangan: Jalan Kabupaten"
+        >
+          KABUPATEN
+        </span>
+      );
+    case "provinsi":
+      return (
+        <span
+          className="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold bg-purple-500/15 text-purple-700 dark:text-purple-300 border border-purple-500/30 select-none tracking-wide"
+          title="Kewenangan: Jalan Provinsi"
+        >
+          PROVINSI
+        </span>
+      );
+    case "nasional":
+      return (
+        <span
+          className="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30 select-none tracking-wide"
+          title="Kewenangan: Jalan Nasional"
+        >
+          NASIONAL
+        </span>
+      );
+    default:
+      return (
+        <span
+          className="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold bg-gray-100 dark:bg-white/10 text-muted dark:text-[#8FA4BA] border border-gray-200 dark:border-white/10 select-none"
+          title="Kewenangan: Tidak Teridentifikasi"
+        >
+          Tidak Teridentifikasi
+        </span>
+      );
+  }
 }
 
 /**
@@ -129,6 +188,7 @@ export function ReportTable({
   density = "comfortable",
   isFiltered = false,
   onResetFilters,
+  showAuthorityColumn = false,
 }: ReportTableProps): React.JSX.Element {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -152,6 +212,11 @@ export function ReportTable({
             <th scope="col" className="pb-3.5 px-4 min-w-60">
               LAPORAN
             </th>
+            {showAuthorityColumn && (
+              <th scope="col" className="pb-3.5 px-4 text-center whitespace-nowrap">
+                KEWENANGAN
+              </th>
+            )}
             <th scope="col" className="pb-3.5 px-4 min-w-40">
               JENIS KERUSAKAN
             </th>
@@ -186,6 +251,11 @@ export function ReportTable({
                     <div className="h-4 bg-gray-200 dark:bg-white/10 rounded w-3/4 mb-1.5" />
                     <div className="h-3 bg-gray-150 dark:bg-white/5 rounded w-1/2" />
                   </td>
+                  {showAuthorityColumn && (
+                    <td className={`${cellPy} px-4 text-center`}>
+                      <div className="h-5 bg-gray-200 dark:bg-white/10 rounded-full w-20 mx-auto" />
+                    </td>
+                  )}
                   <td className={`${cellPy} px-4`}>
                     <div className="h-4 bg-gray-200 dark:bg-white/10 rounded w-24" />
                   </td>
@@ -212,7 +282,7 @@ export function ReportTable({
           {/* 2. Error State */}
           {!isLoading && error && (
             <tr>
-              <td colSpan={8} className="py-12 text-center">
+              <td colSpan={showAuthorityColumn ? 9 : 8} className="py-12 text-center">
                 <div className="flex flex-col items-center justify-center gap-3 max-w-sm mx-auto">
                   <div className="w-12 h-12 rounded-full bg-red-50 dark:bg-red-950/40 text-severity-berat flex items-center justify-center">
                     <AlertCircle className="w-6 h-6" aria-hidden="true" />
@@ -243,7 +313,7 @@ export function ReportTable({
           {/* 3. Empty State */}
           {!isLoading && !error && reports.length === 0 && (
             <tr>
-              <td colSpan={8} className="py-14 text-center">
+              <td colSpan={showAuthorityColumn ? 9 : 8} className="py-14 text-center">
                 {isFiltered ? (
                   <div className="flex flex-col items-center justify-center gap-3 max-w-md mx-auto">
                     <div className="w-14 h-14 rounded-full bg-canvas dark:bg-[#07111F] border border-blue-pale/50 dark:border-white/10 text-blue-medium dark:text-[#5483B3] flex items-center justify-center">
@@ -254,8 +324,9 @@ export function ReportTable({
                         Tidak Ada Laporan yang Sesuai Filter
                       </h4>
                       <p className="text-xs text-muted dark:text-[#8FA4BA] mt-1 leading-relaxed">
-                        Tidak ada laporan kerusakan jalan desa yang sesuai
-                        dengan filter atau kata kunci pencarian yang dipilih.
+                        {showAuthorityColumn
+                          ? "Tidak ada laporan kerusakan jalan yang sesuai dengan filter atau kata kunci pencarian yang dipilih."
+                          : "Tidak ada laporan kerusakan jalan desa yang sesuai dengan filter atau kata kunci pencarian yang dipilih."}
                       </p>
                     </div>
                     {onResetFilters && (
@@ -352,6 +423,13 @@ export function ReportTable({
                       </span>
                     </div>
                   </td>
+
+                  {/* Column: KEWENANGAN (if showAuthorityColumn) */}
+                  {showAuthorityColumn && (
+                    <td className={`${cellPy} px-4 text-center whitespace-nowrap`}>
+                      <AuthorityBadge authority={report.roadAuthority} />
+                    </td>
+                  )}
 
                   {/* Column 3: JENIS KERUSAKAN */}
                   <td

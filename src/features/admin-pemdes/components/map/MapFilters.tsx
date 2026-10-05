@@ -9,11 +9,16 @@ import {
   Download,
   ChevronDown,
   Check,
+  Building2,
 } from "lucide-react";
 import { type ReportStatus } from "@/types/domain";
+import { ReportExportModal } from "../reports/ReportExportModal";
 import { cn } from "@/lib/utils";
 
 export type MapStatusFilter = "all" | ReportStatus;
+export type MapAuthorityFilter = "all" | "desa" | "kabupaten" | "provinsi" | "nasional";
+export type MapSeverityFilter = "all" | "ringan" | "sedang" | "berat";
+export type MapDateFilter = "all" | "today" | "this_week" | "this_month";
 export type MapSortFilter = "default" | "title_asc" | "title_desc" | "status";
 
 export interface MapFiltersProps {
@@ -21,9 +26,17 @@ export interface MapFiltersProps {
   onSearchChange: (value: string) => void;
   status: MapStatusFilter;
   onStatusChange: (status: MapStatusFilter) => void;
+  authority?: MapAuthorityFilter;
+  onAuthorityChange?: (authority: MapAuthorityFilter) => void;
+  allowedAuthorities?: MapAuthorityFilter[];
+  severity: MapSeverityFilter;
+  onSeverityChange: (severity: MapSeverityFilter) => void;
+  dateFilter: MapDateFilter;
+  onDateFilterChange: (dateFilter: MapDateFilter) => void;
   sortBy: MapSortFilter;
   onSortByChange: (sortBy: MapSortFilter) => void;
   onReset: () => void;
+  onExport?: () => void;
 }
 
 export function MapFilters({
@@ -31,13 +44,22 @@ export function MapFilters({
   onSearchChange,
   status,
   onStatusChange,
+  authority,
+  onAuthorityChange,
+  allowedAuthorities,
+  severity,
+  onSeverityChange,
+  dateFilter,
+  onDateFilterChange,
   sortBy,
   onSortByChange,
   onReset,
+  onExport,
 }: MapFiltersProps): React.JSX.Element {
-  const [openDropdown, setOpenDropdown] = useState<"status" | "sort" | null>(
-    null,
-  );
+  const [openDropdown, setOpenDropdown] = useState<
+    "status" | "authority" | "severity" | "date" | "sort" | null
+  >(null);
+  const [exportModalOpen, setExportModalOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement | null>(null);
 
   // Close dropdown on outside click or escape
@@ -61,7 +83,9 @@ export function MapFilters({
     };
   }, []);
 
-  const toggleDropdown = (name: "status" | "sort") => {
+  const toggleDropdown = (
+    name: "status" | "authority" | "severity" | "date" | "sort"
+  ) => {
     setOpenDropdown((prev) => (prev === name ? null : name));
   };
 
@@ -73,11 +97,46 @@ export function MapFilters({
     ditolak: "Ditolak",
   };
 
+  const authorityLabels: Record<MapAuthorityFilter, string> = {
+    all: "Semua Kewenangan",
+    desa: "Desa",
+    kabupaten: "Kabupaten",
+    provinsi: "Provinsi",
+    nasional: "Nasional",
+  };
+
+  const severityLabels: Record<MapSeverityFilter, string> = {
+    all: "Semua",
+    ringan: "Ringan",
+    sedang: "Sedang",
+    berat: "Berat",
+  };
+
+  const dateLabels: Record<MapDateFilter, string> = {
+    all: "Semua",
+    today: "Hari Ini",
+    this_week: "Minggu Ini",
+    this_month: "Bulan Ini",
+  };
+
   const sortLabels: Record<MapSortFilter, string> = {
     default: "Default",
     title_asc: "Judul (A-Z)",
     title_desc: "Judul (Z-A)",
     status: "Status Laporan",
+  };
+
+  const effectiveAuthorities: MapAuthorityFilter[] =
+    allowedAuthorities && allowedAuthorities.length > 0
+      ? allowedAuthorities
+      : ["all", "desa", "kabupaten", "provinsi", "nasional"];
+
+  const handleExportClick = () => {
+    if (onExport) {
+      onExport();
+    } else {
+      setExportModalOpen(true);
+    }
   };
 
   return (
@@ -98,19 +157,19 @@ export function MapFilters({
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
             placeholder="Cari berdasarkan judul laporan..."
-            className="w-full bg-transparent border-0 p-0 text-[13px] text-navy-deepest placeholder:text-muted/70 dark:placeholder:text-[#8FA4BA] focus:outline-none focus:ring-0"
+            className="w-full bg-transparent border-0 p-0 text-[13px] text-navy-deepest dark:text-white placeholder:text-muted/70 dark:placeholder:text-[#8FA4BA] focus:outline-none focus:ring-0"
           />
         </div>
 
-        {/* Status Filter (Client-side working filter) */}
+        {/* 1. Status Filter */}
         <div className="relative">
           <button
             type="button"
             onClick={() => toggleDropdown("status")}
             className={cn(
-              "inline-flex items-center gap-2 bg-white dark:bg-[#0D1A2D] hover:bg-canvas dark:hover:bg-white/5 border border-blue-pale/50 dark:border-[rgba(193,232,255,0.12)] px-4 py-2 rounded-full text-[13px] font-medium text-navy-deepest shadow-xs transition-colors cursor-pointer",
+              "inline-flex items-center gap-2 bg-white dark:bg-[#0D1A2D] hover:bg-canvas dark:hover:bg-white/5 border border-blue-pale/50 dark:border-[rgba(193,232,255,0.12)] px-4 py-2 rounded-full text-[13px] font-medium text-navy-deepest dark:text-white shadow-xs transition-colors cursor-pointer",
               openDropdown === "status" &&
-                "ring-2 ring-blue-medium/30 border-blue-medium",
+                "ring-2 ring-blue-medium/30 border-blue-medium"
             )}
             aria-expanded={openDropdown === "status"}
             aria-haspopup="true"
@@ -121,14 +180,14 @@ export function MapFilters({
             />
             <span>
               Status:{" "}
-              <b className="font-semibold text-navy-deepest">
+              <b className="font-semibold text-navy-deepest dark:text-blue-pale">
                 {statusLabels[status]}
               </b>
             </span>
             <ChevronDown
               className={cn(
                 "w-3.5 h-3.5 text-muted dark:text-[#8FA4BA] transition-transform duration-200",
-                openDropdown === "status" && "rotate-180",
+                openDropdown === "status" && "rotate-180"
               )}
               aria-hidden="true"
             />
@@ -150,7 +209,7 @@ export function MapFilters({
                     "w-full text-left px-4 py-2 text-[13px] flex items-center justify-between hover:bg-canvas dark:hover:bg-white/5 transition-colors cursor-pointer",
                     status === val
                       ? "font-bold text-navy-primary dark:text-blue-pale bg-blue-pale/20 dark:bg-[#5483B3]/20"
-                      : "text-navy-deepest dark:text-[#AFC0D4]",
+                      : "text-navy-deepest dark:text-[#AFC0D4]"
                   )}
                 >
                   <span>{statusLabels[val]}</span>
@@ -166,43 +225,197 @@ export function MapFilters({
           )}
         </div>
 
-        {/* Severity Filter: Disabled honestly per Rule 15 */}
-        <button
-          type="button"
-          disabled
-          className="inline-flex items-center gap-2 bg-canvas/80 dark:bg-white/5 border border-blue-pale/40 dark:border-white/10 px-4 py-2 rounded-full text-[13px] font-medium text-muted dark:text-[#8FA4BA] cursor-not-allowed shadow-xs opacity-75"
-          title="Data tingkat keparahan belum tersedia dari backend"
-        >
-          <AlertTriangle
-            className="w-4 h-4 text-muted/70 dark:text-[#8FA4BA] shrink-0"
-            aria-hidden="true"
-          />
-          <span>
-            Keparahan:{" "}
-            <b className="font-semibold text-muted dark:text-[#8FA4BA]">
-              Belum tersedia
-            </b>
-          </span>
-        </button>
+        {/* 2. Authority / Kewenangan Filter */}
+        {authority !== undefined && onAuthorityChange !== undefined && (
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => toggleDropdown("authority")}
+              className={cn(
+                "inline-flex items-center gap-2 bg-white dark:bg-[#0D1A2D] hover:bg-canvas dark:hover:bg-white/5 border border-blue-pale/50 dark:border-[rgba(193,232,255,0.12)] px-4 py-2 rounded-full text-[13px] font-medium text-navy-deepest dark:text-white shadow-xs transition-colors cursor-pointer",
+                openDropdown === "authority" &&
+                  "ring-2 ring-blue-medium/30 border-blue-medium"
+              )}
+              aria-expanded={openDropdown === "authority"}
+              aria-haspopup="true"
+            >
+              <Building2
+                className="w-4 h-4 text-blue-medium shrink-0"
+                aria-hidden="true"
+              />
+              <span>
+                Kewenangan:{" "}
+                <b className="font-semibold text-navy-deepest dark:text-blue-pale">
+                  {authorityLabels[authority]}
+                </b>
+              </span>
+              <ChevronDown
+                className={cn(
+                  "w-3.5 h-3.5 text-muted dark:text-[#8FA4BA] transition-transform duration-200",
+                  openDropdown === "authority" && "rotate-180"
+                )}
+                aria-hidden="true"
+              />
+            </button>
 
-        {/* Date Filter: Disabled honestly per Rule 16 */}
-        <button
-          type="button"
-          disabled
-          className="inline-flex items-center gap-2 bg-canvas/80 dark:bg-white/5 border border-blue-pale/40 dark:border-white/10 px-4 py-2 rounded-full text-[13px] font-medium text-muted dark:text-[#8FA4BA] cursor-not-allowed shadow-xs opacity-75"
-          title="Data tanggal laporan belum tersedia pada response endpoint peta"
-        >
-          <Calendar
-            className="w-4 h-4 text-muted/70 dark:text-[#8FA4BA] shrink-0"
-            aria-hidden="true"
-          />
-          <span>
-            Tanggal:{" "}
-            <b className="font-semibold text-muted dark:text-[#8FA4BA]">
-              Belum tersedia
-            </b>
-          </span>
-        </button>
+            {openDropdown === "authority" && (
+              <div className="absolute left-0 mt-2 w-52 bg-white dark:bg-[#0D1A2D] border border-blue-pale/50 dark:border-[rgba(193,232,255,0.12)] rounded-2xl shadow-xl py-2 z-50 animate-in fade-in zoom-in-95 duration-100">
+                {effectiveAuthorities.map((val) => (
+                  <button
+                    key={val}
+                    type="button"
+                    onClick={() => {
+                      onAuthorityChange(val);
+                      setOpenDropdown(null);
+                    }}
+                    className={cn(
+                      "w-full text-left px-4 py-2 text-[13px] flex items-center justify-between hover:bg-canvas dark:hover:bg-white/5 transition-colors cursor-pointer",
+                      authority === val
+                        ? "font-bold text-navy-primary dark:text-blue-pale bg-blue-pale/20 dark:bg-[#5483B3]/20"
+                        : "text-navy-deepest dark:text-[#AFC0D4]"
+                    )}
+                  >
+                    <span>{authorityLabels[val]}</span>
+                    {authority === val && (
+                      <Check
+                        className="w-4 h-4 text-navy-primary dark:text-blue-pale"
+                        aria-hidden="true"
+                      />
+                    )}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* 3. Keparahan / Severity Filter (Active normal dropdown) */}
+        <div className="relative">
+          <button
+            type="button"
+            onClick={() => toggleDropdown("severity")}
+            className={cn(
+              "inline-flex items-center gap-2 bg-white dark:bg-[#0D1A2D] hover:bg-canvas dark:hover:bg-white/5 border border-blue-pale/50 dark:border-[rgba(193,232,255,0.12)] px-4 py-2 rounded-full text-[13px] font-medium text-navy-deepest dark:text-white shadow-xs transition-colors cursor-pointer",
+              openDropdown === "severity" &&
+                "ring-2 ring-blue-medium/30 border-blue-medium"
+            )}
+            aria-expanded={openDropdown === "severity"}
+            aria-haspopup="true"
+          >
+            <AlertTriangle
+              className="w-4 h-4 text-blue-medium shrink-0"
+              aria-hidden="true"
+            />
+            <span>
+              Keparahan:{" "}
+              <b className="font-semibold text-navy-deepest dark:text-blue-pale">
+                {severityLabels[severity]}
+              </b>
+            </span>
+            <ChevronDown
+              className={cn(
+                "w-3.5 h-3.5 text-muted dark:text-[#8FA4BA] transition-transform duration-200",
+                openDropdown === "severity" && "rotate-180"
+              )}
+              aria-hidden="true"
+            />
+          </button>
+
+          {openDropdown === "severity" && (
+            <div className="absolute left-0 mt-2 w-48 bg-white dark:bg-[#0D1A2D] border border-blue-pale/50 dark:border-[rgba(193,232,255,0.12)] rounded-2xl shadow-xl py-2 z-50 animate-in fade-in zoom-in-95 duration-100">
+              {(
+                ["all", "ringan", "sedang", "berat"] as MapSeverityFilter[]
+              ).map((val) => (
+                <button
+                  key={val}
+                  type="button"
+                  onClick={() => {
+                    onSeverityChange(val);
+                    setOpenDropdown(null);
+                  }}
+                  className={cn(
+                    "w-full text-left px-4 py-2 text-[13px] flex items-center justify-between hover:bg-canvas dark:hover:bg-white/5 transition-colors cursor-pointer",
+                    severity === val
+                      ? "font-bold text-navy-primary dark:text-blue-pale bg-blue-pale/20 dark:bg-[#5483B3]/20"
+                      : "text-navy-deepest dark:text-[#AFC0D4]"
+                  )}
+                >
+                  <span>{severityLabels[val]}</span>
+                  {severity === val && (
+                    <Check
+                      className="w-4 h-4 text-navy-primary dark:text-blue-pale"
+                      aria-hidden="true"
+                    />
+                  )}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* 4. Tanggal / Date Filter (Active normal dropdown) */}
+        <div className="relative">
+          <button
+            type="button"
+            onClick={() => toggleDropdown("date")}
+            className={cn(
+              "inline-flex items-center gap-2 bg-white dark:bg-[#0D1A2D] hover:bg-canvas dark:hover:bg-white/5 border border-blue-pale/50 dark:border-[rgba(193,232,255,0.12)] px-4 py-2 rounded-full text-[13px] font-medium text-navy-deepest dark:text-white shadow-xs transition-colors cursor-pointer",
+              openDropdown === "date" &&
+                "ring-2 ring-blue-medium/30 border-blue-medium"
+            )}
+            aria-expanded={openDropdown === "date"}
+            aria-haspopup="true"
+          >
+            <Calendar
+              className="w-4 h-4 text-blue-medium shrink-0"
+              aria-hidden="true"
+            />
+            <span>
+              Tanggal:{" "}
+              <b className="font-semibold text-navy-deepest dark:text-blue-pale">
+                {dateLabels[dateFilter]}
+              </b>
+            </span>
+            <ChevronDown
+              className={cn(
+                "w-3.5 h-3.5 text-muted dark:text-[#8FA4BA] transition-transform duration-200",
+                openDropdown === "date" && "rotate-180"
+              )}
+              aria-hidden="true"
+            />
+          </button>
+
+          {openDropdown === "date" && (
+            <div className="absolute left-0 mt-2 w-48 bg-white dark:bg-[#0D1A2D] border border-blue-pale/50 dark:border-[rgba(193,232,255,0.12)] rounded-2xl shadow-xl py-2 z-50 animate-in fade-in zoom-in-95 duration-100">
+              {(
+                ["all", "today", "this_week", "this_month"] as MapDateFilter[]
+              ).map((val) => (
+                <button
+                  key={val}
+                  type="button"
+                  onClick={() => {
+                    onDateFilterChange(val);
+                    setOpenDropdown(null);
+                  }}
+                  className={cn(
+                    "w-full text-left px-4 py-2 text-[13px] flex items-center justify-between hover:bg-canvas dark:hover:bg-white/5 transition-colors cursor-pointer",
+                    dateFilter === val
+                      ? "font-bold text-navy-primary dark:text-blue-pale bg-blue-pale/20 dark:bg-[#5483B3]/20"
+                      : "text-navy-deepest dark:text-[#AFC0D4]"
+                  )}
+                >
+                  <span>{dateLabels[val]}</span>
+                  {dateFilter === val && (
+                    <Check
+                      className="w-4 h-4 text-navy-primary dark:text-blue-pale"
+                      aria-hidden="true"
+                    />
+                  )}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Row 2: Sort, Reset & Export */}
@@ -214,9 +427,9 @@ export function MapFilters({
               type="button"
               onClick={() => toggleDropdown("sort")}
               className={cn(
-                "inline-flex items-center gap-2 bg-white dark:bg-[#0D1A2D] hover:bg-canvas dark:hover:bg-white/5 border border-blue-pale/50 dark:border-[rgba(193,232,255,0.12)] px-4 py-2 rounded-full text-[13px] font-medium text-navy-deepest shadow-xs transition-colors cursor-pointer",
+                "inline-flex items-center gap-2 bg-white dark:bg-[#0D1A2D] hover:bg-canvas dark:hover:bg-white/5 border border-blue-pale/50 dark:border-[rgba(193,232,255,0.12)] px-4 py-2 rounded-full text-[13px] font-medium text-navy-deepest dark:text-white shadow-xs transition-colors cursor-pointer",
                 openDropdown === "sort" &&
-                  "ring-2 ring-blue-medium/30 border-blue-medium",
+                  "ring-2 ring-blue-medium/30 border-blue-medium"
               )}
               aria-expanded={openDropdown === "sort"}
               aria-haspopup="true"
@@ -227,14 +440,14 @@ export function MapFilters({
               />
               <span>
                 Urutkan:{" "}
-                <b className="font-semibold text-navy-deepest">
+                <b className="font-semibold text-navy-deepest dark:text-blue-pale">
                   {sortLabels[sortBy]}
                 </b>
               </span>
               <ChevronDown
                 className={cn(
                   "w-3.5 h-3.5 text-muted dark:text-[#8FA4BA] transition-transform duration-200",
-                  openDropdown === "sort" && "rotate-180",
+                  openDropdown === "sort" && "rotate-180"
                 )}
                 aria-hidden="true"
               />
@@ -261,7 +474,7 @@ export function MapFilters({
                       "w-full text-left px-4 py-2 text-[13px] flex items-center justify-between hover:bg-canvas dark:hover:bg-white/5 transition-colors cursor-pointer",
                       sortBy === val
                         ? "font-bold text-navy-primary dark:text-blue-pale bg-blue-pale/20 dark:bg-[#5483B3]/20"
-                        : "text-navy-deepest dark:text-[#AFC0D4]",
+                        : "text-navy-deepest dark:text-[#AFC0D4]"
                     )}
                   >
                     <span>{sortLabels[val]}</span>
@@ -281,38 +494,44 @@ export function MapFilters({
           <button
             type="button"
             onClick={onReset}
-            className="inline-flex items-center gap-2 bg-white dark:bg-[#0D1A2D] hover:bg-canvas dark:hover:bg-white/5 border border-blue-pale/50 dark:border-[rgba(193,232,255,0.12)] px-4 py-2 rounded-full text-[13px] font-medium text-navy-deepest shadow-xs transition-colors cursor-pointer active:scale-95"
-            title="Reset semua filter pencarian dan status"
+            className="inline-flex items-center gap-2 bg-white dark:bg-[#0D1A2D] hover:bg-canvas dark:hover:bg-white/5 border border-blue-pale/50 dark:border-[rgba(193,232,255,0.12)] px-4 py-2 rounded-full text-[13px] font-medium text-navy-deepest dark:text-white shadow-xs transition-colors cursor-pointer active:scale-95"
+            title="Reset semua filter pencarian, status, kewenangan, keparahan, dan tanggal"
           >
             <RotateCcw
-              className="w-4 h-4 text-navy-deepest shrink-0"
+              className="w-4 h-4 text-navy-deepest dark:text-white shrink-0"
               aria-hidden="true"
             />
             <span>Reset Filter</span>
           </button>
         </div>
 
-        {/* Export Button: Disabled honestly per Rule 18 */}
+        {/* Export Button (Active control matching filter styles) */}
         <div className="flex items-center">
           <button
             type="button"
-            disabled
-            className="inline-flex items-center gap-2 bg-canvas/80 dark:bg-white/5 border border-blue-pale/40 dark:border-white/10 px-4 py-2 rounded-full text-[13px] font-medium text-muted dark:text-[#8FA4BA] cursor-not-allowed shadow-xs opacity-75"
-            title="Fitur ekspor data peta belum didukung backend"
+            onClick={handleExportClick}
+            className="inline-flex items-center gap-2 bg-white dark:bg-[#0D1A2D] hover:bg-canvas dark:hover:bg-white/5 border border-blue-pale/50 dark:border-[rgba(193,232,255,0.12)] px-4 py-2 rounded-full text-[13px] font-medium text-navy-deepest dark:text-white shadow-xs transition-colors cursor-pointer active:scale-95"
+            title="Ekspor dokumen laporan titik peta"
           >
             <Download
-              className="w-4 h-4 text-muted/70 dark:text-[#8FA4BA] shrink-0"
+              className="w-4 h-4 text-blue-medium shrink-0"
               aria-hidden="true"
             />
-            <span className="font-semibold text-muted dark:text-[#8FA4BA]">
+            <span className="font-semibold text-navy-deepest dark:text-white">
               Export
             </span>
-            <span className="bg-gray-200 dark:bg-white/10 text-muted dark:text-[#8FA4BA] text-[10px] font-bold px-1.5 py-0.5 rounded">
+            <span className="bg-blue-pale/40 dark:bg-[#5483B3]/20 text-navy-primary dark:text-blue-pale text-[10px] font-bold px-1.5 py-0.5 rounded">
               PDF/XLS
             </span>
           </button>
         </div>
       </div>
+
+      {/* Export Modal Dialog */}
+      <ReportExportModal
+        isOpen={exportModalOpen}
+        onClose={() => setExportModalOpen(false)}
+      />
     </div>
   );
 }

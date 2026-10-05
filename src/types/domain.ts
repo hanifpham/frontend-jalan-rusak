@@ -123,6 +123,7 @@ export interface BackendMapReportItem {
   catatan_admin?: string;
   name?: string;
   wilayah_id: number;
+  created_at?: string;
 }
 
 /**
@@ -137,6 +138,8 @@ export interface AdminMapReport {
   status: ReportStatus;
   tipeKerusakan: string;
   jenisJalan: string;
+  severity?: Severity;
+  createdAt?: string;
   imageUrl?: string;
   fotoBukti?: string;
   catatanAdmin?: string;

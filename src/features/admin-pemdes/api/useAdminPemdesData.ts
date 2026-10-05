@@ -384,6 +384,21 @@ export interface BackendMapReportsResponse {
 export function normalizeBackendMapReport(item: BackendMapReportItem): AdminMapReport {
   const normalizedStatus = (item.status?.toLowerCase() as ReportStatus) || 'menunggu';
 
+  let severity: Severity = 'sedang';
+  const tipeLower = (item.tipe_kerusakan || '').toLowerCase();
+  const titleLower = (item.judul || '').toLowerCase();
+  if (
+    tipeLower.includes('parah') ||
+    tipeLower.includes('amblas') ||
+    tipeLower.includes('longsor') ||
+    titleLower.includes('parah') ||
+    titleLower.includes('amblas')
+  ) {
+    severity = 'berat';
+  } else if (tipeLower.includes('ringan') || titleLower.includes('ringan')) {
+    severity = 'ringan';
+  }
+
   return {
     id: item.id,
     judul: item.judul,
@@ -392,6 +407,8 @@ export function normalizeBackendMapReport(item: BackendMapReportItem): AdminMapR
     status: normalizedStatus,
     tipeKerusakan: item.tipe_kerusakan || 'Kerusakan Jalan',
     jenisJalan: item.jenis_jalan || 'desa',
+    severity,
+    createdAt: item.created_at,
     imageUrl: item.image_url,
     fotoBukti: item.foto_bukti,
     catatanAdmin: item.catatan_admin,
@@ -403,11 +420,21 @@ export function normalizeBackendMapReport(item: BackendMapReportItem): AdminMapR
 /**
  * Hook to fetch verified reports for GIS Map from GET /api/admin/map/laporan
  */
-export function useAdminMapReports() {
+export function useAdminMapReports(params?: { jenis_jalan?: string; status?: string }) {
   return useQuery({
-    queryKey: ['admin', 'map', 'laporan'],
+    queryKey: ['admin', 'map', 'laporan', params],
     queryFn: async () => {
-      const response = await apiClient.get<BackendMapReportsResponse>('/admin/map/laporan');
+      const queryParams: Record<string, string> = {};
+      if (params?.jenis_jalan && params.jenis_jalan !== 'all') {
+        queryParams['jenis_jalan'] = params.jenis_jalan;
+      }
+      if (params?.status && params.status !== 'all') {
+        queryParams['status'] = params.status;
+      }
+
+      const response = await apiClient.get<BackendMapReportsResponse>('/admin/map/laporan', {
+        params: Object.keys(queryParams).length > 0 ? queryParams : undefined,
+      });
       const rawList = response.data || [];
       return {
         reports: rawList.map(normalizeBackendMapReport),

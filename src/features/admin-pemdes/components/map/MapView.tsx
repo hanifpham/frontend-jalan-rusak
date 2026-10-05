@@ -23,6 +23,7 @@ export interface MapViewProps {
   showLabels?: boolean;
   detailPathPrefix?: string;
   scopeLabel?: string;
+  showAuthorityLegend?: boolean;
 }
 
 const DEFAULT_COORDS: [number, number] = [-6.415, 108.283]; // Lobener Lor coordinates
@@ -48,6 +49,7 @@ export function MapView({
   showLabels = true,
   detailPathPrefix = "/pemdes/laporan",
   scopeLabel = "100% Kewenangan Jalan Desa",
+  showAuthorityLegend = false,
 }: MapViewProps): React.JSX.Element {
   const navigate = useNavigate();
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
@@ -189,7 +191,45 @@ export function MapView({
             ? `<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>`
             : `<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`;
 
-      // Custom HTML Marker using Stitch Pill Aesthetic
+      // Authority info
+      const authorityLower = (report.jenisJalan || "desa").toLowerCase();
+      let authorityLabel = "Jalan Desa";
+      let authorityBadgeText = "DESA";
+      let authorityColor = "#10B981"; // emerald
+      let authorityBg = "bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 border-emerald-500/40";
+
+      if (authorityLower === "kabupaten") {
+        authorityLabel = "Jalan Kabupaten";
+        authorityBadgeText = "KABUPATEN";
+        authorityColor = "#2563EB"; // blue
+        authorityBg = "bg-blue-pale/80 dark:bg-[#5483B3]/30 text-navy-deepest dark:text-blue-pale border-blue-supporting/50 dark:border-[#5483B3]/50";
+      } else if (authorityLower === "provinsi") {
+        authorityLabel = "Jalan Provinsi";
+        authorityBadgeText = "PROVINSI";
+        authorityColor = "#8B5CF6"; // purple
+        authorityBg = "bg-purple-500/20 text-purple-800 dark:text-purple-300 border-purple-500/40";
+      } else if (authorityLower === "nasional") {
+        authorityLabel = "Jalan Nasional";
+        authorityBadgeText = "NASIONAL";
+        authorityColor = "#F59E0B"; // amber
+        authorityBg = "bg-amber-500/20 text-amber-800 dark:text-amber-300 border-amber-500/40";
+      }
+
+      // Severity info
+      const severityLower = (report.severity || "sedang").toLowerCase();
+      let severityLabel = "Sedang";
+      let severityBadgeBg = "bg-amber-500/20 text-amber-800 dark:text-amber-300 border-amber-500/40";
+      if (severityLower === "berat") {
+        severityLabel = "Berat";
+        severityBadgeBg = "bg-red-500/20 text-red-800 dark:text-red-300 border-red-500/40";
+      } else if (severityLower === "ringan") {
+        severityLabel = "Ringan";
+        severityBadgeBg = "bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 border-emerald-500/40";
+      }
+
+      const escapedCoords = `${report.latitude.toFixed(4)}, ${report.longitude.toFixed(4)}`;
+
+      // Custom HTML Marker using Stitch Pill Aesthetic with Authority Halo
       const customIcon = L.divIcon({
         className: "custom-roadis-marker",
         iconSize: [120, 56],
@@ -198,16 +238,23 @@ export function MapView({
         html: `
           <div class="relative flex flex-col items-center group cursor-pointer select-none">
             <div class="relative flex items-center justify-center">
-              <div class="w-8 h-8 rounded-full border-2 border-white shadow-md flex items-center justify-center transition-transform group-hover:scale-110" style="background-color: ${statusColor}">
+              <div class="w-8 h-8 rounded-full border-2 border-white shadow-md flex items-center justify-center transition-transform group-hover:scale-110" style="background-color: ${statusColor}; box-shadow: 0 0 0 2.5px ${authorityColor}, 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
                 ${markerIconSvg}
               </div>
             </div>
             ${
               showLabels
-                ? `<div class="mt-1 bg-navy-deepest text-white text-[10px] font-bold px-2 py-0.5 rounded shadow-sm whitespace-nowrap opacity-90 max-w-30 truncate text-center">
-                     ${escapeHtml(report.tipeKerusakan || report.judul)}
+                ? `<div class="mt-1 flex items-center gap-1">
+                     <span class="px-1.5 py-0.2 rounded text-[8.5px] font-black text-white uppercase shadow-xs tracking-wider" style="background-color: ${authorityColor}">
+                       ${authorityBadgeText}
+                     </span>
+                     <span class="bg-navy-deepest text-white text-[9.5px] font-bold px-1.5 py-0.5 rounded shadow-sm whitespace-nowrap opacity-90 max-w-24 truncate text-center">
+                       ${escapeHtml(report.tipeKerusakan || report.judul)}
+                     </span>
                    </div>`
-                : ""
+                : `<div class="mt-1 px-1.5 py-0.2 rounded text-[8.5px] font-black text-white uppercase shadow-xs tracking-wider" style="background-color: ${authorityColor}">
+                     ${authorityBadgeText}
+                   </div>`
             }
           </div>
         `,
@@ -221,38 +268,49 @@ export function MapView({
       // Build popup container DOM
       const popupContainer = document.createElement("div");
       popupContainer.className =
-        "w-[290px] sm:w-[310px] bg-white dark:bg-[#0D1A2D] rounded-2xl shadow-xl border border-blue-pale/50 dark:border-white/10 p-4 flex flex-col gap-3 select-none text-navy-deepest";
+        "w-[290px] sm:w-[320px] bg-white dark:bg-[#0D1A2D] rounded-2xl shadow-xl border border-blue-pale/50 dark:border-white/10 p-4 flex flex-col gap-3 select-none text-navy-deepest";
 
       const escapedTitle = escapeHtml(report.judul);
       const escapedTipe = escapeHtml(report.tipeKerusakan);
-      const escapedJalan = escapeHtml(report.jenisJalan || "desa");
-      const escapedReporter = report.reporterName
-        ? escapeHtml(report.reporterName)
-        : "";
       const fallbackImg =
         "https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?w=800";
       const actualImg = report.imageUrl || fallbackImg;
 
       popupContainer.innerHTML = `
-        <div class="relative w-full h-30 rounded-xl overflow-hidden border border-blue-pale/40 dark:border-white/10 bg-gray-100 dark:bg-black/30 shrink-0">
+        <div class="relative w-full h-32 rounded-xl overflow-hidden border border-blue-pale/40 dark:border-white/10 bg-gray-100 dark:bg-black/30 shrink-0">
           <img src="${escapeHtml(actualImg)}" alt="${escapedTitle}" class="w-full h-full object-cover" onerror="this.src='${fallbackImg}'; this.onerror=null;" />
+          <div class="absolute top-2 left-2 flex items-center gap-1.5">
+            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold border backdrop-blur-md shadow-xs bg-white/90 dark:bg-[#0D1A2D]/90 ${authorityBg}">
+              ${authorityBadgeText}
+            </span>
+          </div>
+          <div class="absolute top-2 right-2 flex items-center gap-1.5">
+            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold border backdrop-blur-md shadow-xs bg-white/90 dark:bg-[#0D1A2D]/90 ${severityBadgeBg}">
+              Keparahan: ${severityLabel}
+            </span>
+          </div>
         </div>
         <div class="flex flex-col gap-2">
           <div class="font-bold text-navy-deepest dark:text-white text-[13px] leading-snug line-clamp-2" title="${escapedTitle}">
             ${escapedTitle}
           </div>
-          <div class="flex items-center justify-between text-[11px]">
-            <span class="text-muted dark:text-[#8FA4BA] font-medium">Jenis: <b class="text-navy-deepest dark:text-white">${escapedTipe}</b></span>
-            <span class="inline-flex items-center gap-1 bg-canvas dark:bg-[#07111F] border border-blue-pale/40 dark:border-white/10 px-2 py-0.5 rounded-full font-semibold text-navy-primary dark:text-blue-pale capitalize">
-              Jalan ${escapedJalan}
+          <div class="flex items-center justify-between text-[11px] gap-2">
+            <span class="text-muted dark:text-[#8FA4BA] font-medium truncate">
+              Jenis: <b class="text-navy-deepest dark:text-white">${escapedTipe}</b>
             </span>
-          </div>
-          <div class="flex items-center justify-between text-[11px] pt-1 border-t border-gray-100 dark:border-white/10 text-muted dark:text-[#8FA4BA]">
-            <span class="inline-flex items-center gap-1.5 font-bold" style="color: ${statusColor}">
+            <span class="inline-flex items-center gap-1.5 font-bold shrink-0" style="color: ${statusColor}">
               <span class="w-2 h-2 rounded-full" style="background-color: ${statusColor}"></span>
               ${statusLabel}
             </span>
-            ${escapedReporter ? `<span class="font-medium text-muted dark:text-[#8FA4BA]">Pelapor: ${escapedReporter}</span>` : ""}
+          </div>
+          <div class="flex items-center justify-between text-[11px] pt-1.5 border-t border-gray-100 dark:border-white/10 text-muted dark:text-[#8FA4BA]">
+            <span class="inline-flex items-center gap-1 truncate font-medium text-navy-deepest dark:text-[#AFC0D4]">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-navy-primary dark:text-[#5483B3] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+              <span class="font-mono text-[10.5px]">${escapedCoords}</span>
+            </span>
+            <span class="font-semibold text-navy-deepest dark:text-blue-pale text-[11px] shrink-0">
+              ${escapeHtml(authorityLabel)}
+            </span>
           </div>
         </div>
         <button type="button" class="cta-detail-btn w-full bg-navy-primary dark:bg-[#001234] dark:border dark:border-white/20 hover:bg-navy-deepest text-white text-[12px] font-semibold py-2.5 px-4 rounded-full text-center flex items-center justify-center gap-1.5 shadow-sm transition-all cursor-pointer active:scale-98">
@@ -337,6 +395,14 @@ export function MapView({
   const selesaiCount = reports.filter((r) => r.status === "selesai").length;
   const ditolakCount = reports.filter((r) => r.status === "ditolak").length;
 
+  // Authority counts for dynamic legend
+  const authorityCounts = {
+    desa: reports.filter((r) => (r.jenisJalan || "").toLowerCase() === "desa").length,
+    kabupaten: reports.filter((r) => (r.jenisJalan || "").toLowerCase() === "kabupaten").length,
+    provinsi: reports.filter((r) => (r.jenisJalan || "").toLowerCase() === "provinsi").length,
+    nasional: reports.filter((r) => (r.jenisJalan || "").toLowerCase() === "nasional").length,
+  };
+
   return (
     <div className="relative z-0 isolate bg-white dark:bg-[#0D1A2D] rounded-card border border-blue-pale/40 dark:border-white/10 shadow-sm overflow-hidden flex-1 min-h-160 h-165 flex flex-col">
       {/* 1. Leaflet Map Element Container */}
@@ -395,6 +461,8 @@ export function MapView({
         selesaiCount={selesaiCount}
         ditolakCount={ditolakCount}
         scopeLabel={scopeLabel}
+        showAuthorityLegend={showAuthorityLegend}
+        authorityCounts={authorityCounts}
       />
 
       {/* 4. Loading Overlay State */}

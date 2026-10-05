@@ -5,6 +5,8 @@ import { WilayahChip } from "./WilayahChip";
 export interface DashboardHeaderProps {
   userName?: string;
   villageName?: string;
+  subtitle?: string;
+  scopeBadge?: React.ReactNode;
   selectedPeriod?: string;
   onPeriodChange?: (period: string) => void;
 }
@@ -12,6 +14,8 @@ export interface DashboardHeaderProps {
 export function DashboardHeader({
   userName = "Admin Pemdes",
   villageName = "Sukamaju",
+  subtitle,
+  scopeBadge,
   selectedPeriod = "Bulan Ini",
   onPeriodChange,
 }: DashboardHeaderProps): React.JSX.Element {
@@ -20,16 +24,20 @@ export function DashboardHeader({
 
   return (
     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-      {/* Left: Greeting & Village Scope */}
+      {/* Left: Greeting & Scope */}
       <div>
         <h1 className="text-2xl sm:text-3xl font-extrabold text-navy-deepest tracking-tight">
           Selamat datang kembali, {userName}
         </h1>
         <div className="flex items-center gap-3 mt-1.5 flex-wrap">
           <p className="text-sm text-muted dark:text-[#8FA4BA] font-normal">
-            Pantau laporan kerusakan jalan di wilayah Desa {villageName}.
+            {subtitle || `Pantau laporan kerusakan jalan di wilayah Desa ${villageName}.`}
           </p>
-          <WilayahChip villageName={villageName} />
+          {scopeBadge !== undefined ? (
+            scopeBadge
+          ) : (
+            <WilayahChip villageName={villageName} />
+          )}
         </div>
       </div>
 

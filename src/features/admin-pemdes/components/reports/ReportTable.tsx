@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "@/features/auth/useAuth";
 import {
   MapPin,
   ArrowRight,
@@ -17,6 +18,8 @@ export interface ReportTableProps {
   error?: string | null;
   onRetry?: () => void;
   villageName?: string;
+  scopeLabel?: string;
+  detailPathPrefix?: string;
   density?: "comfortable" | "compact";
   isFiltered?: boolean;
   onResetFilters?: () => void;
@@ -97,6 +100,13 @@ function StatusCell({ status }: { status: string }): React.JSX.Element {
           Proses
         </span>
       );
+    case "ditolak":
+      return (
+        <span className="inline-flex items-center gap-1.5 font-semibold text-[12px] text-severity-berat dark:text-severity-berat">
+          <span className="w-2 h-2 rounded-full bg-severity-berat" />
+          Ditolak
+        </span>
+      );
     case "menunggu":
     default:
       return (
@@ -114,11 +124,17 @@ export function ReportTable({
   error,
   onRetry,
   villageName,
+  scopeLabel,
+  detailPathPrefix,
   density = "comfortable",
   isFiltered = false,
   onResetFilters,
 }: ReportTableProps): React.JSX.Element {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const baseDetailPrefix =
+    detailPathPrefix ||
+    (user?.role === "admin_pu" ? "/pu/laporan" : "/pemdes/laporan");
   const isCompact = density === "compact";
   const cellPy = isCompact ? "py-2.5" : "py-3.5";
 
@@ -262,17 +278,28 @@ export function ReportTable({
                       <h4 className="text-sm font-bold text-navy-deepest">
                         Belum Ada Laporan
                       </h4>
-                      <p className="text-xs text-muted dark:text-[#8FA4BA] mt-1 leading-relaxed">
-                        Belum ada laporan kerusakan jalan desa yang tercatat di
-                        wilayah{" "}
-                        <span className="font-semibold text-navy-primary dark:text-blue-pale">
-                          {villageName
-                            ? `Desa ${villageName.replace(/^Desa\s+/i, "")}`
-                            : "ini"}
-                        </span>
-                        . Laporan yang dikirimkan warga akan muncul di sini
-                        secara otomatis.
-                      </p>
+                      {scopeLabel ? (
+                        <p className="text-xs text-muted dark:text-[#8FA4BA] mt-1 leading-relaxed">
+                          Belum ada laporan kerusakan jalan yang tercatat di{" "}
+                          <span className="font-semibold text-navy-primary dark:text-blue-pale">
+                            {scopeLabel}
+                          </span>
+                          . Laporan yang dikirimkan warga akan muncul di sini
+                          secara otomatis.
+                        </p>
+                      ) : (
+                        <p className="text-xs text-muted dark:text-[#8FA4BA] mt-1 leading-relaxed">
+                          Belum ada laporan kerusakan jalan desa yang tercatat di
+                          wilayah{" "}
+                          <span className="font-semibold text-navy-primary dark:text-blue-pale">
+                            {villageName
+                              ? `Desa ${villageName.replace(/^Desa\s+/i, "")}`
+                              : "ini"}
+                          </span>
+                          . Laporan yang dikirimkan warga akan muncul di sini
+                          secara otomatis.
+                        </p>
+                      )}
                     </div>
                   </div>
                 )}
@@ -286,7 +313,9 @@ export function ReportTable({
             reports.map((report) => {
               const locationSubtext =
                 report.roadName ||
-                (villageName
+                (scopeLabel
+                  ? scopeLabel
+                  : villageName
                   ? `Desa ${villageName.replace(/^Desa\s+/i, "")}, Jalan Desa`
                   : "Jalan Desa");
 
@@ -295,7 +324,7 @@ export function ReportTable({
                   key={report.id}
                   onClick={() => {
                     if (report.id) {
-                      navigate(`/pemdes/laporan/${report.id}`);
+                      navigate(`${baseDetailPrefix}/${report.id}`);
                     }
                   }}
                   className="hover:bg-blue-pale/15 dark:hover:bg-white/4 transition-colors duration-150 group cursor-pointer"
@@ -370,7 +399,7 @@ export function ReportTable({
                     className={`${cellPy} pl-4 pr-2 text-right whitespace-nowrap`}
                   >
                     <Link
-                      to={`/pemdes/laporan/${report.id}`}
+                      to={`${baseDetailPrefix}/${report.id}`}
                       onClick={(e) => {
                         e.stopPropagation();
                       }}

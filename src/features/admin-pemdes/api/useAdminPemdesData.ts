@@ -4,6 +4,7 @@ import {
   type Report,
   type ReportStatus,
   type Severity,
+  type RoadAuthority,
   type AdminMapReport,
   type BackendMapReportItem,
 } from '@/types/domain';
@@ -83,6 +84,18 @@ export function normalizeBackendReport(item: BackendLaporanItem): Report {
   const normalizedStatus = (rawStatus as ReportStatus) || 'menunggu';
   const reportId = item.ID ?? (item as unknown as { id?: number }).id ?? 0;
 
+  let roadAuthority: RoadAuthority = 'tidak_teridentifikasi';
+  const jenisLower = (item.jenis_jalan || '').toLowerCase();
+  if (jenisLower === 'desa') {
+    roadAuthority = 'desa';
+  } else if (jenisLower === 'kabupaten') {
+    roadAuthority = 'kabupaten';
+  } else if (jenisLower === 'provinsi') {
+    roadAuthority = 'provinsi';
+  } else if (jenisLower === 'nasional') {
+    roadAuthority = 'nasional';
+  }
+
   return {
     id: reportId,
     userId: item.user_id,
@@ -95,7 +108,7 @@ export function normalizeBackendReport(item: BackendLaporanItem): Report {
     status: normalizedStatus,
     createdAt: item.CreatedAt,
     updatedAt: item.UpdatedAt,
-    roadAuthority: item.jenis_jalan === 'desa' ? 'desa' : 'kabupaten',
+    roadAuthority,
     damageType: item.tipe_kerusakan,
     severity,
     roadName: item.wilayah?.nama ? `Desa ${item.wilayah.nama}` : undefined,
@@ -128,6 +141,7 @@ export function useAdminLaporan(options?: {
   search?: string;
   limit?: number;
   page?: number;
+  jenis_jalan?: string;
 }) {
   return useQuery({
     queryKey: ['admin', 'laporan', options],
@@ -137,6 +151,7 @@ export function useAdminLaporan(options?: {
       if (options?.search) params['search'] = options.search;
       if (options?.limit) params['limit'] = options.limit;
       if (options?.page) params['page'] = options.page;
+      if (options?.jenis_jalan) params['jenis_jalan'] = options.jenis_jalan;
 
       const response = await apiClient.get<BackendLaporanResponse>('/admin/laporan', { params });
       return {

@@ -2,19 +2,23 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { AlertTriangle, ArrowRight, CheckSquare } from "lucide-react";
 import { type Report } from "@/types/domain";
+import { useAuth } from "@/features/auth/useAuth";
 
 export interface PriorityReportsCardProps {
   reports?: Report[] | null;
   onViewAll?: () => void;
   onFollowUp?: () => void;
+  onDetailClick?: (reportId: number) => void;
 }
 
 export function PriorityReportsCard({
   reports = null,
   onViewAll,
   onFollowUp,
+  onDetailClick,
 }: PriorityReportsCardProps): React.JSX.Element {
   const navigate = useNavigate();
+  const { role } = useAuth();
 
   // Filter urgent reports (menunggu or berat) from actual data
   const urgentReports = reports
@@ -72,7 +76,15 @@ export function PriorityReportsCard({
                 key={item.id}
                 onClick={() => {
                   if (item.id) {
-                    navigate(`/pemdes/laporan/${item.id}`);
+                    if (onDetailClick) {
+                      onDetailClick(item.id);
+                    } else {
+                      const targetPath =
+                        role === "admin_pu"
+                          ? `/pu/laporan/${item.id}`
+                          : `/pemdes/laporan/${item.id}`;
+                      navigate(targetPath);
+                    }
                   }
                 }}
                 className="p-3.5 rounded-2xl bg-slate-50 dark:bg-[#07111F] hover:bg-blue-50/40 dark:hover:bg-white/4 border border-slate-100 dark:border-white/10 hover:border-blue-pale dark:hover:border-white/20 transition-all flex items-center justify-between gap-3 group cursor-pointer"

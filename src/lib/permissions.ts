@@ -136,5 +136,15 @@ export function getAuthorizedNavigation(role: Role | undefined | null): Navigati
     });
   }
 
+  if (role === 'admin_pu') {
+    return items.map((item) => {
+      if (item.label === 'Beranda') return { ...item, path: '/pu/beranda' };
+      if (item.label === 'Laporan') return { ...item, path: '/pu/laporan' };
+      if (item.label === 'Peta') return { ...item, path: '/pu/peta' };
+      if (item.label === 'Pesan') return { ...item, path: '/pu/pesan' };
+      return item;
+    });
+  }
+
   return items;
 }

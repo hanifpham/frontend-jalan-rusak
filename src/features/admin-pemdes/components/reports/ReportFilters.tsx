@@ -13,7 +13,7 @@ import {
 import { ReportExportModal } from "./ReportExportModal";
 import { cn } from "@/lib/utils";
 
-export type StatusFilterValue = "all" | "menunggu" | "proses" | "selesai";
+export type StatusFilterValue = "all" | "menunggu" | "proses" | "selesai" | "ditolak";
 export type SeverityFilterValue = "all" | "ringan" | "sedang" | "berat";
 export type DateFilterValue = "all" | "today" | "this_week" | "this_month";
 export type SortFilterValue = "newest" | "oldest";
@@ -79,6 +79,7 @@ export function ReportFilters({
     menunggu: "Menunggu",
     proses: "Proses",
     selesai: "Selesai",
+    ditolak: "Ditolak",
   };
 
   const severityLabels: Record<SeverityFilterValue, string> = {
@@ -161,6 +162,7 @@ export function ReportFilters({
                     "menunggu",
                     "proses",
                     "selesai",
+                    "ditolak",
                   ] as StatusFilterValue[]
                 ).map((val) => (
                   <button

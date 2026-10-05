@@ -70,6 +70,7 @@ export function MapFilters({
     menunggu: "Menunggu",
     proses: "Proses",
     selesai: "Selesai",
+    ditolak: "Ditolak",
   };
 
   const sortLabels: Record<MapSortFilter, string> = {
@@ -136,7 +137,7 @@ export function MapFilters({
           {openDropdown === "status" && (
             <div className="absolute left-0 mt-2 w-48 bg-white dark:bg-[#0D1A2D] border border-blue-pale/50 dark:border-[rgba(193,232,255,0.12)] rounded-2xl shadow-xl py-2 z-50 animate-in fade-in zoom-in-95 duration-100">
               {(
-                ["all", "menunggu", "proses", "selesai"] as MapStatusFilter[]
+                ["all", "menunggu", "proses", "selesai", "ditolak"] as MapStatusFilter[]
               ).map((val) => (
                 <button
                   key={val}

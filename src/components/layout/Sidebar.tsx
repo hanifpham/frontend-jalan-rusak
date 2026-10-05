@@ -47,10 +47,16 @@ export function Sidebar({
   const navItems = getAuthorizedNavigation(role);
 
   const settingsPath =
-    role === "admin_pemdes" ? "/pemdes/pengaturan" : "/settings";
+    role === "admin_pu"
+      ? "/pu/pengaturan"
+      : role === "admin_pemdes"
+        ? "/pemdes/pengaturan"
+        : "/settings";
   const isSettingsActive =
     location.pathname === "/pemdes/pengaturan" ||
     location.pathname.startsWith("/pemdes/pengaturan/") ||
+    location.pathname === "/pu/pengaturan" ||
+    location.pathname.startsWith("/pu/pengaturan/") ||
     location.pathname === "/settings" ||
     location.pathname === "/pengaturan";
 

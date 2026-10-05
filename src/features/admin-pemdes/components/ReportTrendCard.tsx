@@ -4,6 +4,7 @@ import { type Report } from "@/types/domain";
 export interface ReportTrendCardProps {
   reports?: Report[] | null;
   villageName?: string;
+  scopeLabel?: string;
 }
 
 interface MonthStat {
@@ -17,6 +18,7 @@ interface MonthStat {
 export function ReportTrendCard({
   reports = null,
   villageName = "Sukamaju",
+  scopeLabel,
 }: ReportTrendCardProps): React.JSX.Element {
   const [periodType, setPeriodType] = useState<"minggu" | "bulan">("bulan");
 
@@ -59,8 +61,8 @@ export function ReportTrendCard({
             Tren Laporan
           </h2>
           <p className="text-xs text-slate-500 dark:text-[#8FA4BA]">
-            Statistik laporan kerusakan jalan per {periodType} di Desa{" "}
-            {villageName}
+            Statistik laporan kerusakan jalan per {periodType}{" "}
+            {scopeLabel || `di Desa ${villageName}`}
           </p>
         </div>
 

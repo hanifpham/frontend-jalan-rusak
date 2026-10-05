@@ -131,6 +131,16 @@ export function ReportStatusUpdateCard({
       }
     }
 
+    // If status is "ditolak", rejection reason (catatan_admin) is required. foto_bukti is NOT required.
+    if (selectedStatus === "ditolak") {
+      if (!catatanAdmin.trim()) {
+        setValidationError(
+          "Alasan penolakan wajib diisi sebelum laporan dapat ditolak.",
+        );
+        return;
+      }
+    }
+
     try {
       await updateMutation.mutateAsync({
         id: reportId,
@@ -181,8 +191,8 @@ export function ReportStatusUpdateCard({
       </div>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-        {/* Status Selector: 3 Pill Buttons */}
-        <div className="flex items-center justify-between gap-2 p-1.5 bg-canvas dark:bg-[#07111F] rounded-2xl border border-blue-pale/40 dark:border-white/10">
+        {/* Status Selector: 4 Pill Buttons */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 p-1.5 bg-canvas dark:bg-[#07111F] rounded-2xl border border-blue-pale/40 dark:border-white/10">
           {/* Menunggu */}
           <button
             type="button"
@@ -191,7 +201,7 @@ export function ReportStatusUpdateCard({
               setValidationError(null);
             }}
             className={cn(
-              "flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl text-[12px] font-bold transition-all cursor-pointer select-none",
+              "flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl text-[12px] font-bold transition-all cursor-pointer select-none",
               selectedStatus === "menunggu"
                 ? "bg-status-menunggu text-white shadow-xs"
                 : "text-muted dark:text-[#8FA4BA] hover:bg-white dark:hover:bg-white/10 hover:text-navy-deepest",
@@ -217,7 +227,7 @@ export function ReportStatusUpdateCard({
               setValidationError(null);
             }}
             className={cn(
-              "flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl text-[12px] font-bold transition-all cursor-pointer select-none",
+              "flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl text-[12px] font-bold transition-all cursor-pointer select-none",
               selectedStatus === "proses"
                 ? "bg-status-proses text-white shadow-xs"
                 : "text-muted dark:text-[#8FA4BA] hover:bg-white dark:hover:bg-white/10 hover:text-navy-deepest",
@@ -241,7 +251,7 @@ export function ReportStatusUpdateCard({
               setValidationError(null);
             }}
             className={cn(
-              "flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl text-[12px] font-bold transition-all cursor-pointer select-none",
+              "flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl text-[12px] font-bold transition-all cursor-pointer select-none",
               selectedStatus === "selesai"
                 ? "bg-status-selesai text-white shadow-xs"
                 : "text-muted dark:text-[#8FA4BA] hover:bg-white dark:hover:bg-white/10 hover:text-navy-deepest",
@@ -256,22 +266,46 @@ export function ReportStatusUpdateCard({
             />
             <span>Selesai</span>
           </button>
+
+          {/* Ditolak */}
+          <button
+            type="button"
+            onClick={() => {
+              setSelectedStatus("ditolak");
+              setValidationError(null);
+            }}
+            className={cn(
+              "flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl text-[12px] font-bold transition-all cursor-pointer select-none",
+              selectedStatus === "ditolak"
+                ? "bg-severity-berat text-white shadow-xs"
+                : "text-muted dark:text-[#8FA4BA] hover:bg-white dark:hover:bg-white/10 hover:text-navy-deepest",
+            )}
+          >
+            <span
+              className={cn(
+                "w-2 h-2 rounded-full",
+                selectedStatus === "ditolak" ? "bg-white" : "bg-severity-berat",
+              )}
+              aria-hidden="true"
+            />
+            <span>Ditolak</span>
+          </button>
         </div>
 
-        {/* Catatan Penanganan Textarea */}
+        {/* Catatan Penanganan / Alasan Penolakan Textarea */}
         <div className="flex flex-col gap-2">
           <label
             htmlFor="catatan-penanganan"
             className="text-[13px] font-bold text-navy-deepest flex items-center justify-between"
           >
             <span>
-              Catatan Penanganan{" "}
-              {selectedStatus === "selesai" && (
+              {selectedStatus === "ditolak" ? "Alasan Penolakan" : "Catatan Penanganan"}{" "}
+              {(selectedStatus === "selesai" || selectedStatus === "ditolak") && (
                 <span className="text-severity-berat">*</span>
               )}
             </span>
             <span className="text-[11px] font-normal text-muted dark:text-[#8FA4BA]">
-              Rencana aksi desa
+              {selectedStatus === "ditolak" ? "Wajib diisi saat menolak" : "Rencana aksi desa"}
             </span>
           </label>
           <textarea
@@ -279,7 +313,11 @@ export function ReportStatusUpdateCard({
             rows={3}
             value={catatanAdmin}
             onChange={(e) => setCatatanAdmin(e.target.value)}
-            placeholder="Masukkan rencana tindakan (misal: Dijadwalkan pengurukan dan penambalan cold-mix besok pagi oleh Tim Sarpras Pemdes)..."
+            placeholder={
+              selectedStatus === "ditolak"
+                ? "Masukkan alasan penolakan laporan (misal: Laporan tidak valid, duplikat, atau lokasi tidak ditemukan)..."
+                : "Masukkan rencana tindakan (misal: Dijadwalkan pengurukan dan penambalan cold-mix besok pagi oleh Tim Sarpras Pemdes)..."
+            }
             className="w-full bg-white dark:bg-[#12233A] border border-blue-pale/50 dark:border-white/10 rounded-xl p-3 text-[13px] text-navy-deepest placeholder:text-muted/60 dark:placeholder:text-[#8FA4BA]/60 focus:outline-none focus:border-navy-primary focus:ring-1 focus:ring-navy-primary transition-all resize-y"
           />
         </div>
@@ -294,7 +332,7 @@ export function ReportStatusUpdateCard({
               )}
             </span>
             <span className="text-[11px] font-normal text-muted">
-              Wajib saat Selesai
+              {selectedStatus === "selesai" ? "Wajib saat Selesai" : "Opsional"}
             </span>
           </label>
 
@@ -396,16 +434,18 @@ export function ReportStatusUpdateCard({
           )}
 
           {/* Subtext Note */}
-          <span className="text-[11px] text-muted/90 italic flex items-center gap-1.5 mt-0.5">
-            <CheckCircle
-              className="w-3.5 h-3.5 text-navy-primary shrink-0"
-              aria-hidden="true"
-            />
-            <span>
-              Foto bukti perbaikan wajib diunggah sebelum laporan dapat ditandai
-              Selesai.
+          {selectedStatus === "selesai" && (
+            <span className="text-[11px] text-muted/90 italic flex items-center gap-1.5 mt-0.5">
+              <CheckCircle
+                className="w-3.5 h-3.5 text-navy-primary shrink-0"
+                aria-hidden="true"
+              />
+              <span>
+                Foto bukti perbaikan wajib diunggah sebelum laporan dapat ditandai
+                Selesai.
+              </span>
             </span>
-          </span>
+          )}
         </div>
 
         {/* Validation Error Banner */}

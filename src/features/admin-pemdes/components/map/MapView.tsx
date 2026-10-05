@@ -163,20 +163,26 @@ export function MapView({
           ? "#2E9E5B"
           : report.status === "proses"
             ? "#5483B3"
-            : "#F59E0B";
+            : report.status === "ditolak"
+              ? "#E4572E"
+              : "#F59E0B";
 
       const statusLabel =
         report.status === "selesai"
           ? "Selesai"
           : report.status === "proses"
             ? "Proses"
-            : "Menunggu";
+            : report.status === "ditolak"
+              ? "Ditolak"
+              : "Menunggu";
 
       // SVG Icon inside marker
       const markerIconSvg =
         report.status === "selesai"
           ? `<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>`
-          : `<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`;
+          : report.status === "ditolak"
+            ? `<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>`
+            : `<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`;
 
       // Custom HTML Marker using Stitch Pill Aesthetic
       const customIcon = L.divIcon({
@@ -324,6 +330,7 @@ export function MapView({
   const menungguCount = reports.filter((r) => r.status === "menunggu").length;
   const prosesCount = reports.filter((r) => r.status === "proses").length;
   const selesaiCount = reports.filter((r) => r.status === "selesai").length;
+  const ditolakCount = reports.filter((r) => r.status === "ditolak").length;
 
   return (
     <div className="relative z-0 isolate bg-white dark:bg-[#0D1A2D] rounded-card border border-blue-pale/40 dark:border-white/10 shadow-sm overflow-hidden flex-1 min-h-160 h-165 flex flex-col">
@@ -381,6 +388,7 @@ export function MapView({
         menungguCount={menungguCount}
         prosesCount={prosesCount}
         selesaiCount={selesaiCount}
+        ditolakCount={ditolakCount}
       />
 
       {/* 4. Loading Overlay State */}

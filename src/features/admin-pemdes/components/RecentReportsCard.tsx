@@ -8,6 +8,8 @@ export interface RecentReportsCardProps {
   isLoading?: boolean;
   error?: string | null;
   villageName?: string;
+  subtitle?: string;
+  emptyMessage?: string;
   onViewAll?: () => void;
   onDetailClick?: (reportId: number) => void;
 }
@@ -17,6 +19,8 @@ export function RecentReportsCard({
   isLoading = false,
   error = null,
   villageName = "Sukamaju",
+  subtitle,
+  emptyMessage,
   onViewAll,
   onDetailClick,
 }: RecentReportsCardProps): React.JSX.Element {
@@ -31,8 +35,7 @@ export function RecentReportsCard({
             Laporan Terbaru
           </h2>
           <p className="text-xs sm:text-sm text-slate-500 dark:text-[#8FA4BA]">
-            Daftar kerusakan jalan desa yang baru dilaporkan warga Desa{" "}
-            {villageName}
+            {subtitle || `Daftar kerusakan jalan desa yang baru dilaporkan warga Desa ${villageName}`}
           </p>
         </div>
 
@@ -198,8 +201,8 @@ export function RecentReportsCard({
                   colSpan={5}
                   className="py-12 text-center text-xs text-slate-500 dark:text-[#8FA4BA]"
                 >
-                  Belum ada laporan kerusakan jalan yang masuk untuk wilayah
-                  ini.
+                  {emptyMessage ||
+                    "Belum ada laporan kerusakan jalan yang masuk untuk wilayah ini."}
                 </td>
               </tr>
             )}

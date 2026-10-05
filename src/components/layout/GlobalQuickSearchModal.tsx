@@ -222,7 +222,12 @@ export function GlobalQuickSearchModal({
   // Base authorized navigation matching role from permissions.ts
   const rawNavItems = useMemo(() => {
     const items = getAuthorizedNavigation(role);
-    const settingsPath = role === "admin_pemdes" ? "/pemdes/pengaturan" : "/settings";
+    const settingsPath =
+      role === "admin_pu"
+        ? "/pu/pengaturan"
+        : role === "admin_pemdes"
+          ? "/pemdes/pengaturan"
+          : "/settings";
 
     const mapped: NavResultItem[] = items.map((item) => {
       let IconComponent = LayoutDashboard;
@@ -324,7 +329,11 @@ export function GlobalQuickSearchModal({
 
   const handleSelectReport = (reportId: number) => {
     onClose();
-    navigate(`/pemdes/laporan/${reportId}`);
+    const targetPath =
+      role === "admin_pu"
+        ? `/pu/laporan/${reportId}`
+        : `/pemdes/laporan/${reportId}`;
+    navigate(targetPath);
   };
 
   const handleSelectItem = (item: SearchItem) => {

@@ -5,6 +5,7 @@ import {
   HardHat,
   CheckCircle2,
   TrendingUp,
+  XCircle,
 } from "lucide-react";
 
 export interface DashboardStatsData {
@@ -28,12 +29,14 @@ export function DashboardStats({
   const menunggu = stats?.total_menunggu ?? 0;
   const proses = stats?.total_proses ?? 0;
   const selesai = stats?.total_selesai ?? 0;
+  const ditolak = stats?.total_ditolak ?? 0;
 
   const prosesPct = total > 0 ? Math.round((proses / total) * 100) : 0;
   const selesaiPct = total > 0 ? Math.round((selesai / total) * 100) : 0;
+  const ditolakPct = total > 0 ? Math.round((ditolak / total) * 100) : 0;
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-5">
       {/* 1. Total Laporan (Hero Navy Card) */}
       <div className="bg-navy-primary dark:bg-[#001234] rounded-card p-6 text-white shadow-[0_8px_24px_rgba(5,38,89,0.18)] dark:shadow-black/40 border border-transparent dark:border-white/10 flex flex-col justify-between relative overflow-hidden">
         <div className="absolute -right-4 -top-4 w-28 h-28 bg-white/5 rounded-full pointer-events-none" />
@@ -148,6 +151,35 @@ export function DashboardStats({
             {selesaiPct}% dari total
           </span>
           <span>tertangani baik</span>
+        </div>
+      </div>
+
+      {/* 5. Ditolak */}
+      <div className="bg-white dark:bg-[#0D1A2D] rounded-card p-6 shadow-[0_4px_20px_rgba(0,18,52,0.04)] dark:shadow-black/20 border border-slate-100 dark:border-white/10 flex flex-col justify-between hover:shadow-md transition-shadow">
+        <div className="flex items-center justify-between">
+          <span className="text-xs font-semibold text-slate-500 dark:text-[#8FA4BA] uppercase tracking-wide">
+            Ditolak
+          </span>
+          <span className="w-8 h-8 rounded-full bg-red-50 dark:bg-red-950/40 text-severity-berat flex items-center justify-center">
+            <XCircle className="w-4 h-4" aria-hidden="true" />
+          </span>
+        </div>
+
+        <div className="my-3">
+          <div className="text-4xl font-extrabold text-navy-deepest tracking-tight">
+            {isLoading ? (
+              <span className="inline-block w-14 h-10 bg-slate-100 dark:bg-white/10 rounded animate-pulse" />
+            ) : (
+              ditolak
+            )}
+          </div>
+        </div>
+
+        <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-[#8FA4BA] font-medium">
+          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-red-50 dark:bg-red-950/40 text-severity-berat">
+            {ditolakPct}% dari total
+          </span>
+          <span>laporan ditolak</span>
         </div>
       </div>
     </div>

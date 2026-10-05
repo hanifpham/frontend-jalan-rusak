@@ -5,7 +5,7 @@
 
 export type Role = 'warga' | 'admin_pemdes' | 'admin_pu' | 'super_admin';
 
-export type ReportStatus = 'menunggu' | 'proses' | 'selesai';
+export type ReportStatus = 'menunggu' | 'proses' | 'selesai' | 'ditolak';
 
 export type Severity = 'ringan' | 'sedang' | 'berat';
 

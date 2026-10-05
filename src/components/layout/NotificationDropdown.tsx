@@ -14,6 +14,7 @@ import {
 import { type NotificationItem } from "@/types/notification";
 import { formatRelativeTime } from "@/lib/date";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/features/auth/useAuth";
 
 export interface NotificationDropdownProps {
   notifications: NotificationItem[];
@@ -58,6 +59,7 @@ export function NotificationDropdown({
   onMarkAllRead,
 }: NotificationDropdownProps): React.JSX.Element {
   const navigate = useNavigate();
+  const { role } = useAuth();
 
   const handleItemClick = (item: NotificationItem) => {
     // 1. Mark as read if unread
@@ -68,7 +70,11 @@ export function NotificationDropdown({
     // 2. Navigate if report ID is present
     if (item.laporanId) {
       onClose();
-      navigate(`/pemdes/laporan/${item.laporanId}`);
+      const targetPath =
+        role === "admin_pu"
+          ? `/pu/laporan/${item.laporanId}`
+          : `/pemdes/laporan/${item.laporanId}`;
+      navigate(targetPath);
     } else {
       onClose();
     }
@@ -76,7 +82,9 @@ export function NotificationDropdown({
 
   const handleViewAll = () => {
     onClose();
-    navigate("/pemdes/notifikasi");
+    const notifPath =
+      role === "admin_pu" ? "/pu/notifikasi" : "/pemdes/notifikasi";
+    navigate(notifPath);
   };
 
   return (

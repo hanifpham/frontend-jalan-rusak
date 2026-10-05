@@ -98,13 +98,18 @@ export function TopNavbar({ onMenuToggle }: TopNavbarProps): React.JSX.Element {
 
   const avatarSrc =
     profile?.avatar_url || user?.avatar_url || user?.profilePhoto;
-  const displayName = profile?.name || user?.nama || "Admin Pemdes";
+  const displayName =
+    profile?.name ||
+    user?.nama ||
+    (role === "admin_pu" ? "Admin Dinas PU" : "Admin Pemdes");
   const displayEmail = profile?.email || user?.email || "";
   const displayWilayah = profile?.wilayah?.nama
     ? `Desa ${profile.wilayah.nama}`
-    : user?.wilayahId === 2
-      ? "Desa Lobener Lor"
-      : "Desa Sukamaju, Kec. Cikedung";
+    : role === "admin_pu"
+      ? "Dinas PUPR Kab. Indramayu"
+      : user?.wilayahId === 2
+        ? "Desa Lobener Lor"
+        : "Desa Sukamaju, Kec. Cikedung";
   const userInitial = displayName ? displayName.charAt(0).toUpperCase() : "A";
 
   // Automatically close dropdowns and search on route changes
@@ -397,7 +402,13 @@ export function TopNavbar({ onMenuToggle }: TopNavbarProps): React.JSX.Element {
               {/* Quick Links */}
               <div className="p-2 space-y-1">
                 <NavLink
-                  to={role === "admin_pemdes" ? "/pemdes/profil" : "/profile"}
+                  to={
+                    role === "admin_pu"
+                      ? "/pu/profil"
+                      : role === "admin_pemdes"
+                        ? "/pemdes/profil"
+                        : "/profile"
+                  }
                   onClick={() => setProfileMenuOpen(false)}
                   className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium text-navy-deepest hover:bg-canvas dark:hover:bg-white/5 hover:text-navy-primary dark:hover:text-white transition-colors cursor-pointer group"
                   role="menuitem"
@@ -417,7 +428,11 @@ export function TopNavbar({ onMenuToggle }: TopNavbarProps): React.JSX.Element {
 
                 <NavLink
                   to={
-                    role === "admin_pemdes" ? "/pemdes/pengaturan" : "/settings"
+                    role === "admin_pu"
+                      ? "/pu/pengaturan"
+                      : role === "admin_pemdes"
+                        ? "/pemdes/pengaturan"
+                        : "/settings"
                   }
                   onClick={() => setProfileMenuOpen(false)}
                   className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium text-navy-deepest hover:bg-canvas dark:hover:bg-white/5 hover:text-navy-primary dark:hover:text-white transition-colors cursor-pointer group"

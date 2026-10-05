@@ -5,12 +5,14 @@ export interface MapLegendProps {
   menungguCount: number;
   prosesCount: number;
   selesaiCount: number;
+  ditolakCount?: number;
 }
 
 export function MapLegend({
   menungguCount,
   prosesCount,
   selesaiCount,
+  ditolakCount,
 }: MapLegendProps): React.JSX.Element {
   return (
     <div
@@ -66,6 +68,21 @@ export function MapLegend({
             {selesaiCount} titik
           </span>
         </div>
+
+        {ditolakCount !== undefined && (
+          <div className="flex items-center justify-between text-navy-deepest dark:text-[#AFC0D4] font-medium">
+            <span className="flex items-center gap-2">
+              <span
+                className="w-2.5 h-2.5 rounded-full bg-severity-berat shrink-0"
+                aria-hidden="true"
+              />
+              <span>Ditolak</span>
+            </span>
+            <span className="font-bold text-navy-deepest">
+              {ditolakCount} titik
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Footer Constraint Badge */}

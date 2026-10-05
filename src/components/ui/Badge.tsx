@@ -2,7 +2,7 @@ import React from 'react';
 import { cn } from '@/lib/utils';
 import { type ReportStatus, type Severity } from '@/types/domain';
 
-export type StatusType = ReportStatus | 'menunggu' | 'proses' | 'selesai';
+export type StatusType = ReportStatus | 'menunggu' | 'proses' | 'selesai' | 'ditolak';
 export type SeverityType = Severity | 'ringan' | 'sedang' | 'berat';
 
 export interface StatusBadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
@@ -38,6 +38,12 @@ const statusConfig: Record<
     bg: 'bg-status-selesai/15',
     text: 'text-status-selesai',
     dot: 'bg-status-selesai',
+  },
+  ditolak: {
+    label: 'DITOLAK',
+    bg: 'bg-severity-berat/15',
+    text: 'text-severity-berat',
+    dot: 'bg-severity-berat',
   },
 };
 

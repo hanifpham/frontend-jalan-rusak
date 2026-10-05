@@ -43,6 +43,19 @@ function StatusPill({ status }: { status: ReportStatus }): React.JSX.Element {
           <span>Proses</span>
         </span>
       );
+    case "ditolak":
+      return (
+        <span
+          className="inline-flex items-center gap-1.5 bg-red-500/15 text-severity-berat border border-red-500/30 px-3.5 py-1.5 rounded-full text-[12px] font-bold select-none"
+          title="Status: Ditolak"
+        >
+          <span
+            className="w-2 h-2 rounded-full bg-severity-berat"
+            aria-hidden="true"
+          />
+          <span>Ditolak</span>
+        </span>
+      );
     case "menunggu":
     default:
       return (

@@ -30,6 +30,7 @@ export interface ReportFiltersProps {
   sortBy: SortFilterValue;
   onSortByChange: (sortBy: SortFilterValue) => void;
   onReset: () => void;
+  searchPlaceholder?: string;
 }
 
 export function ReportFilters({
@@ -44,6 +45,7 @@ export function ReportFilters({
   sortBy,
   onSortByChange,
   onReset,
+  searchPlaceholder,
 }: ReportFiltersProps): React.JSX.Element {
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [exportModalOpen, setExportModalOpen] = useState(false);
@@ -115,7 +117,9 @@ export function ReportFilters({
             type="text"
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
-            placeholder="Cari berdasarkan judul laporan..."
+            placeholder={
+              searchPlaceholder || "Cari judul, deskripsi, atau pelapor..."
+            }
             className="w-full bg-white dark:bg-[#0D1A2D] border border-blue-pale/50 dark:border-white/10 rounded-full pl-10 pr-4 py-2.5 text-[13px] text-navy-deepest placeholder:text-muted/70 dark:placeholder:text-[#8FA4BA]/60 focus:outline-none focus:border-navy-primary focus:ring-1 focus:ring-navy-primary shadow-xs transition-all duration-200"
           />
         </div>

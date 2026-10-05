@@ -10,6 +10,53 @@ export interface ReportDetailHeaderProps {
   status: ReportStatus;
   severity?: Severity;
   priorityScore?: number;
+  backPath?: string;
+  subtitle?: string;
+  roadAuthority?: string;
+}
+
+/**
+ * Authority badge pill matching Stitch design tokens
+ */
+function AuthorityPill({ authority }: { authority?: string }): React.JSX.Element {
+  let label = "Tidak Teridentifikasi";
+  let color =
+    "bg-gray-100 dark:bg-white/10 text-muted dark:text-[#8FA4BA] border-gray-200 dark:border-white/10";
+
+  switch ((authority || "").toLowerCase()) {
+    case "kabupaten":
+      label = "Jalan Kabupaten";
+      color =
+        "bg-blue-pale/50 dark:bg-[#5483B3]/25 text-navy-deepest dark:text-blue-pale border-blue-supporting/40 dark:border-[#5483B3]/40";
+      break;
+    case "desa":
+      label = "Jalan Desa";
+      color =
+        "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30";
+      break;
+    case "provinsi":
+      label = "Jalan Provinsi";
+      color =
+        "bg-purple-500/15 text-purple-700 dark:text-purple-300 border-purple-500/30";
+      break;
+    case "nasional":
+      label = "Jalan Nasional";
+      color =
+        "bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30";
+      break;
+  }
+
+  return (
+    <span
+      className={cn(
+        "inline-flex items-center px-3 py-1.5 rounded-full text-[12px] font-bold border shadow-xs select-none",
+        color,
+      )}
+      title={`Kewenangan: ${label}`}
+    >
+      {label}
+    </span>
+  );
 }
 
 /**
@@ -183,6 +230,9 @@ export function ReportDetailHeader({
   status,
   severity,
   priorityScore,
+  backPath = "/pemdes/laporan",
+  subtitle,
+  roadAuthority,
 }: ReportDetailHeaderProps): React.JSX.Element {
   const displayVillage = villageName
     ? `Desa ${villageName.replace(/^Desa\s+/i, "")}`
@@ -190,12 +240,12 @@ export function ReportDetailHeader({
 
   return (
     <div className="flex flex-col gap-4">
-      {/* First Row: Navigation + ID + Wilayah (Left) & Status + Severity + Priority (Right) */}
+      {/* First Row: Navigation + ID + Wilayah + Authority (Left) & Status + Severity + Priority (Right) */}
       <div className="flex items-center justify-between flex-wrap gap-3">
-        {/* Left: Back button, ID badge, and Wilayah chip */}
+        {/* Left: Back button, ID badge, Wilayah chip, and Authority badge */}
         <div className="flex items-center gap-3 flex-wrap">
           <Link
-            to="/pemdes/laporan"
+            to={backPath}
             className="inline-flex items-center gap-2 bg-white dark:bg-[#0D1A2D] hover:bg-canvas dark:hover:bg-white/5 border border-blue-pale/40 dark:border-[rgba(193,232,255,0.12)] hover:border-blue-pale/70 px-4 py-2 rounded-full text-[13px] font-semibold text-navy-deepest shadow-xs transition-colors select-none group"
             title="Kembali ke Daftar Laporan"
           >
@@ -220,6 +270,8 @@ export function ReportDetailHeader({
             />
             <span>{displayVillage}</span>
           </div>
+
+          {roadAuthority && <AuthorityPill authority={roadAuthority} />}
         </div>
 
         {/* Right: Status, Severity, and Priority Indicators */}
@@ -236,8 +288,8 @@ export function ReportDetailHeader({
           Detail Laporan Kerusakan Jalan
         </h1>
         <p className="text-[14px] text-muted dark:text-[#AFC0D4]">
-          Data pengamatan citra AI, koordinat spasial, verifikasi pelapor, dan
-          kontrol penanganan Pemdes.
+          {subtitle ||
+            "Data pengamatan citra AI, koordinat spasial, verifikasi pelapor, dan kontrol penanganan Pemdes."}
         </p>
       </div>
     </div>

@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useSettings } from '@/hooks/useSettings';
 import { useAdminLaporan } from '@/features/admin-pemdes/api/useAdminPemdesData';
 import { ReportPageHeader } from '@/features/admin-pemdes/components/reports/ReportPageHeader';
@@ -16,61 +16,59 @@ import { ReportPagination } from '@/features/admin-pemdes/components/reports/Rep
 export function AdminPUReportsPage(): React.JSX.Element {
   const { data: settings } = useSettings();
 
-  // Filter and pagination states
+  // Backend pagination states (standard pageSize = 10)
+  const [page, setPage] = useState(1);
+  const pageSize = 10;
+
+  // Filter states
   const [search, setSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [status, setStatus] = useState<StatusFilterValue>('all');
   const [severity, setSeverity] = useState<SeverityFilterValue>('all');
-  const [dateFilter, setDateFilter] = useState<DateFilterValue>('this_month');
+  const [dateFilter, setDateFilter] = useState<DateFilterValue>('all');
   const [sortBy, setSortBy] = useState<SortFilterValue>('newest');
-  const [page, setPage] = useState(1);
-  const pageSize = 5;
 
-  // Query live backend endpoint: GET /api/admin/laporan with jenis_jalan=kabupaten
+  // Debounce search query by 300ms before sending to backend API
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search);
+      setPage(1);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [search]);
+
+  // Query live backend endpoint with true server-side pagination & filtering:
+  // GET /api/admin/laporan?page={page}&limit={pageSize}&status={status}&search={debouncedSearch}&jenis_jalan=kabupaten
   const {
     data: laporanData,
     isLoading,
     error,
     refetch,
   } = useAdminLaporan({
-    limit: 100,
+    page,
+    limit: pageSize,
+    status: status !== 'all' ? status : undefined,
+    search: debouncedSearch.trim() || undefined,
     jenis_jalan: 'kabupaten',
   });
 
-  // Business rule: Admin PU list only views jenis_jalan = "kabupaten"
+  // Business rule & defensive verification: Admin PU list only views jenis_jalan = "kabupaten"
   const rawReports = useMemo(() => {
     return (laporanData?.reports || []).filter(
       (r) => (r.roadAuthority || '').toLowerCase() === 'kabupaten'
     );
   }, [laporanData?.reports]);
 
-  // Client-side filtering & sorting on verified kabupaten dataset
-  const filteredReports = useMemo(() => {
+  // Client-side handling for attributes not in backend SQL query (severity, date range, client sort reversal)
+  const displayedReports = useMemo(() => {
     let list = [...rawReports];
 
-    // 1. Search keyword filtering
-    if (search.trim()) {
-      const q = search.trim().toLowerCase();
-      list = list.filter((r) => {
-        const titleMatch = r.title ? r.title.toLowerCase().includes(q) : false;
-        const descMatch = r.description ? r.description.toLowerCase().includes(q) : false;
-        const reporterMatch = r.reporterName ? r.reporterName.toLowerCase().includes(q) : false;
-        const roadMatch = r.roadName ? r.roadName.toLowerCase().includes(q) : false;
-        const damageMatch = r.damageType ? r.damageType.toLowerCase().includes(q) : false;
-        return titleMatch || descMatch || reporterMatch || roadMatch || damageMatch;
-      });
-    }
-
-    // 2. Status filtering
-    if (status !== 'all') {
-      list = list.filter((r) => (r.status || '').toLowerCase() === status.toLowerCase());
-    }
-
-    // 3. Severity filtering
+    // Client-side severity filtering (backend does not have a severity column in DB)
     if (severity !== 'all') {
       list = list.filter((r) => (r.severity || 'sedang').toLowerCase() === severity.toLowerCase());
     }
 
-    // 4. Date filtering
+    // Client-side date filtering if specified
     if (dateFilter !== 'all') {
       const now = new Date();
       list = list.filter((r) => {
@@ -111,27 +109,13 @@ export function AdminPUReportsPage(): React.JSX.Element {
       });
     }
 
-    // 5. Sorting
-    list.sort((a, b) => {
-      const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
-      const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
-      if (sortBy === 'oldest') {
-        if (dateA !== dateB) return dateA - dateB;
-        return (a.id ?? 0) - (b.id ?? 0);
-      }
-      // 'newest' default
-      if (dateB !== dateA) return dateB - dateA;
-      return (b.id ?? 0) - (a.id ?? 0);
-    });
+    // Sort: Backend already returns created_at DESC (newest). If oldest is requested, invert order.
+    if (sortBy === 'oldest') {
+      list.reverse();
+    }
 
     return list;
-  }, [rawReports, search, status, severity, dateFilter, sortBy]);
-
-  // Paginated records for table display
-  const displayedReports = useMemo(() => {
-    const start = (page - 1) * pageSize;
-    return filteredReports.slice(start, start + pageSize);
-  }, [filteredReports, page, pageSize]);
+  }, [rawReports, severity, dateFilter, sortBy]);
 
   // Handlers with page reset
   const handleSearchChange = (val: string) => {
@@ -156,19 +140,21 @@ export function AdminPUReportsPage(): React.JSX.Element {
 
   const handleSortByChange = (val: SortFilterValue) => {
     setSortBy(val);
+    setPage(1);
   };
 
   const handleResetFilters = () => {
     setSearch('');
+    setDebouncedSearch('');
     setStatus('all');
     setSeverity('all');
-    setDateFilter('this_month');
+    setDateFilter('all');
     setSortBy('newest');
     setPage(1);
   };
 
-  const totalFilteredReports = filteredReports.length;
-  const totalRawReports = rawReports.length;
+  const totalReports = laporanData?.total ?? 0;
+  const isFiltered = (status !== 'all' || debouncedSearch.trim() !== '' || severity !== 'all' || dateFilter !== 'all') && (totalReports === 0 || displayedReports.length === 0);
 
   return (
     <div className="flex flex-col gap-6 max-w-full">
@@ -178,11 +164,11 @@ export function AdminPUReportsPage(): React.JSX.Element {
         subtitle="Pusat inventarisasi dan disposisi laporan kerusakan jalan kewenangan Kabupaten Indramayu."
       />
 
-      {/* 2. Scope Chips (Lokasi, Wewenang & Counter) */}
+      {/* 2. Scope Chips (Lokasi, Wewenang & Counter from Backend Total) */}
       <ReportScopeChips
         locationLabel="Kabupaten Indramayu"
         scopeLabel="Jalan Kabupaten"
-        totalReports={totalFilteredReports}
+        totalReports={totalReports}
         isLoading={isLoading}
       />
 
@@ -190,6 +176,7 @@ export function AdminPUReportsPage(): React.JSX.Element {
       <ReportFilters
         search={search}
         onSearchChange={handleSearchChange}
+        searchPlaceholder="Cari judul, deskripsi, atau pelapor..."
         status={status}
         onStatusChange={handleStatusChange}
         severity={severity}
@@ -211,14 +198,14 @@ export function AdminPUReportsPage(): React.JSX.Element {
           scopeLabel="Jalan Kabupaten"
           detailPathPrefix="/pu/laporan"
           density={settings?.preferences?.report_display_preference}
-          isFiltered={totalRawReports > 0 && totalFilteredReports === 0}
+          isFiltered={isFiltered}
           onResetFilters={handleResetFilters}
         />
 
-        {/* Table Footer with Summary & Dynamic Pagination */}
+        {/* Table Footer with True Backend Pagination */}
         <ReportPagination
           currentPage={page}
-          totalItems={totalFilteredReports}
+          totalItems={totalReports}
           pageSize={pageSize}
           onPageChange={setPage}
         />

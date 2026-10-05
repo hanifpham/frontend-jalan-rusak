@@ -63,80 +63,82 @@ export function ReportPagination({
         )}
       </div>
 
-      {/* Right: Pagination Controls */}
-      <div
-        className="flex items-center gap-1.5"
-        aria-label="Navigasi Halaman Laporan"
-      >
-        {/* Previous Button */}
-        <button
-          type="button"
-          onClick={() => onPageChange(currentPage - 1)}
-          disabled={currentPage <= 1}
-          className={cn(
-            "w-8 h-8 rounded-full flex items-center justify-center border border-blue-pale/50 dark:border-white/10 text-muted dark:text-[#AFC0D4] transition-colors",
-            currentPage <= 1
-              ? "opacity-40 cursor-not-allowed"
-              : "hover:bg-canvas dark:hover:bg-white/5 hover:text-navy-deepest cursor-pointer",
-          )}
-          title="Halaman Sebelumnya"
-          aria-label="Halaman Sebelumnya"
+      {/* Right: Pagination Controls (Only displayed when more than 1 page exists) */}
+      {totalPages > 1 && (
+        <div
+          className="flex items-center gap-1.5"
+          aria-label="Navigasi Halaman Laporan"
         >
-          <ChevronLeft className="w-4 h-4" aria-hidden="true" />
-        </button>
+          {/* Previous Button */}
+          <button
+            type="button"
+            onClick={() => onPageChange(currentPage - 1)}
+            disabled={currentPage <= 1}
+            className={cn(
+              "w-8 h-8 rounded-full flex items-center justify-center border border-blue-pale/50 dark:border-white/10 text-muted dark:text-[#AFC0D4] transition-colors",
+              currentPage <= 1
+                ? "opacity-40 cursor-not-allowed"
+                : "hover:bg-canvas dark:hover:bg-white/5 hover:text-navy-deepest cursor-pointer",
+            )}
+            title="Halaman Sebelumnya"
+            aria-label="Halaman Sebelumnya"
+          >
+            <ChevronLeft className="w-4 h-4" aria-hidden="true" />
+          </button>
 
-        {/* Page Buttons */}
-        {pages.map((p, idx) => {
-          if (p === "...") {
+          {/* Page Buttons */}
+          {pages.map((p, idx) => {
+            if (p === "...") {
+              return (
+                <span
+                  key={`ellipsis-${idx}`}
+                  className="px-1 text-muted dark:text-[#8FA4BA] text-xs"
+                >
+                  ...
+                </span>
+              );
+            }
+
+            const pageNumber = p as number;
+            const isActive = pageNumber === currentPage;
+
             return (
-              <span
-                key={`ellipsis-${idx}`}
-                className="px-1 text-muted dark:text-[#8FA4BA] text-xs"
+              <button
+                key={pageNumber}
+                type="button"
+                onClick={() => onPageChange(pageNumber)}
+                className={cn(
+                  "w-8 h-8 rounded-full flex items-center justify-center text-[12px] transition-colors cursor-pointer",
+                  isActive
+                    ? "bg-navy-primary text-white font-bold shadow-xs dark:bg-[#001234] dark:border dark:border-white/20"
+                    : "border border-blue-pale/50 dark:border-white/10 hover:bg-canvas dark:hover:bg-white/5 text-muted dark:text-[#AFC0D4] font-medium",
+                )}
+                aria-current={isActive ? "page" : undefined}
+                aria-label={`Halaman ${pageNumber}`}
               >
-                ...
-              </span>
+                {pageNumber}
+              </button>
             );
-          }
+          })}
 
-          const pageNumber = p as number;
-          const isActive = pageNumber === currentPage;
-
-          return (
-            <button
-              key={pageNumber}
-              type="button"
-              onClick={() => onPageChange(pageNumber)}
-              className={cn(
-                "w-8 h-8 rounded-full flex items-center justify-center text-[12px] transition-colors cursor-pointer",
-                isActive
-                  ? "bg-navy-primary text-white font-bold shadow-xs dark:bg-[#001234] dark:border dark:border-white/20"
-                  : "border border-blue-pale/50 dark:border-white/10 hover:bg-canvas dark:hover:bg-white/5 text-muted dark:text-[#AFC0D4] font-medium",
-              )}
-              aria-current={isActive ? "page" : undefined}
-              aria-label={`Halaman ${pageNumber}`}
-            >
-              {pageNumber}
-            </button>
-          );
-        })}
-
-        {/* Next Button */}
-        <button
-          type="button"
-          onClick={() => onPageChange(currentPage + 1)}
-          disabled={currentPage >= totalPages}
-          className={cn(
-            "w-8 h-8 rounded-full flex items-center justify-center border border-blue-pale/50 dark:border-white/10 text-muted dark:text-[#AFC0D4] transition-colors",
-            currentPage >= totalPages
-              ? "opacity-40 cursor-not-allowed"
-              : "hover:bg-canvas dark:hover:bg-white/5 hover:text-navy-deepest cursor-pointer",
-          )}
-          title="Halaman Berikutnya"
-          aria-label="Halaman Berikutnya"
-        >
-          <ChevronRight className="w-4 h-4" aria-hidden="true" />
-        </button>
-      </div>
+          {/* Next Button */}
+          <button
+            type="button"
+            onClick={() => onPageChange(currentPage + 1)}
+            disabled={currentPage >= totalPages}
+            className={cn(
+              "w-8 h-8 rounded-full flex items-center justify-center border border-blue-pale/50 dark:border-white/10 text-muted dark:text-[#AFC0D4] transition-colors",
+              currentPage >= totalPages
+                ? "opacity-40 cursor-not-allowed"
+                : "hover:bg-canvas dark:hover:bg-white/5 hover:text-navy-deepest cursor-pointer",
+            )}
+            title="Halaman Berikutnya"
+            aria-label="Halaman Berikutnya"
+          >
+            <ChevronRight className="w-4 h-4" aria-hidden="true" />
+          </button>
+        </div>
+      )}
     </div>
   );
 }

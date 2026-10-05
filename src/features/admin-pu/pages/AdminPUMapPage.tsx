@@ -1,69 +1,126 @@
-import React from 'react';
-import { Map, Layers, Navigation } from 'lucide-react';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/Card';
-import { useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/Button';
+import React, { useState, useMemo } from 'react';
+import { useSettings } from '@/hooks/useSettings';
+import { useAdminMapReports } from '@/features/admin-pemdes/api/useAdminPemdesData';
+import { MapHeader } from '@/features/admin-pemdes/components/map/MapHeader';
+import { MapScopeChips } from '@/features/admin-pemdes/components/map/MapScopeChips';
+import {
+  MapFilters,
+  type MapStatusFilter,
+  type MapSortFilter,
+} from '@/features/admin-pemdes/components/map/MapFilters';
+import { MapView } from '@/features/admin-pemdes/components/map/MapView';
 
+/**
+ * AdminPUMapPage
+ * Renders the GIS Leaflet Map specifically for Admin PU.
+ * Business Rule: Admin PU on Map only views reports with jenis_jalan = "kabupaten".
+ * Detail button inside popups strictly routes to /pu/laporan/:id.
+ */
 export function AdminPUMapPage(): React.JSX.Element {
-  const navigate = useNavigate();
+  const { data: settings } = useSettings();
+
+  // Filter states
+  const [search, setSearch] = useState('');
+  const [status, setStatus] = useState<MapStatusFilter>('all');
+  const [sortBy, setSortBy] = useState<MapSortFilter>('default');
+
+  // React Query hook for verified GET /api/admin/map/laporan
+  const { data: mapData, isLoading, error, refetch } = useAdminMapReports();
+
+  // Business rule & defensive verification: Admin PU list strictly limits to jenis_jalan = "kabupaten"
+  const rawKabupatenReports = useMemo(() => {
+    return (mapData?.reports || []).filter(
+      (r) => (r.jenisJalan || '').toLowerCase() === 'kabupaten'
+    );
+  }, [mapData?.reports]);
+
+  // Client-side filtering & sorting on kabupaten reports
+  const displayedReports = useMemo(() => {
+    let list = [...rawKabupatenReports];
+
+    // 1. Search filter by title
+    if (search.trim()) {
+      const query = search.trim().toLowerCase();
+      list = list.filter((r) => r.judul.toLowerCase().includes(query));
+    }
+
+    // 2. Status filter
+    if (status !== 'all') {
+      list = list.filter((r) => r.status === status);
+    }
+
+    // 3. Sorting
+    if (sortBy === 'title_asc') {
+      list.sort((a, b) => a.judul.localeCompare(b.judul));
+    } else if (sortBy === 'title_desc') {
+      list.sort((a, b) => b.judul.localeCompare(a.judul));
+    } else if (sortBy === 'status') {
+      list.sort((a, b) => a.status.localeCompare(b.status));
+    }
+
+    return list;
+  }, [rawKabupatenReports, search, status, sortBy]);
+
+  // Coordinate validation: ensure only valid, non-zero coordinates are rendered
+  const validReports = useMemo(() => {
+    return displayedReports.filter(
+      (r) =>
+        typeof r.latitude === 'number' &&
+        typeof r.longitude === 'number' &&
+        !isNaN(r.latitude) &&
+        !isNaN(r.longitude) &&
+        !(r.latitude === 0 && r.longitude === 0)
+    );
+  }, [displayedReports]);
+
+  const handleResetFilters = () => {
+    setSearch('');
+    setStatus('all');
+    setSortBy('default');
+  };
+
+  const totalReportsCount = rawKabupatenReports.length;
 
   return (
-    <div className="flex flex-col gap-6">
-      {/* Header Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6 rounded-3xl bg-white dark:bg-[#0D1A2D] border border-blue-pale/40 dark:border-white/10 shadow-xs">
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-navy-primary/10 dark:bg-blue-medium/20 text-navy-primary dark:text-blue-pale flex items-center justify-center shrink-0">
-            <Map className="w-6 h-6" aria-hidden="true" />
-          </div>
-          <div>
-            <h1 className="text-xl font-bold text-navy-deepest dark:text-white">
-              Peta Sebaran Kerusakan Jalan Kabupaten Indramayu
-            </h1>
-            <p className="text-xs text-muted dark:text-[#AFC0D4] mt-0.5">
-              Pemantauan geospasial titik kerusakan jalan, clustering wilayah, dan status penanganan tingkat kabupaten.
-            </p>
-          </div>
-        </div>
-      </div>
+    <div className="flex flex-col gap-6 max-w-full">
+      {/* 1. Header & Subtitle */}
+      <MapHeader
+        title="Peta Laporan Jalan Kabupaten"
+        subtitle="Pantau sebaran spasial titik laporan kerusakan jalan kewenangan Kabupaten Indramayu."
+      />
 
-      <Card>
-        <CardHeader>
-          <div className="flex items-center gap-2.5 mb-1">
-            <span className="p-2 rounded-xl bg-blue-pale/40 dark:bg-white/10 text-navy-primary dark:text-blue-pale">
-              <Layers className="w-5 h-5" aria-hidden="true" />
-            </span>
-            <CardTitle className="text-lg text-navy-deepest dark:text-white">
-              Fondasi Peta Geospasial GIS Dinas PU
-            </CardTitle>
-          </div>
-          <CardDescription>
-            Rute `/pu/peta` siap digunakan. Integrasi peta Leaflet tingkat kabupaten akan diimplementasikan pada fase peta PU.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="h-64 rounded-2xl bg-canvas dark:bg-[#07111F] border border-dashed border-blue-pale/80 dark:border-white/20 flex flex-col items-center justify-center text-center p-6 space-y-2">
-            <div className="w-10 h-10 rounded-full bg-blue-pale/40 dark:bg-white/10 text-navy-primary dark:text-blue-pale flex items-center justify-center">
-              <Navigation className="w-5 h-5" aria-hidden="true" />
-            </div>
-            <p className="text-xs font-bold text-navy-deepest dark:text-white">
-              Area Peta GIS Kabupaten Indramayu
-            </p>
-            <p className="text-[11px] text-muted dark:text-[#AFC0D4] max-w-sm">
-              Rendering peta Leaflet dan layer jalan kabupaten akan aktif pada fase peta Admin PU.
-            </p>
-          </div>
+      {/* 2. Scope Chips (Lokasi, Wewenang & Counter) */}
+      <MapScopeChips
+        locationLabel="Kabupaten Indramayu"
+        scopeLabel="Jalan Kabupaten"
+        totalReports={totalReportsCount}
+        isLoading={isLoading}
+      />
 
-          <div className="pt-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => navigate('/pu/beranda')}
-            >
-              Kembali ke Beranda
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+      {/* 3. Toolbar & Filters (Search, Status, Severity, Date, Sort, Reset, Export) */}
+      <MapFilters
+        search={search}
+        onSearchChange={setSearch}
+        status={status}
+        onStatusChange={setStatus}
+        sortBy={sortBy}
+        onSortByChange={setSortBy}
+        onReset={handleResetFilters}
+      />
+
+      {/* 4. Main Map Card with Real GIS Coordinates */}
+      <MapView
+        reports={validReports}
+        isLoading={isLoading}
+        error={error instanceof Error ? error.message : null}
+        onRetry={refetch}
+        defaultCenter={[-6.37, 108.28]}
+        defaultZoom={11}
+        mapDefaultView={settings?.preferences?.map_default_view}
+        showLabels={settings?.preferences?.map_show_labels}
+        scopeLabel="100% Kewenangan Jalan Kabupaten"
+        detailPathPrefix="/pu/laporan"
+      />
     </div>
   );
 }

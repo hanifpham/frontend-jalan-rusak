@@ -64,6 +64,21 @@ function StatusPill({ status }: { status: string }): React.JSX.Element {
   }
 }
 
+function formatRoadAuthority(authority?: string): string {
+  switch ((authority || "").toLowerCase()) {
+    case "kabupaten":
+      return "Jalan Kabupaten";
+    case "desa":
+      return "Jalan Desa";
+    case "provinsi":
+      return "Jalan Provinsi";
+    case "nasional":
+      return "Jalan Nasional";
+    default:
+      return "Tidak Teridentifikasi";
+  }
+}
+
 export function ReportInformationCard({
   report,
 }: ReportInformationCardProps): React.JSX.Element {
@@ -155,9 +170,7 @@ export function ReportInformationCard({
             Kewenangan
           </span>
           <span className="font-semibold text-navy-deepest">
-            {report.roadAuthority === "desa"
-              ? "Jalan Desa"
-              : report.roadAuthority || "Jalan Desa"}
+            {formatRoadAuthority(report.roadAuthority)}
           </span>
         </div>
 
@@ -215,6 +228,35 @@ export function ReportInformationCard({
           </span>
         </div>
       </div>
+
+      {/* Catatan Admin / Alasan Penolakan (khususnya status ditolak) */}
+      {report.handlingNote && (
+        <div className="flex flex-col gap-1.5 p-3.5 rounded-xl border border-blue-pale/40 dark:border-white/10 bg-canvas/60 dark:bg-[#12233A] mt-2">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-muted dark:text-[#8FA4BA]">
+            {report.status.toLowerCase() === "ditolak"
+              ? "Alasan Penolakan"
+              : "Catatan Admin"}
+          </span>
+          <p className="text-[13px] text-navy-deepest dark:text-[#AFC0D4] leading-relaxed">
+            {report.handlingNote}
+          </p>
+        </div>
+      )}
+
+      {/* Foto Bukti Penanganan (terutama relevan untuk status selesai) */}
+      {report.repairEvidenceUrl && (
+        <div className="flex flex-col gap-2 p-3.5 rounded-xl border border-blue-pale/40 dark:border-white/10 bg-canvas/60 dark:bg-[#12233A] mt-2">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-muted dark:text-[#8FA4BA]">
+            Foto Bukti Penanganan
+          </span>
+          <img
+            src={report.repairEvidenceUrl}
+            alt="Bukti penanganan jalan"
+            className="w-full max-h-56 object-cover rounded-lg border border-blue-pale/30 dark:border-white/10 shadow-xs"
+            loading="lazy"
+          />
+        </div>
+      )}
     </div>
   );
 }

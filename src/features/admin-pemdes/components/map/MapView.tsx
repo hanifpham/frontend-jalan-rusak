@@ -21,6 +21,8 @@ export interface MapViewProps {
   defaultZoom?: number;
   mapDefaultView?: "standard" | "satellite";
   showLabels?: boolean;
+  detailPathPrefix?: string;
+  scopeLabel?: string;
 }
 
 const DEFAULT_COORDS: [number, number] = [-6.415, 108.283]; // Lobener Lor coordinates
@@ -44,6 +46,8 @@ export function MapView({
   defaultZoom = DEFAULT_ZOOM,
   mapDefaultView = "standard",
   showLabels = true,
+  detailPathPrefix = "/pemdes/laporan",
+  scopeLabel = "100% Kewenangan Jalan Desa",
 }: MapViewProps): React.JSX.Element {
   const navigate = useNavigate();
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
@@ -150,7 +154,8 @@ export function MapView({
         typeof report.latitude !== "number" ||
         typeof report.longitude !== "number" ||
         isNaN(report.latitude) ||
-        isNaN(report.longitude)
+        isNaN(report.longitude) ||
+        (report.latitude === 0 && report.longitude === 0)
       ) {
         return;
       }
@@ -233,11 +238,11 @@ export function MapView({
           <img src="${escapeHtml(actualImg)}" alt="${escapedTitle}" class="w-full h-full object-cover" onerror="this.src='${fallbackImg}'; this.onerror=null;" />
         </div>
         <div class="flex flex-col gap-2">
-          <div class="font-bold text-navy-deepest text-[13px] leading-snug line-clamp-2" title="${escapedTitle}">
+          <div class="font-bold text-navy-deepest dark:text-white text-[13px] leading-snug line-clamp-2" title="${escapedTitle}">
             ${escapedTitle}
           </div>
           <div class="flex items-center justify-between text-[11px]">
-            <span class="text-muted dark:text-[#8FA4BA] font-medium">Jenis: <b class="text-navy-deepest">${escapedTipe}</b></span>
+            <span class="text-muted dark:text-[#8FA4BA] font-medium">Jenis: <b class="text-navy-deepest dark:text-white">${escapedTipe}</b></span>
             <span class="inline-flex items-center gap-1 bg-canvas dark:bg-[#07111F] border border-blue-pale/40 dark:border-white/10 px-2 py-0.5 rounded-full font-semibold text-navy-primary dark:text-blue-pale capitalize">
               Jalan ${escapedJalan}
             </span>
@@ -262,7 +267,7 @@ export function MapView({
       if (ctaBtn) {
         ctaBtn.onclick = (e) => {
           e.preventDefault();
-          navigate(`/pemdes/laporan/${report.id}`);
+          navigate(`${detailPathPrefix}/${report.id}`);
         };
       }
 
@@ -288,7 +293,7 @@ export function MapView({
       const bounds = L.latLngBounds(latLngs);
       map.fitBounds(bounds, { padding: [50, 50], maxZoom: 16 });
     }
-  }, [reports, defaultZoom, navigate, showLabels]);
+  }, [reports, defaultZoom, navigate, showLabels, detailPathPrefix]);
 
   // Map Controls Handlers
   const handleZoomIn = () => {
@@ -389,6 +394,7 @@ export function MapView({
         prosesCount={prosesCount}
         selesaiCount={selesaiCount}
         ditolakCount={ditolakCount}
+        scopeLabel={scopeLabel}
       />
 
       {/* 4. Loading Overlay State */}

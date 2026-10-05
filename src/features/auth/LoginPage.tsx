@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { z } from 'zod';
 import { ShieldCheck, AlertCircle, LogIn } from 'lucide-react';
@@ -6,6 +6,7 @@ import { apiClient } from '@/services/api/client';
 import { isApiError } from '@/services/api/errors';
 import { useAuth } from './useAuth';
 import { type UserSummary, type Role } from '@/types/domain';
+import { getDefaultLandingRoute, isPathAllowedForRole } from '@/lib/permissions';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/Card';
@@ -51,13 +52,20 @@ interface BackendLoginPayload {
 export function LoginPage(): React.JSX.Element {
   const navigate = useNavigate();
   const location = useLocation();
-  const { login } = useAuth();
+  const { login, isAuthenticated, role } = useAuth();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [serverError, setServerError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  // If session is already authenticated, redirect directly to role landing page
+  useEffect(() => {
+    if (isAuthenticated && role) {
+      navigate(getDefaultLandingRoute(role), { replace: true });
+    }
+  }, [isAuthenticated, role, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -103,8 +111,17 @@ export function LoginPage(): React.JSX.Element {
 
       login(token, user);
 
-      const from = (location.state as { from?: { pathname: string } })?.from?.pathname || '/';
-      navigate(from, { replace: true });
+      // Determine authoritative landing route based on user role
+      const defaultLanding = getDefaultLandingRoute(user.role);
+      const rawFrom = (location.state as { from?: { pathname: string } })?.from?.pathname;
+
+      // Only redirect to `from` if it exists, is not login/root, and is authorized for the user's role
+      const targetRoute =
+        rawFrom && rawFrom !== '/login' && rawFrom !== '/' && isPathAllowedForRole(rawFrom, user.role)
+          ? rawFrom
+          : defaultLanding;
+
+      navigate(targetRoute, { replace: true });
     } catch (err: unknown) {
       if (isApiError(err)) {
         setServerError(err.message);

@@ -148,3 +148,38 @@ export function getAuthorizedNavigation(role: Role | undefined | null): Navigati
 
   return items;
 }
+
+/**
+ * Resolves the authoritative default landing route based on user role.
+ */
+export function getDefaultLandingRoute(role: Role | undefined | null): string {
+  switch (role) {
+    case 'admin_pu':
+      return '/pu/beranda';
+    case 'admin_pemdes':
+      return '/pemdes/beranda';
+    case 'super_admin':
+      return '/';
+    case 'warga':
+      return '/';
+    default:
+      return '/';
+  }
+}
+
+/**
+ * Checks whether a given path is authorized for the given role.
+ * Used during login redirect to prevent unauthorized redirects (e.g. admin_pu landing on /pemdes/*).
+ */
+export function isPathAllowedForRole(path: string, role: Role | undefined | null): boolean {
+  if (!role) return false;
+  if (role === 'admin_pu') {
+    if (path.startsWith('/pemdes')) return false;
+    return true;
+  }
+  if (role === 'admin_pemdes') {
+    if (path.startsWith('/pu')) return false;
+    return true;
+  }
+  return true;
+}

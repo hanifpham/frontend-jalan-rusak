@@ -6,6 +6,7 @@ export interface MapLegendProps {
   prosesCount: number;
   selesaiCount: number;
   ditolakCount?: number;
+  scopeLabel?: string;
 }
 
 export function MapLegend({
@@ -13,6 +14,7 @@ export function MapLegend({
   prosesCount,
   selesaiCount,
   ditolakCount,
+  scopeLabel = "100% Kewenangan Jalan Desa",
 }: MapLegendProps): React.JSX.Element {
   return (
     <div
@@ -92,7 +94,7 @@ export function MapLegend({
             className="w-3 h-3 text-status-selesai shrink-0"
             aria-hidden="true"
           />
-          <span>100% Kewenangan Jalan Desa</span>
+          <span>{scopeLabel}</span>
         </span>
       </div>
     </div>

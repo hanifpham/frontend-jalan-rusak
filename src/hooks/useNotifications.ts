@@ -64,7 +64,27 @@ export function useMarkNotificationRead() {
       }>(`/notifikasi/${id}/read`);
       return response;
     },
-    onSuccess: () => {
+    onMutate: async (id: number) => {
+      await queryClient.cancelQueries({ queryKey: [NOTIFICATIONS_QUERY_KEY] });
+      queryClient.setQueriesData<NotificationListResult>(
+        { queryKey: [NOTIFICATIONS_QUERY_KEY] },
+        (oldData) => {
+          if (!oldData) return oldData;
+          const target = oldData.items.find((n) => n.id === id);
+          const wasUnread = target && !target.isRead;
+          return {
+            ...oldData,
+            unreadCount: wasUnread
+              ? Math.max(0, oldData.unreadCount - 1)
+              : oldData.unreadCount,
+            items: oldData.items.map((n) =>
+              n.id === id ? { ...n, isRead: true } : n
+            ),
+          };
+        }
+      );
+    },
+    onSettled: () => {
       // Invalidate all notifications queries to synchronize list and unread count
       queryClient.invalidateQueries({ queryKey: [NOTIFICATIONS_QUERY_KEY] });
     },
@@ -85,7 +105,21 @@ export function useMarkAllNotificationsRead() {
       }>('/notifikasi/read-all');
       return response;
     },
-    onSuccess: () => {
+    onMutate: async () => {
+      await queryClient.cancelQueries({ queryKey: [NOTIFICATIONS_QUERY_KEY] });
+      queryClient.setQueriesData<NotificationListResult>(
+        { queryKey: [NOTIFICATIONS_QUERY_KEY] },
+        (oldData) => {
+          if (!oldData) return oldData;
+          return {
+            ...oldData,
+            unreadCount: 0,
+            items: oldData.items.map((n) => ({ ...n, isRead: true })),
+          };
+        }
+      );
+    },
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: [NOTIFICATIONS_QUERY_KEY] });
     },
   });
@@ -105,8 +139,31 @@ export function useDeleteNotification() {
       }>(`/notifikasi/${id}`);
       return response;
     },
-    onSuccess: () => {
+    onMutate: async (id: number) => {
+      await queryClient.cancelQueries({ queryKey: [NOTIFICATIONS_QUERY_KEY] });
+      queryClient.setQueriesData<NotificationListResult>(
+        { queryKey: [NOTIFICATIONS_QUERY_KEY] },
+        (oldData) => {
+          if (!oldData) return oldData;
+          const target = oldData.items.find((n) => n.id === id);
+          const wasUnread = target && !target.isRead;
+          return {
+            ...oldData,
+            unreadCount: wasUnread
+              ? Math.max(0, oldData.unreadCount - 1)
+              : oldData.unreadCount,
+            items: oldData.items.filter((n) => n.id !== id),
+            meta: {
+              ...oldData.meta,
+              total: Math.max(0, oldData.meta.total - 1),
+            },
+          };
+        }
+      );
+    },
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: [NOTIFICATIONS_QUERY_KEY] });
     },
   });
 }
+

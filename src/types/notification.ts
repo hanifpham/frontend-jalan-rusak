@@ -73,3 +73,74 @@ export function normalizeNotification(item: BackendNotificationItem): Notificati
     createdAt: item.CreatedAt ?? item.created_at ?? '',
   };
 }
+
+export type NotificationFilterTab = 'all' | 'unread' | 'laporan' | 'pesan' | 'status';
+
+/**
+ * Determines whether a notification is chat/message related
+ */
+export function isMessageNotification(judul: string, pesan = ''): boolean {
+  const lower = `${judul} ${pesan}`.toLowerCase();
+  return lower.includes('pesan') || lower.includes('chat') || lower.includes('balasan');
+}
+
+/**
+ * Extracts ReportStatus (menunggu, proses, selesai, ditolak) from notification text if present
+ */
+export function extractStatusFromNotification(
+  judul: string,
+  pesan = ''
+): 'menunggu' | 'proses' | 'selesai' | 'ditolak' | null {
+  const lower = `${judul} ${pesan}`.toLowerCase();
+  if (
+    lower.includes('menjadi: selesai') ||
+    lower.includes('status: selesai') ||
+    lower.includes('status selesai')
+  ) {
+    return 'selesai';
+  }
+  if (
+    lower.includes('menjadi: proses') ||
+    lower.includes('status: proses') ||
+    lower.includes('status proses')
+  ) {
+    return 'proses';
+  }
+  if (
+    lower.includes('menjadi: ditolak') ||
+    lower.includes('status: ditolak') ||
+    lower.includes('status ditolak')
+  ) {
+    return 'ditolak';
+  }
+  if (
+    lower.includes('menjadi: menunggu') ||
+    lower.includes('status: menunggu') ||
+    lower.includes('status menunggu')
+  ) {
+    return 'menunggu';
+  }
+  return null;
+}
+
+/**
+ * Categorizes a notification item against the active filter tab
+ */
+export function matchNotificationFilter(
+  item: NotificationItem,
+  filter: NotificationFilterTab
+): boolean {
+  if (filter === 'all') return true;
+  if (filter === 'unread') return !item.isRead;
+  if (filter === 'pesan') return isMessageNotification(item.judul, item.pesan);
+  const lower = `${item.judul} ${item.pesan}`.toLowerCase();
+  if (filter === 'status') return lower.includes('status');
+  if (filter === 'laporan') {
+    return (
+      (lower.includes('laporan') && !lower.includes('status')) ||
+      Boolean(item.laporanId)
+    );
+  }
+  return true;
+}
+

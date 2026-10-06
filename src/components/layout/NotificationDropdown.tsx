@@ -11,10 +11,16 @@ import {
   ChevronRight,
   CheckCheck,
 } from "lucide-react";
-import { type NotificationItem } from "@/types/notification";
+import {
+  type NotificationItem,
+  isMessageNotification,
+  extractStatusFromNotification,
+} from "@/types/notification";
 import { formatRelativeTime } from "@/lib/date";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/features/auth/useAuth";
+import { AuthorityBadge } from "@/components/ui/AuthorityBadge";
+import { StatusBadge } from "@/components/ui/Badge";
 
 export interface NotificationDropdownProps {
   notifications: NotificationItem[];
@@ -31,19 +37,19 @@ export interface NotificationDropdownProps {
 /**
  * Returns appropriate Lucide icon component according to backend notification content
  */
-function getNotificationIcon(judul: string) {
-  const lower = judul.toLowerCase();
-  if (lower.includes("laporan baru")) {
-    return FileText;
+function getNotificationIcon(judul: string, pesan = "") {
+  const lower = `${judul} ${pesan}`.toLowerCase();
+  if (lower.includes("balasan")) {
+    return Reply;
+  }
+  if (isMessageNotification(judul, pesan)) {
+    return MessageSquare;
   }
   if (lower.includes("status")) {
     return RefreshCw;
   }
-  if (lower.includes("balasan")) {
-    return Reply;
-  }
-  if (lower.includes("pesan") || lower.includes("chat")) {
-    return MessageSquare;
+  if (lower.includes("laporan baru") || lower.includes("laporan")) {
+    return FileText;
   }
   return Bell;
 }
@@ -67,16 +73,20 @@ export function NotificationDropdown({
       onMarkRead(item.id);
     }
 
-    // 2. Navigate if report ID is present
-    if (item.laporanId) {
-      onClose();
-      const targetPath =
+    onClose();
+
+    // 2. Role-aware navigation:
+    // When message/chat notification is clicked -> /pu/pesan or /pemdes/pesan
+    if (isMessageNotification(item.judul, item.pesan)) {
+      navigate(role === "admin_pu" ? "/pu/pesan" : "/pemdes/pesan");
+    } else if (item.laporanId) {
+      navigate(
         role === "admin_pu"
           ? `/pu/laporan/${item.laporanId}`
-          : `/pemdes/laporan/${item.laporanId}`;
-      navigate(targetPath);
+          : `/pemdes/laporan/${item.laporanId}`
+      );
     } else {
-      onClose();
+      navigate(role === "admin_pu" ? "/pu/notifikasi" : "/pemdes/notifikasi");
     }
   };
 
@@ -86,6 +96,7 @@ export function NotificationDropdown({
       role === "admin_pu" ? "/pu/notifikasi" : "/pemdes/notifikasi";
     navigate(notifPath);
   };
+
 
   return (
     <div
@@ -174,7 +185,11 @@ export function NotificationDropdown({
             role="menu"
           >
             {notifications.map((item) => {
-              const IconComponent = getNotificationIcon(item.judul);
+              const IconComponent = getNotificationIcon(item.judul, item.pesan);
+              const detectedStatus = extractStatusFromNotification(
+                item.judul,
+                item.pesan
+              );
 
               return (
                 <button
@@ -209,7 +224,7 @@ export function NotificationDropdown({
                         className={cn(
                           "text-xs sm:text-sm truncate",
                           !item.isRead
-                            ? "font-bold text-navy-deepest"
+                            ? "font-bold text-navy-deepest dark:text-white"
                             : "font-medium text-slate-700 dark:text-[#AFC0D4]",
                         )}
                       >
@@ -226,12 +241,40 @@ export function NotificationDropdown({
                     <p className="text-xs text-slate-600 dark:text-[#8FA4BA] line-clamp-2 mt-0.5 leading-relaxed">
                       {item.pesan}
                     </p>
-                    <div className="flex items-center gap-1 text-[11px] text-muted dark:text-[#7F93AA] mt-1.5">
+                    <div className="flex flex-wrap items-center gap-1.5 text-[11px] text-muted dark:text-[#7F93AA] mt-1.5">
                       <Clock
                         className="w-3 h-3 text-muted/70 dark:text-[#7F93AA]/70 shrink-0"
                         aria-hidden="true"
                       />
                       <span>{formatRelativeTime(item.createdAt)}</span>
+                      {item.laporanId && (
+                        <>
+                          <span className="text-slate-300 dark:text-slate-600">
+                            •
+                          </span>
+                          <span className="font-semibold text-navy-primary dark:text-blue-pale">
+                            #{item.laporanId}
+                          </span>
+                        </>
+                      )}
+                      {detectedStatus && (
+                        <>
+                          <span className="text-slate-300 dark:text-slate-600">
+                            •
+                          </span>
+                          <StatusBadge
+                            status={detectedStatus}
+                            className="text-[9px] px-1.5 py-0"
+                          />
+                        </>
+                      )}
+                      <span className="text-slate-300 dark:text-slate-600">
+                        •
+                      </span>
+                      <AuthorityBadge
+                        authority={role === "admin_pu" ? "kabupaten" : "desa"}
+                        size="sm"
+                      />
                     </div>
                   </div>
                 </button>

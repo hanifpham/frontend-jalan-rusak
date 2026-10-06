@@ -15,7 +15,7 @@ import {
   ReportContextBar,
   ChatThread,
   MessageComposer,
-} from "@/features/admin-pemdes/components/messages";
+} from "@/components/messages";
 
 export function AdminPUMessagesPage(): React.JSX.Element {
   const [searchParams, setSearchParams] = useSearchParams();

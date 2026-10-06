@@ -1,5 +1,5 @@
 import React from "react";
-import { type BackendAdminInboxItem } from "../../api/useAdminPemdesData";
+import { type BackendAdminInboxItem } from "@/features/admin-pemdes/api/useAdminPemdesData";
 import { cn } from "@/lib/utils";
 import { formatConversationTime } from "./chatDateUtils";
 

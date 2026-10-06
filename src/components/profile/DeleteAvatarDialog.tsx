@@ -105,3 +105,5 @@ export function DeleteAvatarDialog({
     </div>
   );
 }
+
+export default DeleteAvatarDialog;

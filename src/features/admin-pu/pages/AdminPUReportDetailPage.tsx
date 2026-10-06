@@ -3,13 +3,13 @@ import { useParams, Link } from "react-router-dom";
 import { ArrowLeft, AlertCircle, RefreshCw, Lock, ShieldAlert } from "lucide-react";
 import { isForbiddenError } from "@/services/api/errors";
 import { useAdminReportDetail } from "@/features/admin-pemdes/api/useAdminPemdesData";
-import { ReportDetailHeader } from "@/features/admin-pemdes/components/reports/ReportDetailHeader";
-import { ReportImageCard } from "@/features/admin-pemdes/components/reports/ReportImageCard";
-import { ReportDetectionCard } from "@/features/admin-pemdes/components/reports/ReportDetectionCard";
-import { ReportLocationCard } from "@/features/admin-pemdes/components/reports/ReportLocationCard";
-import { ReportInformationCard } from "@/features/admin-pemdes/components/reports/ReportInformationCard";
-import { ReportStatusUpdateCard } from "@/features/admin-pemdes/components/reports/ReportStatusUpdateCard";
-import { ReportChatCard } from "@/features/admin-pemdes/components/reports/ReportChatCard";
+import { ReportDetailHeader } from "@/components/reports/ReportDetailHeader";
+import { ReportImageCard } from "@/components/reports/ReportImageCard";
+import { ReportDetectionCard } from "@/components/reports/ReportDetectionCard";
+import { ReportLocationCard } from "@/components/reports/ReportLocationCard";
+import { ReportInformationCard } from "@/components/reports/ReportInformationCard";
+import { ReportStatusUpdateCard } from "@/components/reports/ReportStatusUpdateCard";
+import { ReportChatCard } from "@/components/reports/ReportChatCard";
 
 function formatRoadAuthorityLabel(authority?: string): string {
   switch ((authority || "").toLowerCase()) {

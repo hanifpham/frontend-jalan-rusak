@@ -1,8 +1,8 @@
 import React, { useState, useMemo } from 'react';
 import { useSettings } from '@/hooks/useSettings';
 import { useAdminMapReports } from '@/features/admin-pemdes/api/useAdminPemdesData';
-import { MapHeader } from '@/features/admin-pemdes/components/map/MapHeader';
-import { MapScopeChips } from '@/features/admin-pemdes/components/map/MapScopeChips';
+import { MapHeader } from '@/components/map/MapHeader';
+import { ReportScopeChips } from '@/components/reports/ReportScopeChips';
 import {
   MapFilters,
   type MapStatusFilter,
@@ -10,8 +10,8 @@ import {
   type MapSeverityFilter,
   type MapDateFilter,
   type MapSortFilter,
-} from '@/features/admin-pemdes/components/map/MapFilters';
-import { MapView } from '@/features/admin-pemdes/components/map/MapView';
+} from '@/components/map/MapFilters';
+import { MapView } from '@/components/map/MapView';
 
 /**
  * AdminPUMapPage
@@ -147,7 +147,7 @@ export function AdminPUMapPage(): React.JSX.Element {
       />
 
       {/* 2. Scope Chips (Lokasi, Wewenang & Counter) */}
-      <MapScopeChips
+      <ReportScopeChips
         locationLabel="Kabupaten Indramayu"
         scopeLabel={scopeLabelDisplay}
         totalReports={totalReportsCount}

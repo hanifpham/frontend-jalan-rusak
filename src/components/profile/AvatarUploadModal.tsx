@@ -251,3 +251,5 @@ export function AvatarUploadModal({
     </div>
   );
 }
+
+export default AvatarUploadModal;

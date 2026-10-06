@@ -12,7 +12,7 @@ import {
   Building2,
 } from "lucide-react";
 import { type ReportStatus } from "@/types/domain";
-import { ReportExportModal } from "../reports/ReportExportModal";
+import { ReportExportModal } from "@/components/reports/ReportExportModal";
 import { cn } from "@/lib/utils";
 
 export type MapStatusFilter = "all" | ReportStatus;

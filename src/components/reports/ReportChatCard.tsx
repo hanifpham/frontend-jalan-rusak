@@ -14,7 +14,7 @@ import {
   useReportChat,
   useReplyChat,
   type BackendChatItem,
-} from "../../api/useAdminPemdesData";
+} from "@/features/admin-pemdes/api/useAdminPemdesData";
 
 export interface ReportChatCardProps {
   reportId: number;

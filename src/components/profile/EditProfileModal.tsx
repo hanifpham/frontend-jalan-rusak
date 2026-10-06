@@ -9,6 +9,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { useUpdateProfile } from "@/hooks/useProfile";
+import { AuthorityBadge } from "@/components/ui/AuthorityBadge";
 
 export interface EditProfileModalProps {
   isOpen: boolean;
@@ -18,6 +19,7 @@ export interface EditProfileModalProps {
   email: string;
   wilayahName?: string;
   roleLabel: string;
+  authority?: string;
   onSuccessNotification: (msg: string) => void;
 }
 
@@ -31,6 +33,7 @@ export function EditProfileModal({
   email,
   wilayahName,
   roleLabel,
+  authority,
   onSuccessNotification,
 }: EditProfileModalProps): React.JSX.Element | null {
   const [name, setName] = useState(currentName);
@@ -240,12 +243,17 @@ export function EditProfileModal({
               <label className="block text-xs font-bold text-navy-deepest mb-1">
                 Wilayah Kewenangan
               </label>
-              <div className="px-3 py-2 rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-[#07111F] text-xs text-slate-600 dark:text-[#AFC0D4] flex items-center gap-1.5 truncate">
-                <MapPin
-                  className="w-3.5 h-3.5 text-slate-400 dark:text-[#7F93AA] shrink-0"
-                  aria-hidden="true"
-                />
-                <span className="truncate">{wilayahName || "-"}</span>
+              <div className="px-3 py-2 rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-[#07111F] text-xs text-slate-600 dark:text-[#AFC0D4] flex items-center justify-between gap-2 truncate">
+                <div className="flex items-center gap-1.5 min-w-0 truncate">
+                  <MapPin
+                    className="w-3.5 h-3.5 text-slate-400 dark:text-[#7F93AA] shrink-0"
+                    aria-hidden="true"
+                  />
+                  <span className="truncate">{wilayahName || "-"}</span>
+                </div>
+                {authority && (
+                  <AuthorityBadge authority={authority} size="sm" className="shrink-0" />
+                )}
               </div>
             </div>
           </div>
@@ -284,3 +292,5 @@ export function EditProfileModal({
     </div>
   );
 }
+
+export default EditProfileModal;

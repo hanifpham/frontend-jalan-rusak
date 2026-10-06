@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { getInitials, formatReportId } from "./ConversationItem";
 import { type Report } from "@/types/domain";
+import { AuthorityBadge } from "@/components/ui/AuthorityBadge";
 
 export interface ChatHeaderProps {
   citizenName?: string;
@@ -346,9 +347,7 @@ export function ChatHeader({
               <span className="text-slate-500 dark:text-[#8FA4BA] font-medium shrink-0">
                 Jenis Jalan:
               </span>
-              <span className="font-medium text-navy-deepest text-right">
-                {currentJenisJalan}
-              </span>
+              <AuthorityBadge authority={currentJenisJalan} size="sm" />
             </div>
 
             <div className="flex justify-between items-center gap-2">

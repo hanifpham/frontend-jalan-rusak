@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Calendar, ChevronDown } from "lucide-react";
-import { WilayahChip } from "./WilayahChip";
+import { WilayahChip } from "@/components/ui/WilayahChip";
 
 export interface DashboardHeaderProps {
   userName?: string;

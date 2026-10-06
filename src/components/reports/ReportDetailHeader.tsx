@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import { ArrowLeft, MapPin, AlertTriangle } from "lucide-react";
 import { type ReportStatus, type Severity } from "@/types/domain";
 import { cn } from "@/lib/utils";
-
 import { AuthorityBadge } from "@/components/ui/AuthorityBadge";
 
 export interface ReportDetailHeaderProps {

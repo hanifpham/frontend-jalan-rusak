@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import { type ReportStatus } from "@/types/domain";
 import { useAuth } from "@/features/auth/useAuth";
-import { useUpdateReportStatus } from "../../api/useAdminPemdesData";
+import { useUpdateReportStatus } from "@/features/admin-pemdes/api/useAdminPemdesData";
 import { cn } from "@/lib/utils";
 
 export interface ReportStatusUpdateCardProps {

@@ -11,6 +11,7 @@ import {
   Filter,
 } from "lucide-react";
 import { type Report } from "@/types/domain";
+import { AuthorityBadge } from "@/components/ui/AuthorityBadge";
 
 export interface ReportTableProps {
   reports: Report[];
@@ -26,7 +27,6 @@ export interface ReportTableProps {
   showAuthorityColumn?: boolean;
 }
 
-import { AuthorityBadge } from '@/components/ui/AuthorityBadge';
 export { AuthorityBadge };
 
 /**

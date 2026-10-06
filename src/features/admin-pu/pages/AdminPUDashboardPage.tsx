@@ -5,12 +5,12 @@ import {
   useAdminDashboardStats,
   useAdminLaporan,
 } from "@/features/admin-pemdes/api/useAdminPemdesData";
-import { DashboardHeader } from "@/features/admin-pemdes/components/DashboardHeader";
-import { DashboardStats } from "@/features/admin-pemdes/components/DashboardStats";
-import { ReportTrendCard } from "@/features/admin-pemdes/components/ReportTrendCard";
-import { PriorityReportsCard } from "@/features/admin-pemdes/components/PriorityReportsCard";
-import { RecentReportsCard } from "@/features/admin-pemdes/components/RecentReportsCard";
-import { WilayahChip } from "@/features/admin-pemdes/components/WilayahChip";
+import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
+import { DashboardStats } from "@/components/dashboard/DashboardStats";
+import { ReportTrendCard } from "@/components/dashboard/ReportTrendCard";
+import { PriorityReportsCard } from "@/components/dashboard/PriorityReportsCard";
+import { RecentReportsCard } from "@/components/dashboard/RecentReportsCard";
+import { WilayahChip } from "@/components/ui/WilayahChip";
 
 /**
  * JurisdictionChip

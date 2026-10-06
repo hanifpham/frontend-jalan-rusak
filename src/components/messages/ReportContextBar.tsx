@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { MapPin, Image as ImageIcon } from "lucide-react";
 import { type Report, type Severity } from "@/types/domain";
 import { cn } from "@/lib/utils";
+import { AuthorityBadge } from "@/components/ui/AuthorityBadge";
 
 export interface ReportContextBarProps {
   report?: Report | null;
@@ -125,14 +126,13 @@ export function ReportContextBar({
 
       {/* Right: Authority Scope (Admin Pemdes = Jalan Desa, Admin PU = Jalan Kabupaten) */}
       <div className="text-right shrink-0 hidden sm:block">
-        <span className="text-[10px] text-slate-400 dark:text-[#8FA4BA] block mb-0.5 font-medium">
+        <span className="text-[10px] text-slate-400 dark:text-[#8FA4BA] block mb-1 font-medium">
           Kewenangan:
         </span>
-        <span className="bg-[#EFF4FF] dark:bg-[#5483B3]/20 border border-[#d0e4ff] dark:border-[#5483B3]/40 text-navy-primary dark:text-blue-pale text-[11px] font-semibold px-3 py-1 rounded-full inline-block select-none">
-          {report?.roadAuthority === "kabupaten" || fallbackAuthority === "kabupaten"
-            ? "Jalan Kabupaten (PU)"
-            : "Jalan Desa (Pemdes)"}
-        </span>
+        <AuthorityBadge
+          authority={report?.roadAuthority || fallbackAuthority || "desa"}
+          size="sm"
+        />
       </div>
     </div>
   );

@@ -2,16 +2,16 @@ import React, { useState, useMemo } from "react";
 import { useAuth } from "@/features/auth/useAuth";
 import { useSettings } from "@/hooks/useSettings";
 import { useAdminMapReports } from "../api/useAdminPemdesData";
-import { MapHeader } from "../components/map/MapHeader";
-import { MapScopeChips } from "../components/map/MapScopeChips";
+import { MapHeader } from "@/components/map/MapHeader";
+import { ReportScopeChips } from "@/components/reports/ReportScopeChips";
 import {
   MapFilters,
   type MapStatusFilter,
   type MapSeverityFilter,
   type MapDateFilter,
   type MapSortFilter,
-} from "../components/map/MapFilters";
-import { MapView } from "../components/map/MapView";
+} from "@/components/map/MapFilters";
+import { MapView } from "@/components/map/MapView";
 
 export function AdminPemdesMapPage(): React.JSX.Element {
   const { user } = useAuth();
@@ -111,7 +111,7 @@ export function AdminPemdesMapPage(): React.JSX.Element {
       <MapHeader />
 
       {/* 2. Scope Chips (Lokasi, Wewenang & Counter) */}
-      <MapScopeChips
+      <ReportScopeChips
         villageName={villageName}
         totalReports={totalReportsCount}
         isLoading={isLoading}

@@ -2,17 +2,17 @@ import React, { useState, useMemo } from "react";
 import { useAuth } from "@/features/auth/useAuth";
 import { useSettings } from "@/hooks/useSettings";
 import { useAdminLaporan } from "../api/useAdminPemdesData";
-import { ReportPageHeader } from "../components/reports/ReportPageHeader";
-import { ReportScopeChips } from "../components/reports/ReportScopeChips";
+import { ReportPageHeader } from "@/components/reports/ReportPageHeader";
+import { ReportScopeChips } from "@/components/reports/ReportScopeChips";
 import {
   ReportFilters,
   type StatusFilterValue,
   type SeverityFilterValue,
   type DateFilterValue,
   type SortFilterValue,
-} from "../components/reports/ReportFilters";
-import { ReportTable } from "../components/reports/ReportTable";
-import { ReportPagination } from "../components/reports/ReportPagination";
+} from "@/components/reports/ReportFilters";
+import { ReportTable } from "@/components/reports/ReportTable";
+import { ReportPagination } from "@/components/reports/ReportPagination";
 
 export function AdminPemdesReportsPage(): React.JSX.Element {
   const { user } = useAuth();

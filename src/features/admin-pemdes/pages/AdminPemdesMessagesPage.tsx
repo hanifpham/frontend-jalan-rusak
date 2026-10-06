@@ -6,12 +6,14 @@ import {
   useReplyChat,
   useAdminReportDetail,
 } from "../api/useAdminPemdesData";
-import { MessagesHeader } from "../components/messages/MessagesHeader";
-import { ConversationList } from "../components/messages/ConversationList";
-import { ChatHeader } from "../components/messages/ChatHeader";
-import { ReportContextBar } from "../components/messages/ReportContextBar";
-import { ChatThread } from "../components/messages/ChatThread";
-import { MessageComposer } from "../components/messages/MessageComposer";
+import {
+  MessagesHeader,
+  ConversationList,
+  ChatHeader,
+  ReportContextBar,
+  ChatThread,
+  MessageComposer,
+} from "@/components/messages";
 import { MessageSquare } from "lucide-react";
 
 export function AdminPemdesMessagesPage(): React.JSX.Element {

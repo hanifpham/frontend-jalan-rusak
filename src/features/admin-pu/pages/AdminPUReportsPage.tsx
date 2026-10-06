@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useSettings } from "@/hooks/useSettings";
 import { useAdminLaporan } from "@/features/admin-pemdes/api/useAdminPemdesData";
-import { ReportPageHeader } from "@/features/admin-pemdes/components/reports/ReportPageHeader";
-import { ReportScopeChips } from "@/features/admin-pemdes/components/reports/ReportScopeChips";
+import { ReportPageHeader } from "@/components/reports/ReportPageHeader";
+import { ReportScopeChips } from "@/components/reports/ReportScopeChips";
 import {
   ReportFilters,
   type StatusFilterValue,
@@ -10,9 +10,9 @@ import {
   type SeverityFilterValue,
   type DateFilterValue,
   type SortFilterValue,
-} from "@/features/admin-pemdes/components/reports/ReportFilters";
-import { ReportTable } from "@/features/admin-pemdes/components/reports/ReportTable";
-import { ReportPagination } from "@/features/admin-pemdes/components/reports/ReportPagination";
+} from "@/components/reports/ReportFilters";
+import { ReportTable } from "@/components/reports/ReportTable";
+import { ReportPagination } from "@/components/reports/ReportPagination";
 
 export function AdminPUReportsPage(): React.JSX.Element {
   const { data: settings } = useSettings();

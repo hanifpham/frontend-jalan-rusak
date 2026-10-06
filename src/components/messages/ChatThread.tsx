@@ -8,7 +8,7 @@ import {
   X,
   ImageOff,
 } from "lucide-react";
-import { type BackendChatItem } from "../../api/useAdminPemdesData";
+import { type BackendChatItem } from "@/features/admin-pemdes/api/useAdminPemdesData";
 import { formatMessageTime, formatDateSeparator } from "./chatDateUtils";
 
 export interface ChatThreadProps {

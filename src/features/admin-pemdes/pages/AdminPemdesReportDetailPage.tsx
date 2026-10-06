@@ -4,13 +4,13 @@ import { ArrowLeft, AlertCircle, RefreshCw } from "lucide-react";
 import { useAuth } from "@/features/auth/useAuth";
 import { isForbiddenError } from "@/services/api/errors";
 import { useAdminReportDetail } from "../api/useAdminPemdesData";
-import { ReportDetailHeader } from "../components/reports/ReportDetailHeader";
-import { ReportImageCard } from "../components/reports/ReportImageCard";
-import { ReportDetectionCard } from "../components/reports/ReportDetectionCard";
-import { ReportLocationCard } from "../components/reports/ReportLocationCard";
-import { ReportInformationCard } from "../components/reports/ReportInformationCard";
-import { ReportStatusUpdateCard } from "../components/reports/ReportStatusUpdateCard";
-import { ReportChatCard } from "../components/reports/ReportChatCard";
+import { ReportDetailHeader } from "@/components/reports/ReportDetailHeader";
+import { ReportImageCard } from "@/components/reports/ReportImageCard";
+import { ReportDetectionCard } from "@/components/reports/ReportDetectionCard";
+import { ReportLocationCard } from "@/components/reports/ReportLocationCard";
+import { ReportInformationCard } from "@/components/reports/ReportInformationCard";
+import { ReportStatusUpdateCard } from "@/components/reports/ReportStatusUpdateCard";
+import { ReportChatCard } from "@/components/reports/ReportChatCard";
 
 export function AdminPemdesReportDetailPage(): React.JSX.Element {
   const { id } = useParams<{ id: string }>();

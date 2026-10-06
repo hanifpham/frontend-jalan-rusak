@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from "react";
 import { Search, X, MessageSquare, AlertCircle, RefreshCw } from "lucide-react";
-import { type BackendAdminInboxItem } from "../../api/useAdminPemdesData";
+import { type BackendAdminInboxItem } from "@/features/admin-pemdes/api/useAdminPemdesData";
 import { ConversationItem, formatReportId } from "./ConversationItem";
 
 export interface ConversationListProps {

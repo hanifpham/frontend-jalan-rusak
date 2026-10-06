@@ -2,11 +2,11 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/features/auth/useAuth';
 import { useAdminDashboardStats, useAdminLaporan } from '../api/useAdminPemdesData';
-import { DashboardHeader } from '../components/DashboardHeader';
-import { DashboardStats } from '../components/DashboardStats';
-import { ReportTrendCard } from '../components/ReportTrendCard';
-import { PriorityReportsCard } from '../components/PriorityReportsCard';
-import { RecentReportsCard } from '../components/RecentReportsCard';
+import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
+import { DashboardStats } from '@/components/dashboard/DashboardStats';
+import { ReportTrendCard } from '@/components/dashboard/ReportTrendCard';
+import { PriorityReportsCard } from '@/components/dashboard/PriorityReportsCard';
+import { RecentReportsCard } from '@/components/dashboard/RecentReportsCard';
 
 export function AdminPemdesDashboardPage(): React.JSX.Element {
   const navigate = useNavigate();

@@ -1,6 +1,6 @@
 import React from "react";
 import { Lock } from "lucide-react";
-import { WilayahChip } from "../WilayahChip";
+import { WilayahChip } from "@/components/ui/WilayahChip";
 
 export interface ReportScopeChipsProps {
   villageName?: string;

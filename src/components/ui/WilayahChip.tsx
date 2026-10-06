@@ -55,4 +55,3 @@ export function WilayahChip({
 }
 
 export default WilayahChip;
-

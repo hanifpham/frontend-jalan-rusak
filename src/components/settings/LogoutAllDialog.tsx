@@ -73,3 +73,5 @@ export function LogoutAllDialog({
     </div>
   );
 }
+
+export default LogoutAllDialog;

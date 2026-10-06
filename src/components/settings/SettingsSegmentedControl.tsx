@@ -44,7 +44,7 @@ export function SettingsSegmentedControl<T extends string>({
               'inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all select-none cursor-pointer',
               'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-medium active:scale-95',
               isSelected
-                ? 'bg-navy-primary dark:bg-[#052659] text-white shadow-xs'
+                ? 'bg-navy-primary dark:bg-navy-primary text-white shadow-xs'
                 : 'text-muted dark:text-[#8FA4BA] hover:text-navy-deepest dark:hover:text-white hover:bg-[#EEF5FB]/70 dark:hover:bg-white/5',
               disabled && 'opacity-60 cursor-not-allowed'
             )}
@@ -57,3 +57,5 @@ export function SettingsSegmentedControl<T extends string>({
     </div>
   );
 }
+
+export default SettingsSegmentedControl;

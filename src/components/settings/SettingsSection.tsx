@@ -51,3 +51,5 @@ export function SettingsSection({
     </section>
   );
 }
+
+export default SettingsSection;

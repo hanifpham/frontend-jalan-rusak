@@ -48,3 +48,5 @@ export function SettingsToggle({
     </button>
   );
 }
+
+export default SettingsToggle;

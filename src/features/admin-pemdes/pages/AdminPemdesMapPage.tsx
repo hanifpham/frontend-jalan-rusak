@@ -7,7 +7,6 @@ import { MapScopeChips } from "../components/map/MapScopeChips";
 import {
   MapFilters,
   type MapStatusFilter,
-  type MapAuthorityFilter,
   type MapSeverityFilter,
   type MapDateFilter,
   type MapSortFilter,
@@ -29,7 +28,6 @@ export function AdminPemdesMapPage(): React.JSX.Element {
   // Filter states
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<MapStatusFilter>("all");
-  const [authority, setAuthority] = useState<MapAuthorityFilter>("desa");
   const [severity, setSeverity] = useState<MapSeverityFilter>("all");
   const [dateFilter, setDateFilter] = useState<MapDateFilter>("all");
   const [sortBy, setSortBy] = useState<MapSortFilter>("default");
@@ -100,7 +98,6 @@ export function AdminPemdesMapPage(): React.JSX.Element {
   const handleResetFilters = () => {
     setSearch("");
     setStatus("all");
-    setAuthority("desa");
     setSeverity("all");
     setDateFilter("all");
     setSortBy("default");
@@ -120,15 +117,12 @@ export function AdminPemdesMapPage(): React.JSX.Element {
         isLoading={isLoading}
       />
 
-      {/* 3. Toolbar & Filters (Search, Status, Kewenangan, Keparahan, Tanggal, Urutkan, Reset, Export) */}
+      {/* 3. Toolbar & Filters (Search, Status, Keparahan, Tanggal, Urutkan, Reset, Export - Tanpa filter Kewenangan) */}
       <MapFilters
         search={search}
         onSearchChange={setSearch}
         status={status}
         onStatusChange={setStatus}
-        authority={authority}
-        onAuthorityChange={setAuthority}
-        allowedAuthorities={["desa"]}
         severity={severity}
         onSeverityChange={setSeverity}
         dateFilter={dateFilter}

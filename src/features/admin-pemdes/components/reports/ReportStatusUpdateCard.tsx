@@ -9,6 +9,7 @@ import {
   X,
 } from "lucide-react";
 import { type ReportStatus } from "@/types/domain";
+import { useAuth } from "@/features/auth/useAuth";
 import { useUpdateReportStatus } from "../../api/useAdminPemdesData";
 import { cn } from "@/lib/utils";
 
@@ -25,6 +26,10 @@ export function ReportStatusUpdateCard({
   initialHandlingNote = "",
   existingEvidenceUrl,
 }: ReportStatusUpdateCardProps): React.JSX.Element {
+  const { role } = useAuth();
+  const isPU = role === "admin_pu";
+  const authorityBadgeLabel = isPU ? "Dinas PUPR" : "Admin Pemdes";
+
   const [selectedStatus, setSelectedStatus] =
     useState<ReportStatus>(initialStatus);
   const [catatanAdmin, setCatatanAdmin] = useState(initialHandlingNote);
@@ -34,6 +39,7 @@ export function ReportStatusUpdateCard({
   const [successFeedback, setSuccessFeedback] = useState<string | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const dropzoneMountTimeRef = useRef(Date.now());
   const updateMutation = useUpdateReportStatus();
 
   // Synchronize initial values when report data changes
@@ -41,6 +47,11 @@ export function ReportStatusUpdateCard({
     setSelectedStatus(initialStatus);
     setCatatanAdmin(initialHandlingNote || "");
   }, [initialStatus, initialHandlingNote]);
+
+  // Track mount time of dropzone to prevent ghost clicks from unmounting overlays
+  useEffect(() => {
+    dropzoneMountTimeRef.current = Date.now();
+  }, [previewUrl]);
 
   // Clean up object URL when file changes
   useEffect(() => {
@@ -101,11 +112,26 @@ export function ReportStatusUpdateCard({
     e.stopPropagation();
   };
 
-  const handleRemoveFile = () => {
+  const handleRemoveFile = (e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
     setEvidenceFile(null);
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl);
+      setPreviewUrl(null);
+    }
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
+  };
+
+  const handleDropzoneClick = (e: React.MouseEvent) => {
+    if (e.defaultPrevented) return;
+    // Ignore clicks that fire within 350ms of dropzone mounting to prevent ghost clicks
+    if (Date.now() - dropzoneMountTimeRef.current < 350) return;
+    fileInputRef.current?.click();
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -186,7 +212,7 @@ export function ReportStatusUpdateCard({
           className="inline-flex items-center gap-1 bg-canvas dark:bg-[#12233A] text-navy-primary dark:text-blue-pale border border-blue-pale/40 dark:border-white/10 px-3 py-1 rounded-full text-[11px] font-bold select-none"
           title="Tingkat Otoritas"
         >
-          Admin Pemdes
+          {authorityBadgeLabel}
         </span>
       </div>
 
@@ -305,7 +331,11 @@ export function ReportStatusUpdateCard({
               )}
             </span>
             <span className="text-[11px] font-normal text-muted dark:text-[#8FA4BA]">
-              {selectedStatus === "ditolak" ? "Wajib diisi saat menolak" : "Rencana aksi desa"}
+              {selectedStatus === "ditolak"
+                ? "Wajib diisi saat menolak"
+                : isPU
+                  ? "Rencana tindak lanjut PU"
+                  : "Rencana aksi desa"}
             </span>
           </label>
           <textarea
@@ -316,7 +346,9 @@ export function ReportStatusUpdateCard({
             placeholder={
               selectedStatus === "ditolak"
                 ? "Masukkan alasan penolakan laporan (misal: Laporan tidak valid, duplikat, atau lokasi tidak ditemukan)..."
-                : "Masukkan rencana tindakan (misal: Dijadwalkan pengurukan dan penambalan cold-mix besok pagi oleh Tim Sarpras Pemdes)..."
+                : isPU
+                  ? "Masukkan rencana tindakan (misal: Dijadwalkan survei teknis dan penambalan oleh Tim Bina Marga Dinas PU)..."
+                  : "Masukkan rencana tindakan (misal: Dijadwalkan pengurukan dan penambalan cold-mix besok pagi oleh Tim Sarpras Pemdes)..."
             }
             className="w-full bg-white dark:bg-[#12233A] border border-blue-pale/50 dark:border-white/10 rounded-xl p-3 text-[13px] text-navy-deepest placeholder:text-muted/60 dark:placeholder:text-[#8FA4BA]/60 focus:outline-none focus:border-navy-primary focus:ring-1 focus:ring-navy-primary transition-all resize-y"
           />
@@ -395,6 +427,10 @@ export function ReportStatusUpdateCard({
               </div>
               <button
                 type="button"
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                }}
                 onClick={handleRemoveFile}
                 className="w-8 h-8 rounded-full bg-white dark:bg-[#0D1A2D] hover:bg-red-50 dark:hover:bg-red-950/30 text-muted dark:text-[#8FA4BA] hover:text-severity-berat flex items-center justify-center border border-gray-200 dark:border-white/10 transition-colors shrink-0 cursor-pointer"
                 title="Batalkan foto"
@@ -410,7 +446,7 @@ export function ReportStatusUpdateCard({
             <div
               onDrop={handleDrop}
               onDragOver={handleDragOver}
-              onClick={() => fileInputRef.current?.click()}
+              onClick={handleDropzoneClick}
               className="border-2 border-dashed border-blue-pale/70 dark:border-white/20 hover:border-navy-primary/60 dark:hover:border-white/40 rounded-2xl p-5 flex flex-col items-center justify-center gap-2 bg-canvas/40 dark:bg-[#12233A]/40 hover:bg-canvas dark:hover:bg-[#12233A] transition-colors cursor-pointer text-center select-none"
               role="button"
               tabIndex={0}

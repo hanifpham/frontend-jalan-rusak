@@ -200,7 +200,9 @@ export function ReportDetailHeader({
   roadAuthority,
 }: ReportDetailHeaderProps): React.JSX.Element {
   const displayVillage = villageName
-    ? `Desa ${villageName.replace(/^Desa\s+/i, "")}`
+    ? villageName.toLowerCase().startsWith("kabupaten") || villageName.toLowerCase().startsWith("desa")
+      ? villageName
+      : `Desa ${villageName.replace(/^Desa\s+/i, "")}`
     : "Jalan Desa";
 
   return (

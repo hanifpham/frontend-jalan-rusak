@@ -32,8 +32,13 @@ export function ReportLocationCard({
   const mapInstanceRef = useRef<L.Map | null>(null);
 
   const displayVillage = villageName
-    ? `Desa ${villageName.replace(/^Desa\s+/i, "")}`
+    ? villageName.toLowerCase().startsWith("kabupaten") || villageName.toLowerCase().startsWith("desa")
+      ? villageName
+      : `Desa ${villageName.replace(/^Desa\s+/i, "")}`
     : "Desa Sukamaju";
+  const managingEntity = (roadAuthority || "").toLowerCase().includes("kabupaten")
+    ? "Dinas PU"
+    : "Pemdes";
   const hasCoordinates =
     typeof latitude === "number" &&
     typeof longitude === "number" &&
@@ -232,7 +237,7 @@ export function ReportLocationCard({
             Jenis Jalan
           </span>
           <span className="text-[13px] font-bold text-navy-deepest mt-0.5 truncate">
-            {roadAuthority} (Kewenangan Pemdes)
+            {roadAuthority} (Kewenangan {managingEntity})
           </span>
         </div>
 

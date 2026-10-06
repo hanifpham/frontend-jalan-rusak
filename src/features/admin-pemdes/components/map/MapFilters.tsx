@@ -16,7 +16,12 @@ import { ReportExportModal } from "../reports/ReportExportModal";
 import { cn } from "@/lib/utils";
 
 export type MapStatusFilter = "all" | ReportStatus;
-export type MapAuthorityFilter = "all" | "desa" | "kabupaten" | "provinsi" | "nasional";
+export type MapAuthorityFilter =
+  | "all"
+  | "desa"
+  | "kabupaten"
+  | "provinsi"
+  | "nasional";
 export type MapSeverityFilter = "all" | "ringan" | "sedang" | "berat";
 export type MapDateFilter = "all" | "today" | "this_week" | "this_month";
 export type MapSortFilter = "default" | "title_asc" | "title_desc" | "status";
@@ -37,6 +42,7 @@ export interface MapFiltersProps {
   onSortByChange: (sortBy: MapSortFilter) => void;
   onReset: () => void;
   onExport?: () => void;
+  searchPlaceholder?: string;
 }
 
 export function MapFilters({
@@ -55,6 +61,7 @@ export function MapFilters({
   onSortByChange,
   onReset,
   onExport,
+  searchPlaceholder,
 }: MapFiltersProps): React.JSX.Element {
   const [openDropdown, setOpenDropdown] = useState<
     "status" | "authority" | "severity" | "date" | "sort" | null
@@ -84,7 +91,7 @@ export function MapFilters({
   }, []);
 
   const toggleDropdown = (
-    name: "status" | "authority" | "severity" | "date" | "sort"
+    name: "status" | "authority" | "severity" | "date" | "sort",
   ) => {
     setOpenDropdown((prev) => (prev === name ? null : name));
   };
@@ -147,7 +154,7 @@ export function MapFilters({
       {/* Row 1: Search & Filter Pills */}
       <div className="flex items-center gap-3 flex-wrap">
         {/* Search Input */}
-        <div className="flex-1 min-w-70 relative flex items-center bg-white dark:bg-[#0D1A2D] border border-blue-pale/50 dark:border-[rgba(193,232,255,0.12)] rounded-full px-4 py-2 shadow-xs transition-all focus-within:border-navy-primary focus-within:ring-1 focus-within:ring-navy-primary">
+        <div className="flex-1 min-w-64 sm:min-w-72 relative flex items-center bg-white dark:bg-[#0D1A2D] border border-blue-pale/50 dark:border-white/10 rounded-full px-4 py-2 shadow-xs transition-all focus-within:border-navy-primary focus-within:ring-1 focus-within:ring-navy-primary">
           <Search
             className="w-4 h-4 text-muted dark:text-[#8FA4BA] mr-2 shrink-0"
             aria-hidden="true"
@@ -156,7 +163,10 @@ export function MapFilters({
             type="text"
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
-            placeholder="Cari berdasarkan judul laporan..."
+            placeholder={
+              searchPlaceholder ||
+              "Cari berdasarkan judul, deskripsi, atau pelapor..."
+            }
             className="w-full bg-transparent border-0 p-0 text-[13px] text-navy-deepest dark:text-white placeholder:text-muted/70 dark:placeholder:text-[#8FA4BA] focus:outline-none focus:ring-0"
           />
         </div>
@@ -167,9 +177,9 @@ export function MapFilters({
             type="button"
             onClick={() => toggleDropdown("status")}
             className={cn(
-              "inline-flex items-center gap-2 bg-white dark:bg-[#0D1A2D] hover:bg-canvas dark:hover:bg-white/5 border border-blue-pale/50 dark:border-[rgba(193,232,255,0.12)] px-4 py-2 rounded-full text-[13px] font-medium text-navy-deepest dark:text-white shadow-xs transition-colors cursor-pointer",
+              "inline-flex items-center gap-2 bg-white dark:bg-[#0D1A2D] hover:bg-canvas dark:hover:bg-white/5 border border-blue-pale/50 dark:border-white/10 px-4 py-2 rounded-full text-[13px] font-medium text-navy-deepest dark:text-white shadow-xs transition-colors cursor-pointer",
               openDropdown === "status" &&
-                "ring-2 ring-blue-medium/30 border-blue-medium"
+                "ring-2 ring-blue-medium/30 border-blue-medium",
             )}
             aria-expanded={openDropdown === "status"}
             aria-haspopup="true"
@@ -187,16 +197,22 @@ export function MapFilters({
             <ChevronDown
               className={cn(
                 "w-3.5 h-3.5 text-muted dark:text-[#8FA4BA] transition-transform duration-200",
-                openDropdown === "status" && "rotate-180"
+                openDropdown === "status" && "rotate-180",
               )}
               aria-hidden="true"
             />
           </button>
 
           {openDropdown === "status" && (
-            <div className="absolute left-0 mt-2 w-48 bg-white dark:bg-[#0D1A2D] border border-blue-pale/50 dark:border-[rgba(193,232,255,0.12)] rounded-2xl shadow-xl py-2 z-50 animate-in fade-in zoom-in-95 duration-100">
+            <div className="absolute left-0 mt-2 w-48 bg-white dark:bg-[#0D1A2D] border border-blue-pale/50 dark:border-white/10 rounded-2xl shadow-xl py-2 z-50 animate-in fade-in zoom-in-95 duration-100">
               {(
-                ["all", "menunggu", "proses", "selesai", "ditolak"] as MapStatusFilter[]
+                [
+                  "all",
+                  "menunggu",
+                  "proses",
+                  "selesai",
+                  "ditolak",
+                ] as MapStatusFilter[]
               ).map((val) => (
                 <button
                   key={val}
@@ -209,7 +225,7 @@ export function MapFilters({
                     "w-full text-left px-4 py-2 text-[13px] flex items-center justify-between hover:bg-canvas dark:hover:bg-white/5 transition-colors cursor-pointer",
                     status === val
                       ? "font-bold text-navy-primary dark:text-blue-pale bg-blue-pale/20 dark:bg-[#5483B3]/20"
-                      : "text-navy-deepest dark:text-[#AFC0D4]"
+                      : "text-navy-deepest dark:text-[#AFC0D4]",
                   )}
                 >
                   <span>{statusLabels[val]}</span>
@@ -225,16 +241,16 @@ export function MapFilters({
           )}
         </div>
 
-        {/* 2. Authority / Kewenangan Filter */}
+        {/* 2. Authority / Kewenangan Filter (Hanya tampil jika authority & onAuthorityChange diberikan) */}
         {authority !== undefined && onAuthorityChange !== undefined && (
           <div className="relative">
             <button
               type="button"
               onClick={() => toggleDropdown("authority")}
               className={cn(
-                "inline-flex items-center gap-2 bg-white dark:bg-[#0D1A2D] hover:bg-canvas dark:hover:bg-white/5 border border-blue-pale/50 dark:border-[rgba(193,232,255,0.12)] px-4 py-2 rounded-full text-[13px] font-medium text-navy-deepest dark:text-white shadow-xs transition-colors cursor-pointer",
+                "inline-flex items-center gap-2 bg-white dark:bg-[#0D1A2D] hover:bg-canvas dark:hover:bg-white/5 border border-blue-pale/50 dark:border-white/10 px-4 py-2 rounded-full text-[13px] font-medium text-navy-deepest dark:text-white shadow-xs transition-colors cursor-pointer",
                 openDropdown === "authority" &&
-                  "ring-2 ring-blue-medium/30 border-blue-medium"
+                  "ring-2 ring-blue-medium/30 border-blue-medium",
               )}
               aria-expanded={openDropdown === "authority"}
               aria-haspopup="true"
@@ -252,14 +268,14 @@ export function MapFilters({
               <ChevronDown
                 className={cn(
                   "w-3.5 h-3.5 text-muted dark:text-[#8FA4BA] transition-transform duration-200",
-                  openDropdown === "authority" && "rotate-180"
+                  openDropdown === "authority" && "rotate-180",
                 )}
                 aria-hidden="true"
               />
             </button>
 
             {openDropdown === "authority" && (
-              <div className="absolute left-0 mt-2 w-52 bg-white dark:bg-[#0D1A2D] border border-blue-pale/50 dark:border-[rgba(193,232,255,0.12)] rounded-2xl shadow-xl py-2 z-50 animate-in fade-in zoom-in-95 duration-100">
+              <div className="absolute left-0 mt-2 w-52 bg-white dark:bg-[#0D1A2D] border border-blue-pale/50 dark:border-white/10 rounded-2xl shadow-xl py-2 z-50 animate-in fade-in zoom-in-95 duration-100">
                 {effectiveAuthorities.map((val) => (
                   <button
                     key={val}
@@ -272,7 +288,7 @@ export function MapFilters({
                       "w-full text-left px-4 py-2 text-[13px] flex items-center justify-between hover:bg-canvas dark:hover:bg-white/5 transition-colors cursor-pointer",
                       authority === val
                         ? "font-bold text-navy-primary dark:text-blue-pale bg-blue-pale/20 dark:bg-[#5483B3]/20"
-                        : "text-navy-deepest dark:text-[#AFC0D4]"
+                        : "text-navy-deepest dark:text-[#AFC0D4]",
                     )}
                   >
                     <span>{authorityLabels[val]}</span>
@@ -289,15 +305,15 @@ export function MapFilters({
           </div>
         )}
 
-        {/* 3. Keparahan / Severity Filter (Active normal dropdown) */}
+        {/* 3. Keparahan / Severity Filter */}
         <div className="relative">
           <button
             type="button"
             onClick={() => toggleDropdown("severity")}
             className={cn(
-              "inline-flex items-center gap-2 bg-white dark:bg-[#0D1A2D] hover:bg-canvas dark:hover:bg-white/5 border border-blue-pale/50 dark:border-[rgba(193,232,255,0.12)] px-4 py-2 rounded-full text-[13px] font-medium text-navy-deepest dark:text-white shadow-xs transition-colors cursor-pointer",
+              "inline-flex items-center gap-2 bg-white dark:bg-[#0D1A2D] hover:bg-canvas dark:hover:bg-white/5 border border-blue-pale/50 dark:border-white/10 px-4 py-2 rounded-full text-[13px] font-medium text-navy-deepest dark:text-white shadow-xs transition-colors cursor-pointer",
               openDropdown === "severity" &&
-                "ring-2 ring-blue-medium/30 border-blue-medium"
+                "ring-2 ring-blue-medium/30 border-blue-medium",
             )}
             aria-expanded={openDropdown === "severity"}
             aria-haspopup="true"
@@ -315,14 +331,14 @@ export function MapFilters({
             <ChevronDown
               className={cn(
                 "w-3.5 h-3.5 text-muted dark:text-[#8FA4BA] transition-transform duration-200",
-                openDropdown === "severity" && "rotate-180"
+                openDropdown === "severity" && "rotate-180",
               )}
               aria-hidden="true"
             />
           </button>
 
           {openDropdown === "severity" && (
-            <div className="absolute left-0 mt-2 w-48 bg-white dark:bg-[#0D1A2D] border border-blue-pale/50 dark:border-[rgba(193,232,255,0.12)] rounded-2xl shadow-xl py-2 z-50 animate-in fade-in zoom-in-95 duration-100">
+            <div className="absolute left-0 mt-2 w-48 bg-white dark:bg-[#0D1A2D] border border-blue-pale/50 dark:border-white/10 rounded-2xl shadow-xl py-2 z-50 animate-in fade-in zoom-in-95 duration-100">
               {(
                 ["all", "ringan", "sedang", "berat"] as MapSeverityFilter[]
               ).map((val) => (
@@ -337,7 +353,7 @@ export function MapFilters({
                     "w-full text-left px-4 py-2 text-[13px] flex items-center justify-between hover:bg-canvas dark:hover:bg-white/5 transition-colors cursor-pointer",
                     severity === val
                       ? "font-bold text-navy-primary dark:text-blue-pale bg-blue-pale/20 dark:bg-[#5483B3]/20"
-                      : "text-navy-deepest dark:text-[#AFC0D4]"
+                      : "text-navy-deepest dark:text-[#AFC0D4]",
                   )}
                 >
                   <span>{severityLabels[val]}</span>
@@ -353,15 +369,15 @@ export function MapFilters({
           )}
         </div>
 
-        {/* 4. Tanggal / Date Filter (Active normal dropdown) */}
+        {/* 4. Tanggal / Date Filter */}
         <div className="relative">
           <button
             type="button"
             onClick={() => toggleDropdown("date")}
             className={cn(
-              "inline-flex items-center gap-2 bg-white dark:bg-[#0D1A2D] hover:bg-canvas dark:hover:bg-white/5 border border-blue-pale/50 dark:border-[rgba(193,232,255,0.12)] px-4 py-2 rounded-full text-[13px] font-medium text-navy-deepest dark:text-white shadow-xs transition-colors cursor-pointer",
+              "inline-flex items-center gap-2 bg-white dark:bg-[#0D1A2D] hover:bg-canvas dark:hover:bg-white/5 border border-blue-pale/50 dark:border-white/10 px-4 py-2 rounded-full text-[13px] font-medium text-navy-deepest dark:text-white shadow-xs transition-colors cursor-pointer",
               openDropdown === "date" &&
-                "ring-2 ring-blue-medium/30 border-blue-medium"
+                "ring-2 ring-blue-medium/30 border-blue-medium",
             )}
             aria-expanded={openDropdown === "date"}
             aria-haspopup="true"
@@ -379,14 +395,14 @@ export function MapFilters({
             <ChevronDown
               className={cn(
                 "w-3.5 h-3.5 text-muted dark:text-[#8FA4BA] transition-transform duration-200",
-                openDropdown === "date" && "rotate-180"
+                openDropdown === "date" && "rotate-180",
               )}
               aria-hidden="true"
             />
           </button>
 
           {openDropdown === "date" && (
-            <div className="absolute left-0 mt-2 w-48 bg-white dark:bg-[#0D1A2D] border border-blue-pale/50 dark:border-[rgba(193,232,255,0.12)] rounded-2xl shadow-xl py-2 z-50 animate-in fade-in zoom-in-95 duration-100">
+            <div className="absolute left-0 mt-2 w-48 bg-white dark:bg-[#0D1A2D] border border-blue-pale/50 dark:border-white/10 rounded-2xl shadow-xl py-2 z-50 animate-in fade-in zoom-in-95 duration-100">
               {(
                 ["all", "today", "this_week", "this_month"] as MapDateFilter[]
               ).map((val) => (
@@ -401,7 +417,7 @@ export function MapFilters({
                     "w-full text-left px-4 py-2 text-[13px] flex items-center justify-between hover:bg-canvas dark:hover:bg-white/5 transition-colors cursor-pointer",
                     dateFilter === val
                       ? "font-bold text-navy-primary dark:text-blue-pale bg-blue-pale/20 dark:bg-[#5483B3]/20"
-                      : "text-navy-deepest dark:text-[#AFC0D4]"
+                      : "text-navy-deepest dark:text-[#AFC0D4]",
                   )}
                 >
                   <span>{dateLabels[val]}</span>
@@ -427,9 +443,9 @@ export function MapFilters({
               type="button"
               onClick={() => toggleDropdown("sort")}
               className={cn(
-                "inline-flex items-center gap-2 bg-white dark:bg-[#0D1A2D] hover:bg-canvas dark:hover:bg-white/5 border border-blue-pale/50 dark:border-[rgba(193,232,255,0.12)] px-4 py-2 rounded-full text-[13px] font-medium text-navy-deepest dark:text-white shadow-xs transition-colors cursor-pointer",
+                "inline-flex items-center gap-2 bg-white dark:bg-[#0D1A2D] hover:bg-canvas dark:hover:bg-white/5 border border-blue-pale/50 dark:border-white/10 px-4 py-2 rounded-full text-[13px] font-medium text-navy-deepest dark:text-white shadow-xs transition-colors cursor-pointer",
                 openDropdown === "sort" &&
-                  "ring-2 ring-blue-medium/30 border-blue-medium"
+                  "ring-2 ring-blue-medium/30 border-blue-medium",
               )}
               aria-expanded={openDropdown === "sort"}
               aria-haspopup="true"
@@ -441,20 +457,20 @@ export function MapFilters({
               <span>
                 Urutkan:{" "}
                 <b className="font-semibold text-navy-deepest dark:text-blue-pale">
-                  {sortLabels[sortBy]}
+                  {sortLabels[sortBy] || sortBy}
                 </b>
               </span>
               <ChevronDown
                 className={cn(
                   "w-3.5 h-3.5 text-muted dark:text-[#8FA4BA] transition-transform duration-200",
-                  openDropdown === "sort" && "rotate-180"
+                  openDropdown === "sort" && "rotate-180",
                 )}
                 aria-hidden="true"
               />
             </button>
 
             {openDropdown === "sort" && (
-              <div className="absolute left-0 mt-2 w-52 bg-white dark:bg-[#0D1A2D] border border-blue-pale/50 dark:border-[rgba(193,232,255,0.12)] rounded-2xl shadow-xl py-2 z-50 animate-in fade-in zoom-in-95 duration-100">
+              <div className="absolute left-0 mt-2 w-52 bg-white dark:bg-[#0D1A2D] border border-blue-pale/50 dark:border-white/10 rounded-2xl shadow-xl py-2 z-50 animate-in fade-in zoom-in-95 duration-100">
                 {(
                   [
                     "default",
@@ -474,7 +490,7 @@ export function MapFilters({
                       "w-full text-left px-4 py-2 text-[13px] flex items-center justify-between hover:bg-canvas dark:hover:bg-white/5 transition-colors cursor-pointer",
                       sortBy === val
                         ? "font-bold text-navy-primary dark:text-blue-pale bg-blue-pale/20 dark:bg-[#5483B3]/20"
-                        : "text-navy-deepest dark:text-[#AFC0D4]"
+                        : "text-navy-deepest dark:text-[#AFC0D4]",
                     )}
                   >
                     <span>{sortLabels[val]}</span>
@@ -494,23 +510,23 @@ export function MapFilters({
           <button
             type="button"
             onClick={onReset}
-            className="inline-flex items-center gap-2 bg-white dark:bg-[#0D1A2D] hover:bg-canvas dark:hover:bg-white/5 border border-blue-pale/50 dark:border-[rgba(193,232,255,0.12)] px-4 py-2 rounded-full text-[13px] font-medium text-navy-deepest dark:text-white shadow-xs transition-colors cursor-pointer active:scale-95"
+            className="inline-flex items-center gap-2 bg-white dark:bg-[#0D1A2D] hover:bg-canvas dark:hover:bg-white/5 border border-blue-pale/50 dark:border-white/10 px-4 py-2 rounded-full text-[13px] font-medium text-navy-deepest dark:text-white shadow-xs transition-colors cursor-pointer active:scale-95"
             title="Reset semua filter pencarian, status, kewenangan, keparahan, dan tanggal"
           >
             <RotateCcw
-              className="w-4 h-4 text-navy-deepest dark:text-white shrink-0"
+              className="w-4 h-4 text-muted dark:text-[#8FA4BA] shrink-0"
               aria-hidden="true"
             />
             <span>Reset Filter</span>
           </button>
         </div>
 
-        {/* Export Button (Active control matching filter styles) */}
+        {/* Export Button (Matching design screenshot) */}
         <div className="flex items-center">
           <button
             type="button"
             onClick={handleExportClick}
-            className="inline-flex items-center gap-2 bg-white dark:bg-[#0D1A2D] hover:bg-canvas dark:hover:bg-white/5 border border-blue-pale/50 dark:border-[rgba(193,232,255,0.12)] px-4 py-2 rounded-full text-[13px] font-medium text-navy-deepest dark:text-white shadow-xs transition-colors cursor-pointer active:scale-95"
+            className="inline-flex items-center gap-2 bg-white dark:bg-[#0D1A2D] hover:bg-canvas dark:hover:bg-white/5 border border-blue-pale/50 dark:border-white/10 px-4 py-2 rounded-full text-[13px] font-medium text-navy-deepest dark:text-white shadow-xs transition-colors cursor-pointer active:scale-95"
             title="Ekspor dokumen laporan titik peta"
           >
             <Download

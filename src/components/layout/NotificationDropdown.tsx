@@ -76,24 +76,41 @@ export function NotificationDropdown({
     onClose();
 
     // 2. Role-aware navigation:
-    // When message/chat notification is clicked -> /pu/pesan or /pemdes/pesan
     if (isMessageNotification(item.judul, item.pesan)) {
-      navigate(role === "admin_pu" ? "/pu/pesan" : "/pemdes/pesan");
+      navigate(
+        role === "admin_pu"
+          ? "/pu/pesan"
+          : role === "admin_pemdes"
+            ? "/pemdes/pesan"
+            : "/messages"
+      );
     } else if (item.laporanId) {
       navigate(
         role === "admin_pu"
           ? `/pu/laporan/${item.laporanId}`
-          : `/pemdes/laporan/${item.laporanId}`
+          : role === "admin_pemdes"
+            ? `/pemdes/laporan/${item.laporanId}`
+            : "/reports"
       );
     } else {
-      navigate(role === "admin_pu" ? "/pu/notifikasi" : "/pemdes/notifikasi");
+      navigate(
+        role === "admin_pu"
+          ? "/pu/notifikasi"
+          : role === "admin_pemdes"
+            ? "/pemdes/notifikasi"
+            : "/notifications"
+      );
     }
   };
 
   const handleViewAll = () => {
     onClose();
     const notifPath =
-      role === "admin_pu" ? "/pu/notifikasi" : "/pemdes/notifikasi";
+      role === "admin_pu"
+        ? "/pu/notifikasi"
+        : role === "admin_pemdes"
+          ? "/pemdes/notifikasi"
+          : "/notifications";
     navigate(notifPath);
   };
 
@@ -268,13 +285,17 @@ export function NotificationDropdown({
                           />
                         </>
                       )}
-                      <span className="text-slate-300 dark:text-slate-600">
-                        •
-                      </span>
-                      <AuthorityBadge
-                        authority={role === "admin_pu" ? "kabupaten" : "desa"}
-                        size="sm"
-                      />
+                      {role !== "super_admin" && (
+                        <>
+                          <span className="text-slate-300 dark:text-slate-600">
+                            •
+                          </span>
+                          <AuthorityBadge
+                            authority={role === "admin_pu" ? "kabupaten" : "desa"}
+                            size="sm"
+                          />
+                        </>
+                      )}
                     </div>
                   </div>
                 </button>

@@ -101,15 +101,21 @@ export function TopNavbar({ onMenuToggle }: TopNavbarProps): React.JSX.Element {
   const displayName =
     profile?.name ||
     user?.nama ||
-    (role === "admin_pu" ? "Admin Dinas PU" : "Admin Pemdes");
+    (role === "super_admin"
+      ? "Superadmin"
+      : role === "admin_pu"
+        ? "Admin Dinas PU"
+        : "Admin Pemdes");
   const displayEmail = profile?.email || user?.email || "";
   const displayWilayah = profile?.wilayah?.nama
     ? `Desa ${profile.wilayah.nama}`
-    : role === "admin_pu"
-      ? "Dinas PUPR Kab. Indramayu"
-      : user?.wilayahId === 2
-        ? "Desa Lobener Lor"
-        : "Desa Sukamaju, Kec. Cikedung";
+    : role === "super_admin"
+      ? "Seluruh Wilayah (Pusat Sistem)"
+      : role === "admin_pu"
+        ? "Dinas PUPR Kab. Indramayu"
+        : user?.wilayahId === 2
+          ? "Desa Lobener Lor"
+          : "Desa Sukamaju, Kec. Cikedung";
   const userInitial = displayName ? displayName.charAt(0).toUpperCase() : "A";
 
   // Automatically close dropdowns and search on route changes

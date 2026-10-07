@@ -53,10 +53,12 @@ function HomeRouteDispatcher(): React.JSX.Element {
 function RoleRouteRedirect({
   pemdesPath,
   puPath,
+  superadminPath,
   fallbackPath = '/',
 }: {
   pemdesPath: string;
   puPath: string;
+  superadminPath?: string;
   fallbackPath?: string;
 }): React.JSX.Element {
   const { role } = useAuth();
@@ -67,6 +69,10 @@ function RoleRouteRedirect({
 
   if (role === 'admin_pu') {
     return <Navigate to={puPath} replace />;
+  }
+
+  if (role === 'super_admin' && superadminPath) {
+    return <Navigate to={superadminPath} replace />;
   }
 
   return <Navigate to={fallbackPath} replace />;

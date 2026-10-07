@@ -174,12 +174,17 @@ export function getDefaultLandingRoute(role: Role | undefined | null): string {
 export function isPathAllowedForRole(path: string, role: Role | undefined | null): boolean {
   if (!role) return false;
   if (role === 'admin_pu') {
-    if (path.startsWith('/pemdes')) return false;
+    if (path.startsWith('/pemdes') || path.startsWith('/superadmin')) return false;
     return true;
   }
   if (role === 'admin_pemdes') {
-    if (path.startsWith('/pu')) return false;
+    if (path.startsWith('/pu') || path.startsWith('/superadmin')) return false;
+    return true;
+  }
+  if (role === 'super_admin') {
+    if (path.startsWith('/pemdes') || path.startsWith('/pu')) return false;
     return true;
   }
   return true;
 }
+

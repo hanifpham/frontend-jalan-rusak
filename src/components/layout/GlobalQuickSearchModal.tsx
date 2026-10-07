@@ -8,6 +8,8 @@ import {
   MapPin,
   MessageSquare,
   Settings,
+  Users,
+  Layers,
   ChevronRight,
   Loader2,
   AlertCircle,
@@ -234,6 +236,8 @@ export function GlobalQuickSearchModal({
       if (item.iconName === "ClipboardList") IconComponent = FileText;
       if (item.iconName === "MapPin") IconComponent = MapPin;
       if (item.iconName === "MessageSquare") IconComponent = MessageSquare;
+      if (item.iconName === "Users") IconComponent = Users;
+      if (item.iconName === "Layers") IconComponent = Layers;
 
       return {
         id: `nav-${item.label}`,
@@ -329,11 +333,15 @@ export function GlobalQuickSearchModal({
 
   const handleSelectReport = (reportId: number) => {
     onClose();
-    const targetPath =
-      role === "admin_pu"
-        ? `/pu/laporan/${reportId}`
-        : `/pemdes/laporan/${reportId}`;
-    navigate(targetPath);
+    if (role === "admin_pu") {
+      navigate(`/pu/laporan/${reportId}`);
+    } else if (role === "admin_pemdes") {
+      navigate(`/pemdes/laporan/${reportId}`);
+    } else {
+      // Superadmin report detail page will be implemented in upcoming phase
+      // Prevent unauthorized leak into /pemdes/laporan/:id
+      navigate("/reports");
+    }
   };
 
   const handleSelectItem = (item: SearchItem) => {

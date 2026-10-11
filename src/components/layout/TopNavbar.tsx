@@ -413,7 +413,9 @@ export function TopNavbar({ onMenuToggle }: TopNavbarProps): React.JSX.Element {
                       ? "/pu/profil"
                       : role === "admin_pemdes"
                         ? "/pemdes/profil"
-                        : "/profile"
+                        : role === "super_admin"
+                          ? "/superadmin/profil"
+                          : "/profile"
                   }
                   onClick={() => setProfileMenuOpen(false)}
                   className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium text-navy-deepest hover:bg-canvas dark:hover:bg-white/5 hover:text-navy-primary dark:hover:text-white transition-colors cursor-pointer group"
@@ -438,7 +440,9 @@ export function TopNavbar({ onMenuToggle }: TopNavbarProps): React.JSX.Element {
                       ? "/pu/pengaturan"
                       : role === "admin_pemdes"
                         ? "/pemdes/pengaturan"
-                        : "/settings"
+                        : role === "super_admin"
+                          ? "/superadmin/pengaturan"
+                          : "/settings"
                   }
                   onClick={() => setProfileMenuOpen(false)}
                   className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium text-navy-deepest hover:bg-canvas dark:hover:bg-white/5 hover:text-navy-primary dark:hover:text-white transition-colors cursor-pointer group"

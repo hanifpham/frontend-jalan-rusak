@@ -22,7 +22,7 @@ import { StatusBadge } from "@/components/ui/Badge";
 
 export interface NotificationItemCardProps {
   item: NotificationItem;
-  scopeAuthority: "kabupaten" | "desa";
+  scopeAuthority?: "kabupaten" | "desa" | "nasional" | string;
   reportsBasePath: string;
   messagesBasePath: string;
   onMarkRead: (id: number) => void;

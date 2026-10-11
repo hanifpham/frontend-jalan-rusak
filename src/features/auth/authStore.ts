@@ -10,7 +10,7 @@
  * Refresh-token mechanisms remain UNKNOWN and are not implemented.
  */
 import { type UserSummary, type Role } from '@/types/domain';
-import { setAuthToken } from '@/services/api/client';
+import { setAuthToken, setUnauthorizedHandler } from '@/services/api/client';
 
 export interface AuthState {
   token: string | null;
@@ -124,3 +124,8 @@ export const authStore = {
     notify();
   },
 };
+
+// Automatically invalidate user session when backend reports 401 Unauthorized
+setUnauthorizedHandler(() => {
+  authStore.logout();
+});

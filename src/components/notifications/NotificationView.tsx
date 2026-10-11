@@ -18,10 +18,10 @@ import { NotificationErrorState } from "./NotificationErrorState";
 import { NotificationPagination } from "./NotificationPagination";
 
 export interface NotificationViewProps {
-  role: "admin_pu" | "admin_pemdes";
+  role?: "admin_pu" | "admin_pemdes" | "super_admin";
   title?: string;
   subtitle?: string;
-  scopeAuthority: "kabupaten" | "desa";
+  scopeAuthority?: "kabupaten" | "desa" | "nasional" | string;
   reportsBasePath: string;
   messagesBasePath: string;
 }
@@ -29,7 +29,7 @@ export interface NotificationViewProps {
 export function NotificationView({
   title = "Notifikasi",
   subtitle = "Pantau pembaruan laporan dan komunikasi warga.",
-  scopeAuthority,
+  scopeAuthority = "nasional",
   reportsBasePath,
   messagesBasePath,
 }: NotificationViewProps): React.JSX.Element {

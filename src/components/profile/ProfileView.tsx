@@ -27,7 +27,7 @@ import { DeleteAvatarDialog } from "./DeleteAvatarDialog";
 import { ChangePasswordModal } from "./ChangePasswordModal";
 
 export interface ProfileViewProps {
-  role?: "admin_pemdes" | "admin_pu";
+  role?: "admin_pemdes" | "admin_pu" | "super_admin";
 }
 
 export function ProfileView({ role: propRole }: ProfileViewProps): React.JSX.Element {
@@ -35,7 +35,8 @@ export function ProfileView({ role: propRole }: ProfileViewProps): React.JSX.Ele
   const { user, role: authRole } = useAuth();
   const { data: profile, isLoading, isError, refetch } = useProfile();
 
-  const currentRole = propRole || (authRole === "admin_pu" ? "admin_pu" : "admin_pemdes");
+  const currentRole = propRole || (authRole === "super_admin" ? "super_admin" : authRole === "admin_pu" ? "admin_pu" : "admin_pemdes");
+  const isSuperadmin = currentRole === "super_admin";
   const isPU = currentRole === "admin_pu";
 
   // Modals state
@@ -64,7 +65,7 @@ export function ProfileView({ role: propRole }: ProfileViewProps): React.JSX.Ele
   };
 
   const getInitials = (name?: string): string => {
-    const fallback = isPU ? "PU" : "AP";
+    const fallback = isSuperadmin ? "SA" : isPU ? "PU" : "AP";
     if (!name) return fallback;
     const parts = name.trim().split(/\s+/).filter(Boolean);
     const first = parts[0];
@@ -75,7 +76,7 @@ export function ProfileView({ role: propRole }: ProfileViewProps): React.JSX.Ele
     return name.slice(0, 2).toUpperCase() || fallback;
   };
 
-  const displayName = profile?.name || user?.nama || (isPU ? "Admin Dinas PU" : "Admin Pemdes");
+  const displayName = profile?.name || user?.nama || (isSuperadmin ? "Superadmin" : isPU ? "Admin Dinas PU" : "Admin Pemdes");
   const userInitials = getInitials(displayName);
 
   const pemdesWilayahName = profile?.wilayah?.nama
@@ -86,9 +87,32 @@ export function ProfileView({ role: propRole }: ProfileViewProps): React.JSX.Ele
       ? `Wilayah #${profile.wilayah_id}`
       : "Wilayah Desa";
 
-  const effectiveWilayahName = isPU ? "Kabupaten Indramayu" : pemdesWilayahName;
-  const roleLabel = isPU ? "Admin Dinas PU" : "Admin Pemdes";
-  const breadcrumbRole = isPU ? "Admin Dinas PU" : "Admin Pemdes";
+  const effectiveWilayahName = isSuperadmin ? "Seluruh Wilayah (Pusat Sistem)" : isPU ? "Kabupaten Indramayu" : pemdesWilayahName;
+  const roleLabel = isSuperadmin ? "Superadmin" : isPU ? "Admin Dinas PU" : "Admin Pemdes";
+  const breadcrumbRole = isSuperadmin ? "Superadmin" : isPU ? "Admin Dinas PU" : "Admin Pemdes";
+
+  const superadminCapabilities = [
+    {
+      title: "Manajemen Pengguna & Otoritas",
+      description: "Kelola akun, validasi peran, dan hak akses pengguna seluruh sistem",
+    },
+    {
+      title: "Manajemen Master Wilayah",
+      description: "Kelola data wilayah desa, kabupaten, provinsi, dan nasional",
+    },
+    {
+      title: "Pengawasan Laporan Seluruh Wilayah",
+      description: "Akses komprehensif seluruh laporan kerusakan jalan dan aksi spam",
+    },
+    {
+      title: "Pusat Peta & Visualisasi Spasial",
+      description: "Pemantauan sebaran kondisi jalan seluruh wilayah dan kewenangan",
+    },
+    {
+      title: "Pusat Pesan & Komunikasi Warga",
+      description: "Akses dan tanggapan langsung seluruh percakapan aduan warga",
+    },
+  ];
 
   const puCapabilities = [
     {
@@ -136,7 +160,7 @@ export function ProfileView({ role: propRole }: ProfileViewProps): React.JSX.Ele
     },
   ];
 
-  const capabilities = isPU ? puCapabilities : pemdesCapabilities;
+  const capabilities = isSuperadmin ? superadminCapabilities : isPU ? puCapabilities : pemdesCapabilities;
 
   return (
     <div className="flex flex-col gap-6 max-w-full">
@@ -286,7 +310,7 @@ export function ProfileView({ role: propRole }: ProfileViewProps): React.JSX.Ele
               <div className="mt-2 inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-blue-pale/40 dark:bg-white/10 text-navy-primary dark:text-blue-pale border border-blue-pale/70 dark:border-white/10 shadow-xs">
                 <span
                   className={`w-2 h-2 rounded-full ${
-                    isPU ? "bg-blue-500" : "bg-status-selesai"
+                    isSuperadmin ? "bg-purple-500" : isPU ? "bg-blue-500" : "bg-status-selesai"
                   }`}
                 />
                 <span>{roleLabel}</span>
@@ -295,7 +319,12 @@ export function ProfileView({ role: propRole }: ProfileViewProps): React.JSX.Ele
               {/* Wilayah / Scope & Email Info */}
               <div className="mt-3.5 flex flex-col items-center gap-2 text-xs text-muted dark:text-[#8FA4BA]">
                 <div className="flex items-center justify-center gap-2 font-semibold text-slate-700 dark:text-[#AFC0D4] flex-wrap">
-                  {isPU ? (
+                  {isSuperadmin ? (
+                    <WilayahChip
+                      locationLabel="Seluruh Wilayah (Pusat)"
+                      className="px-3 py-1 text-xs font-semibold"
+                    />
+                  ) : isPU ? (
                     <WilayahChip
                       locationLabel="Kabupaten Indramayu"
                       className="px-3 py-1 text-xs font-semibold"
@@ -306,7 +335,7 @@ export function ProfileView({ role: propRole }: ProfileViewProps): React.JSX.Ele
                       className="px-3 py-1 text-xs font-semibold"
                     />
                   )}
-                  <AuthorityBadge authority={isPU ? "kabupaten" : "desa"} size="sm" />
+                  <AuthorityBadge authority={isSuperadmin ? "nasional" : isPU ? "kabupaten" : "desa"} size="sm" />
                 </div>
                 <p className="truncate max-w-60 text-muted dark:text-[#8FA4BA] text-[11px] mt-0.5">
                   {profile.email}
@@ -500,7 +529,7 @@ export function ProfileView({ role: propRole }: ProfileViewProps): React.JSX.Ele
                   </div>
                   <div className="flex items-center gap-2 font-bold text-navy-deepest text-sm flex-wrap">
                     <span>{effectiveWilayahName}</span>
-                    <AuthorityBadge authority={isPU ? "kabupaten" : "desa"} size="sm" />
+                    <AuthorityBadge authority={isSuperadmin ? "nasional" : isPU ? "kabupaten" : "desa"} size="sm" />
                   </div>
                 </div>
               </div>
@@ -512,9 +541,11 @@ export function ProfileView({ role: propRole }: ProfileViewProps): React.JSX.Ele
                   aria-hidden="true"
                 />
                 <p className="leading-relaxed">
-                  {isPU
-                    ? "Alamat email, peran, dan wilayah kewenangan dikelola langsung oleh sistem ROADIS. Jika terdapat pembaruan data instansi dinas, hubungi Administrator Sistem."
-                    : "Alamat email, peran, dan wilayah penugasan dikelola langsung oleh sistem ROADIS. Jika terdapat perubahan wilayah dinas, hubungi Administrator Kabupaten."}
+                  {isSuperadmin
+                    ? "Akun Superadmin memiliki kewenangan tertinggi tingkat pusat dalam administrasi pengguna, wilayah, dan pengawasan operasional sistem."
+                    : isPU
+                      ? "Alamat email, peran, dan wilayah kewenangan dikelola langsung oleh sistem ROADIS. Jika terdapat pembaruan data instansi dinas, hubungi Administrator Sistem."
+                      : "Alamat email, peran, dan wilayah penugasan dikelola langsung oleh sistem ROADIS. Jika terdapat perubahan wilayah dinas, hubungi Administrator Kabupaten."}
                 </p>
               </div>
             </div>
@@ -571,9 +602,11 @@ export function ProfileView({ role: propRole }: ProfileViewProps): React.JSX.Ele
               </div>
 
               <div className="p-3.5 bg-amber-50/70 dark:bg-amber-950/20 border border-amber-200/70 dark:border-amber-500/20 rounded-2xl text-[11px] text-amber-900 dark:text-amber-200 leading-relaxed">
-                {isPU
-                  ? "Gunakan password yang kuat dan jangan bagikan kepada pihak manapun untuk menjaga integritas data infrastruktur jalan kabupaten."
-                  : "Gunakan password yang kuat dan jangan bagikan kepada pihak manapun untuk menjaga integritas data infrastruktur jalan desa."}
+                {isSuperadmin
+                  ? "Akun Superadmin memegang hak akses administratif penuh. Gunakan password yang kuat dan lakukan rotasi berkala."
+                  : isPU
+                    ? "Gunakan password yang kuat dan jangan bagikan kepada pihak manapun untuk menjaga integritas data infrastruktur jalan kabupaten."
+                    : "Gunakan password yang kuat dan jangan bagikan kepada pihak manapun untuk menjaga integritas data infrastruktur jalan desa."}
               </div>
             </div>
           </div>
@@ -591,7 +624,7 @@ export function ProfileView({ role: propRole }: ProfileViewProps): React.JSX.Ele
             email={profile.email}
             wilayahName={effectiveWilayahName}
             roleLabel={roleLabel}
-            authority={isPU ? "kabupaten" : "desa"}
+            authority={isSuperadmin ? "nasional" : isPU ? "kabupaten" : "desa"}
             onSuccessNotification={showToast}
           />
 

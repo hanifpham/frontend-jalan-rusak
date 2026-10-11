@@ -30,6 +30,7 @@ interface BackendLoginPayload {
     role?: Role;
     wilayah_id?: number;
     foto_profil?: string;
+    profil_photo?: string;
   };
   // Flat response variant if returned without nested user object
   id?: number;
@@ -106,7 +107,7 @@ export function LoginPage(): React.JSX.Element {
         email: rawUser.email || email,
         role: rawUser.role || 'admin_pu',
         wilayahId: rawUser.wilayah_id,
-        profilePhoto: response.user?.foto_profil,
+        profilePhoto: response.user?.foto_profil || response.user?.profil_photo,
       };
 
       login(token, user);

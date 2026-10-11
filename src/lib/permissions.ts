@@ -146,6 +146,18 @@ export function getAuthorizedNavigation(role: Role | undefined | null): Navigati
     });
   }
 
+  if (role === 'super_admin') {
+    return items.map((item) => {
+      if (item.label === 'Beranda') return { ...item, path: '/superadmin/beranda' };
+      if (item.label === 'Laporan') return { ...item, path: '/superadmin/laporan' };
+      if (item.label === 'Peta') return { ...item, path: '/superadmin/peta' };
+      if (item.label === 'Pesan') return { ...item, path: '/superadmin/pesan' };
+      if (item.label === 'Manajemen Pengguna') return { ...item, path: '/superadmin/pengguna' };
+      if (item.label === 'Manajemen Wilayah') return { ...item, path: '/superadmin/wilayah' };
+      return item;
+    });
+  }
+
   return items;
 }
 
@@ -159,7 +171,7 @@ export function getDefaultLandingRoute(role: Role | undefined | null): string {
     case 'admin_pemdes':
       return '/pemdes/beranda';
     case 'super_admin':
-      return '/';
+      return '/superadmin/beranda';
     case 'warga':
       return '/';
     default:

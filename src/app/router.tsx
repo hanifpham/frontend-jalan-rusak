@@ -27,10 +27,23 @@ import { AdminPUNotificationsPage } from '@/features/admin-pu/pages/AdminPUNotif
 import { AdminPUProfilePage } from '@/features/admin-pu/pages/AdminPUProfilePage';
 import { AdminPUSettingsPage } from '@/features/admin-pu/pages/AdminPUSettingsPage';
 
+// Superadmin Pages
+import { SuperadminDashboardPage } from '@/features/superadmin/pages/SuperadminDashboardPage';
+import { SuperadminReportsPage } from '@/features/superadmin/pages/SuperadminReportsPage';
+import { SuperadminReportDetailPage } from '@/features/superadmin/pages/SuperadminReportDetailPage';
+import { SuperadminMapPage } from '@/features/superadmin/pages/SuperadminMapPage';
+import { SuperadminMessagesPage } from '@/features/superadmin/pages/SuperadminMessagesPage';
+import { SuperadminUsersPage } from '@/features/superadmin/pages/SuperadminUsersPage';
+import { SuperadminWilayahPage } from '@/features/superadmin/pages/SuperadminWilayahPage';
+import { SuperadminNotificationsPage } from '@/features/superadmin/pages/SuperadminNotificationsPage';
+import { SuperadminProfilePage } from '@/features/superadmin/pages/SuperadminProfilePage';
+import { SuperadminSettingsPage } from '@/features/superadmin/pages/SuperadminSettingsPage';
+
 /**
  * Dispatches the root route ('/') according to user role.
  * - admin_pemdes: navigates to Admin Pemdes Beranda (/pemdes/beranda).
  * - admin_pu: navigates to Admin PU Beranda (/pu/beranda).
+ * - super_admin: navigates to Superadmin Beranda (/superadmin/beranda).
  * - other roles: displays FoundationHome until their specific phases begin.
  */
 function HomeRouteDispatcher(): React.JSX.Element {
@@ -42,6 +55,10 @@ function HomeRouteDispatcher(): React.JSX.Element {
 
   if (role === 'admin_pu') {
     return <Navigate to="/pu/beranda" replace />;
+  }
+
+  if (role === 'super_admin') {
+    return <Navigate to="/superadmin/beranda" replace />;
   }
 
   return <FoundationHome />;
@@ -115,18 +132,34 @@ export function AppRouter(): React.JSX.Element {
               <Route path="/pu/pengaturan" element={<AdminPUSettingsPage />} />
             </Route>
 
+            {/* Explicit Superadmin routes protected with RoleGuard */}
+            <Route element={<RoleGuard allowedRoles={['super_admin']} />}>
+              <Route path="/superadmin/beranda" element={<SuperadminDashboardPage />} />
+              <Route path="/superadmin/laporan" element={<SuperadminReportsPage />} />
+              <Route path="/superadmin/laporan/:id" element={<SuperadminReportDetailPage />} />
+              <Route path="/superadmin/peta" element={<SuperadminMapPage />} />
+              <Route path="/superadmin/pesan" element={<SuperadminMessagesPage />} />
+              <Route path="/superadmin/pengguna" element={<SuperadminUsersPage />} />
+              <Route path="/superadmin/wilayah" element={<SuperadminWilayahPage />} />
+              <Route path="/superadmin/notifikasi" element={<SuperadminNotificationsPage />} />
+              <Route path="/superadmin/profil" element={<SuperadminProfilePage />} />
+              <Route path="/superadmin/pengaturan" element={<SuperadminSettingsPage />} />
+            </Route>
+
             {/* Aliases for general routes to role-appropriate pages */}
-            <Route path="/reports" element={<RoleRouteRedirect pemdesPath="/pemdes/laporan" puPath="/pu/laporan" />} />
-            <Route path="/map" element={<RoleRouteRedirect pemdesPath="/pemdes/peta" puPath="/pu/peta" />} />
-            <Route path="/messages" element={<RoleRouteRedirect pemdesPath="/pemdes/pesan" puPath="/pu/pesan" />} />
-            <Route path="/chat" element={<RoleRouteRedirect pemdesPath="/pemdes/pesan" puPath="/pu/pesan" />} />
-            <Route path="/pesan" element={<RoleRouteRedirect pemdesPath="/pemdes/pesan" puPath="/pu/pesan" />} />
-            <Route path="/notifikasi" element={<RoleRouteRedirect pemdesPath="/pemdes/notifikasi" puPath="/pu/notifikasi" />} />
-            <Route path="/notifications" element={<RoleRouteRedirect pemdesPath="/pemdes/notifikasi" puPath="/pu/notifikasi" />} />
-            <Route path="/profil" element={<RoleRouteRedirect pemdesPath="/pemdes/profil" puPath="/pu/profil" />} />
-            <Route path="/profile" element={<RoleRouteRedirect pemdesPath="/pemdes/profil" puPath="/pu/profil" />} />
-            <Route path="/pengaturan" element={<RoleRouteRedirect pemdesPath="/pemdes/pengaturan" puPath="/pu/pengaturan" />} />
-            <Route path="/settings" element={<RoleRouteRedirect pemdesPath="/pemdes/pengaturan" puPath="/pu/pengaturan" />} />
+            <Route path="/reports" element={<RoleRouteRedirect pemdesPath="/pemdes/laporan" puPath="/pu/laporan" superadminPath="/superadmin/laporan" />} />
+            <Route path="/map" element={<RoleRouteRedirect pemdesPath="/pemdes/peta" puPath="/pu/peta" superadminPath="/superadmin/peta" />} />
+            <Route path="/messages" element={<RoleRouteRedirect pemdesPath="/pemdes/pesan" puPath="/pu/pesan" superadminPath="/superadmin/pesan" />} />
+            <Route path="/chat" element={<RoleRouteRedirect pemdesPath="/pemdes/pesan" puPath="/pu/pesan" superadminPath="/superadmin/pesan" />} />
+            <Route path="/pesan" element={<RoleRouteRedirect pemdesPath="/pemdes/pesan" puPath="/pu/pesan" superadminPath="/superadmin/pesan" />} />
+            <Route path="/users" element={<RoleRouteRedirect pemdesPath="/pemdes/beranda" puPath="/pu/beranda" superadminPath="/superadmin/pengguna" />} />
+            <Route path="/wilayah" element={<RoleRouteRedirect pemdesPath="/pemdes/beranda" puPath="/pu/beranda" superadminPath="/superadmin/wilayah" />} />
+            <Route path="/notifikasi" element={<RoleRouteRedirect pemdesPath="/pemdes/notifikasi" puPath="/pu/notifikasi" superadminPath="/superadmin/notifikasi" />} />
+            <Route path="/notifications" element={<RoleRouteRedirect pemdesPath="/pemdes/notifikasi" puPath="/pu/notifikasi" superadminPath="/superadmin/notifikasi" />} />
+            <Route path="/profil" element={<RoleRouteRedirect pemdesPath="/pemdes/profil" puPath="/pu/profil" superadminPath="/superadmin/profil" />} />
+            <Route path="/profile" element={<RoleRouteRedirect pemdesPath="/pemdes/profil" puPath="/pu/profil" superadminPath="/superadmin/profil" />} />
+            <Route path="/pengaturan" element={<RoleRouteRedirect pemdesPath="/pemdes/pengaturan" puPath="/pu/pengaturan" superadminPath="/superadmin/pengaturan" />} />
+            <Route path="/settings" element={<RoleRouteRedirect pemdesPath="/pemdes/pengaturan" puPath="/pu/pengaturan" superadminPath="/superadmin/pengaturan" />} />
 
             {/* Test 403 route for verifying RoleGuard UX */}
             <Route

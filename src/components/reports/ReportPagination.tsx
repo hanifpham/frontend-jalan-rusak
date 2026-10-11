@@ -7,6 +7,7 @@ export interface ReportPaginationProps {
   totalItems: number;
   pageSize: number;
   onPageChange: (page: number) => void;
+  unitName?: string;
 }
 
 export function ReportPagination({
@@ -14,6 +15,7 @@ export function ReportPagination({
   totalItems,
   pageSize,
   onPageChange,
+  unitName = "laporan",
 }: ReportPaginationProps): React.JSX.Element {
   const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
   const startItem = totalItems === 0 ? 0 : (currentPage - 1) * pageSize + 1;
@@ -45,20 +47,20 @@ export function ReportPagination({
         {totalItems === 0 ? (
           <span>
             Menampilkan{" "}
-            <b className="font-bold text-navy-deepest">0</b>{" "}
-            laporan
+            <b className="font-bold text-navy-deepest dark:text-white">0</b>{" "}
+            {unitName}
           </span>
         ) : (
           <span>
             Menampilkan{" "}
-            <span className="font-bold text-navy-deepest">
+            <span className="font-bold text-navy-deepest dark:text-white">
               {startItem}–{endItem}
             </span>{" "}
             dari{" "}
-            <span className="font-bold text-navy-deepest">
+            <span className="font-bold text-navy-deepest dark:text-white">
               {totalItems}
             </span>{" "}
-            laporan
+            {unitName}
           </span>
         )}
       </div>

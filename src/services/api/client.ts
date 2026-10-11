@@ -7,6 +7,11 @@ export interface RequestOptions extends Omit<RequestInit, 'body'> {
 }
 
 let activeAuthToken: string | null = null;
+let unauthorizedHandler: (() => void) | null = null;
+
+export const setUnauthorizedHandler = (handler: (() => void) | null): void => {
+  unauthorizedHandler = handler;
+};
 
 export const setAuthToken = (token: string | null): void => {
   activeAuthToken = token;
@@ -103,6 +108,9 @@ export async function request<T>(
   }
 
   if (!response.ok) {
+    if (response.status === 401 && !normalizedEndpoint.includes('/login')) {
+      unauthorizedHandler?.();
+    }
     throw normalizeHttpError(response.status, parsedData);
   }
 

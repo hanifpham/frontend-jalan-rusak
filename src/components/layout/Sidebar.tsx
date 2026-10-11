@@ -51,12 +51,16 @@ export function Sidebar({
       ? "/pu/pengaturan"
       : role === "admin_pemdes"
         ? "/pemdes/pengaturan"
-        : "/settings";
+        : role === "super_admin"
+          ? "/superadmin/pengaturan"
+          : "/settings";
   const isSettingsActive =
     location.pathname === "/pemdes/pengaturan" ||
     location.pathname.startsWith("/pemdes/pengaturan/") ||
     location.pathname === "/pu/pengaturan" ||
     location.pathname.startsWith("/pu/pengaturan/") ||
+    location.pathname === "/superadmin/pengaturan" ||
+    location.pathname.startsWith("/superadmin/pengaturan/") ||
     location.pathname === "/settings" ||
     location.pathname === "/pengaturan";
 

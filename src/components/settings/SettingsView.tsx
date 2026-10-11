@@ -62,13 +62,14 @@ const REPORT_DISPLAY_OPTIONS: SegmentedOption<ReportDisplayPreference>[] = [
 ];
 
 export interface SettingsViewProps {
-  role?: 'admin_pemdes' | 'admin_pu';
+  role?: 'admin_pemdes' | 'admin_pu' | 'super_admin';
 }
 
 export function SettingsView({ role: propRole }: SettingsViewProps): React.JSX.Element {
   const navigate = useNavigate();
   const { role: authRole } = useAuth();
-  const currentRole = propRole || (authRole === 'admin_pu' ? 'admin_pu' : 'admin_pemdes');
+  const currentRole = propRole || (authRole === 'super_admin' ? 'super_admin' : authRole === 'admin_pu' ? 'admin_pu' : 'admin_pemdes');
+  const isSuperadmin = currentRole === 'super_admin';
   const isPU = currentRole === 'admin_pu';
 
   const { data: settings, isLoading, isError, refetch } = useSettings();
@@ -318,8 +319,8 @@ export function SettingsView({ role: propRole }: SettingsViewProps): React.JSX.E
       ? 'Tidak Aktif'
       : 'Status Tidak Diketahui';
 
-  const breadcrumbRole = isPU ? 'Admin Dinas PU' : 'Admin Pemdes';
-  const profileLink = isPU ? '/pu/profil' : '/pemdes/profil';
+  const breadcrumbRole = isSuperadmin ? 'Superadmin' : isPU ? 'Admin Dinas PU' : 'Admin Pemdes';
+  const profileLink = isSuperadmin ? '/superadmin/profil' : isPU ? '/pu/profil' : '/pemdes/profil';
 
   return (
     <div className="w-full max-w-5xl mx-auto space-y-6 pb-16 px-4 sm:px-6 lg:px-8">
@@ -339,9 +340,11 @@ export function SettingsView({ role: propRole }: SettingsViewProps): React.JSX.E
           Pengaturan
         </h1>
         <p className="text-xs sm:text-sm text-muted dark:text-[#8FA4BA] leading-relaxed">
-          {isPU
-            ? 'Kelola preferensi antarmuka, notifikasi sistem, tampilan peta, daftar laporan, dan keamanan akun Dinas PU.'
-            : 'Kelola preferensi aplikasi, notifikasi, tampilan, peta, laporan, dan keamanan akun Anda.'}
+          {isSuperadmin
+            ? 'Kelola preferensi antarmuka, notifikasi sistem, tampilan peta, daftar laporan, dan keamanan akun Superadmin.'
+            : isPU
+              ? 'Kelola preferensi antarmuka, notifikasi sistem, tampilan peta, daftar laporan, dan keamanan akun Dinas PU.'
+              : 'Kelola preferensi aplikasi, notifikasi, tampilan, peta, laporan, dan keamanan akun Anda.'}
         </p>
       </header>
 
@@ -660,9 +663,11 @@ export function SettingsView({ role: propRole }: SettingsViewProps): React.JSX.E
           id="section-akun"
           title="Akun"
           description={
-            isPU
-              ? 'Informasi akun dan wilayah kewenangan dinas Anda.'
-              : 'Informasi akun dan wilayah penugasan Anda.'
+            isSuperadmin
+              ? 'Informasi akun dan hak akses administrator utama sistem.'
+              : isPU
+                ? 'Informasi akun dan wilayah kewenangan dinas Anda.'
+                : 'Informasi akun dan wilayah penugasan Anda.'
           }
           icon={User}
           iconBgColor="bg-[#EAF4FB] dark:bg-blue-medium/20"
@@ -688,14 +693,23 @@ export function SettingsView({ role: propRole }: SettingsViewProps): React.JSX.E
 
           {/* Row 2: Wilayah Penugasan / Kewenangan (Read Only) */}
           <SettingsRow
-            title={isPU ? 'Wilayah Kewenangan' : 'Wilayah Penugasan'}
+            title={isSuperadmin ? 'Cakupan Kewenangan' : isPU ? 'Wilayah Kewenangan' : 'Wilayah Penugasan'}
             description={
-              isPU
-                ? 'Cakupan kewenangan operasional dinas tingkat kabupaten.'
-                : 'Cakupan kewenangan operasional akun Anda.'
+              isSuperadmin
+                ? 'Cakupan kewenangan pengawasan infrastruktur seluruh wilayah.'
+                : isPU
+                  ? 'Cakupan kewenangan operasional dinas tingkat kabupaten.'
+                  : 'Cakupan kewenangan operasional akun Anda.'
             }
             control={
-              isPU ? (
+              isSuperadmin ? (
+                <div className="flex items-center gap-2">
+                  <span className="text-xs sm:text-sm font-bold text-navy-deepest">
+                    Seluruh Wilayah (Pusat Sistem)
+                  </span>
+                  <AuthorityBadge authority="nasional" size="sm" />
+                </div>
+              ) : isPU ? (
                 <div className="flex items-center gap-2">
                   <span className="text-xs sm:text-sm font-bold text-navy-deepest">
                     {account?.wilayah?.nama || 'Kabupaten Indramayu'}

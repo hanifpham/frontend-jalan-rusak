@@ -3,7 +3,6 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { LoginPage } from '@/features/auth/LoginPage';
 import { ProtectedRoute } from '@/features/auth/ProtectedRoute';
 import { RoleGuard } from '@/features/auth/RoleGuard';
-import { FoundationHome } from '@/features/auth/FoundationHome';
 import { AppShell } from '@/components/layout/AppShell';
 import { useAuth } from '@/features/auth/useAuth';
 
@@ -61,7 +60,16 @@ function HomeRouteDispatcher(): React.JSX.Element {
     return <Navigate to="/superadmin/beranda" replace />;
   }
 
-  return <FoundationHome />;
+  return (
+    <Navigate
+      to="/login"
+      state={{
+        serverError:
+          'Akses Ditolak: Portal web ini khusus untuk staf administratif (Admin Pemdes, Admin PU, dan Superadmin). Warga / Pelapor silakan gunakan aplikasi mobile ROADIS.',
+      }}
+      replace
+    />
+  );
 }
 
 /**
@@ -71,7 +79,7 @@ function RoleRouteRedirect({
   pemdesPath,
   puPath,
   superadminPath,
-  fallbackPath = '/',
+  fallbackPath = '/login',
 }: {
   pemdesPath: string;
   puPath: string;

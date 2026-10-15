@@ -53,7 +53,7 @@ interface BackendLoginPayload {
 export function LoginPage(): React.JSX.Element {
   const navigate = useNavigate();
   const location = useLocation();
-  const { login, isAuthenticated, role } = useAuth();
+  const { login, logout, isAuthenticated, role } = useAuth();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -61,12 +61,27 @@ export function LoginPage(): React.JSX.Element {
   const [serverError, setServerError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  // If session is already authenticated, redirect directly to role landing page
+  // If redirected with serverError in location state
+  useEffect(() => {
+    const stateError = (location.state as { serverError?: string })?.serverError;
+    if (stateError) {
+      setServerError(stateError);
+    }
+  }, [location.state]);
+
+  // If session is already authenticated, redirect directly to role landing page or reject if warga
   useEffect(() => {
     if (isAuthenticated && role) {
-      navigate(getDefaultLandingRoute(role), { replace: true });
+      if (role === 'warga') {
+        logout();
+        setServerError(
+          'Akses Ditolak: Portal web ini khusus untuk staf administratif (Admin Pemdes, Admin PU, dan Superadmin). Warga / Pelapor silakan gunakan aplikasi mobile ROADIS.'
+        );
+      } else {
+        navigate(getDefaultLandingRoute(role), { replace: true });
+      }
     }
-  }, [isAuthenticated, role, navigate]);
+  }, [isAuthenticated, role, navigate, logout]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -101,11 +116,22 @@ export function LoginPage(): React.JSX.Element {
         throw new Error('Peladen tidak memberikan token otentikasi yang valid.');
       }
 
+      const userRole = rawUser.role || 'warga';
+
+      // Enforce product architecture: Web portal is exclusively for administrative staff
+      if (userRole === 'warga') {
+        setServerError(
+          'Akses Ditolak: Portal web ini khusus untuk staf administratif (Admin Pemdes, Admin PU, dan Superadmin). Untuk Warga / Pelapor, silakan gunakan aplikasi mobile ROADIS untuk layanan pelaporan dan pemantauan perbaikan jalan.'
+        );
+        setIsLoading(false);
+        return;
+      }
+
       const user: UserSummary = {
         id: rawUser.id || 0,
         nama: rawUser.nama || email.split('@')[0] || 'Admin',
         email: rawUser.email || email,
-        role: rawUser.role || 'admin_pu',
+        role: userRole,
         wilayahId: rawUser.wilayah_id,
         profilePhoto: response.user?.foto_profil || response.user?.profil_photo,
       };

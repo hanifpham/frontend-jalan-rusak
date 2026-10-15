@@ -173,9 +173,8 @@ export function getDefaultLandingRoute(role: Role | undefined | null): string {
     case 'super_admin':
       return '/superadmin/beranda';
     case 'warga':
-      return '/';
     default:
-      return '/';
+      return '/login';
   }
 }
 
